@@ -3,7 +3,7 @@
  * Fuente de verdad: HASH Cloud → Google Sheets del usuario.
  */
 
-const HASH_CLOUD_URL = 'https://hash-cloud-production.up.railway.app';
+const HASH_CLOUD_URL = 'https://livre-cloud-production.up.railway.app';
 
 // ── Sesión ─────────────────────────────────────────────────────────────────
 
@@ -74,7 +74,7 @@ async function fetchIdentity() {
 }
 
 function loginWithGoogle() {
-  window.location.href = HASH_CLOUD_URL + '/auth/login?next=livre';
+  window.location.href = HASH_CLOUD_URL + '/auth/login';
 }
 
 function logout() {
