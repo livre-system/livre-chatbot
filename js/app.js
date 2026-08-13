@@ -353,7 +353,7 @@ async function saveMessage(texto, attachedFile) {
   };
   messages = [...messages, tempMsg];
   renderMessages();
-  setSyncStatus('loading', 'HASH está pensando...');
+  setSyncStatus('loading', 'LIVRE está pensando...');
 
   isSending = true;
   try {
@@ -506,7 +506,7 @@ function renderLoginScreen() {
   screen.removeAttribute('hidden');
   const box = document.getElementById('lock-box');
   box.innerHTML =
-    '<img src="images/logo_hash.png" alt="HASH" class="lock-logo">' +
+    '<img src="images/logo_livre.png" alt="LIVRE" class="lock-logo">' +
     '<div class="lock-submit-wrapper"><button id="login-button" class="lock-submit" type="button">Entrar con Google</button></div>';
   document.getElementById('login-button').addEventListener('click', loginWithGoogle);
 }
