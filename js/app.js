@@ -62,16 +62,6 @@ async function apiLogin(username, password) {
   return data.token;
 }
 
-async function apiRegister(username, password, name) {
-  const res = await fetch(HASH_CLOUD_URL + '/auth/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, name }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || 'Error al registrarse');
-  return data.token;
-}
 
 function logout() {
   clearToken();
@@ -496,67 +486,61 @@ function selectFront(chatId) {
 
 // ── Render ─────────────────────────────────────────────────────────────────
 
-function renderLoginScreen(mode = 'login') {
+function renderLoginScreen() {
   document.getElementById('app').setAttribute('hidden', '');
   const screen = document.getElementById('lock-screen');
   screen.removeAttribute('hidden');
-  const box = document.getElementById('lock-box');
 
-  if (mode === 'register') {
-    box.innerHTML =
-      '<img src="images/logo_livre.png" alt="LIVRE" class="lock-logo">' +
-      '<input id="auth-name" class="lock-input" type="text" placeholder="Tu nombre" autocomplete="name">' +
-      '<input id="auth-username" class="lock-input" type="text" placeholder="Usuario" autocomplete="username">' +
-      '<input id="auth-password" class="lock-input" type="password" placeholder="Contraseña" autocomplete="new-password">' +
-      '<p id="auth-error" class="lock-error" hidden></p>' +
-      '<div class="lock-submit-wrapper"><button id="auth-submit" class="lock-submit" type="button">Crear cuenta</button></div>' +
-      '<p class="lock-switch">¿Ya tenés cuenta? <button type="button" class="lock-link" id="auth-switch">Iniciar sesión</button></p>';
-    document.getElementById('auth-switch').addEventListener('click', () => renderLoginScreen('login'));
-    document.getElementById('auth-submit').addEventListener('click', async () => {
-      const name = document.getElementById('auth-name').value.trim();
-      const username = document.getElementById('auth-username').value.trim();
-      const password = document.getElementById('auth-password').value;
-      const errEl = document.getElementById('auth-error');
-      errEl.hidden = true;
-      if (!name || !username || !password) { errEl.textContent = 'Completá todos los campos.'; errEl.hidden = false; return; }
-      try {
-        document.getElementById('auth-submit').disabled = true;
-        const token = await apiRegister(username, password, name);
-        setToken(token);
-        await bootApp();
-      } catch (err) {
-        errEl.textContent = err.message;
-        errEl.hidden = false;
-        document.getElementById('auth-submit').disabled = false;
-      }
-    });
-  } else {
-    box.innerHTML =
-      '<img src="images/logo_livre.png" alt="LIVRE" class="lock-logo">' +
-      '<input id="auth-username" class="lock-input" type="text" placeholder="Usuario" autocomplete="username">' +
-      '<input id="auth-password" class="lock-input" type="password" placeholder="Contraseña" autocomplete="current-password">' +
-      '<p id="auth-error" class="lock-error" hidden></p>' +
-      '<div class="lock-submit-wrapper"><button id="auth-submit" class="lock-submit" type="button">Entrar</button></div>' +
-      '<p class="lock-switch">¿No tenés cuenta? <button type="button" class="lock-link" id="auth-switch">Registrarse</button></p>';
-    document.getElementById('auth-switch').addEventListener('click', () => renderLoginScreen('register'));
-    document.getElementById('auth-submit').addEventListener('click', async () => {
-      const username = document.getElementById('auth-username').value.trim();
-      const password = document.getElementById('auth-password').value;
-      const errEl = document.getElementById('auth-error');
-      errEl.hidden = true;
-      if (!username || !password) { errEl.textContent = 'Completá todos los campos.'; errEl.hidden = false; return; }
-      try {
-        document.getElementById('auth-submit').disabled = true;
-        const token = await apiLogin(username, password);
-        setToken(token);
-        await bootApp();
-      } catch (err) {
-        errEl.textContent = err.message;
-        errEl.hidden = false;
-        document.getElementById('auth-submit').disabled = false;
-      }
-    });
+  // Estilos inline del lock-screen para centrar y cubrir toda la pantalla
+  Object.assign(screen.style, {
+    position: 'fixed', inset: '0', display: 'flex',
+    alignItems: 'center', justifyContent: 'center',
+    background: '#f4f4f4',
+  });
+
+  const box = document.getElementById('lock-box');
+  Object.assign(box.style, {
+    background: '#fff', borderRadius: '16px',
+    padding: '40px 36px', width: '100%', maxWidth: '360px',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px',
+    boxSizing: 'border-box',
+  });
+
+  box.innerHTML =
+    '<img src="images/logo_livre.png" alt="LIVRE" style="height:56px;margin-bottom:8px;">' +
+    '<input id="auth-username" type="text" placeholder="Usuario" autocomplete="username" style="width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:8px;font-size:15px;outline:none;box-sizing:border-box;">' +
+    '<input id="auth-password" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:8px;font-size:15px;outline:none;box-sizing:border-box;">' +
+    '<p id="auth-error" style="color:#e03;font-size:13px;margin:0;display:none;width:100%;"></p>' +
+    '<button id="auth-submit" type="button" style="width:100%;padding:13px;background:#e8154b;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:0.04em;margin-top:4px;">ENTRAR</button>';
+
+  const usernameEl = document.getElementById('auth-username');
+  const passwordEl = document.getElementById('auth-password');
+  const submitBtn  = document.getElementById('auth-submit');
+  const errEl      = document.getElementById('auth-error');
+
+  async function doLogin() {
+    const username = usernameEl.value.trim();
+    const password = passwordEl.value;
+    errEl.style.display = 'none';
+    if (!username || !password) { errEl.textContent = 'Completá todos los campos.'; errEl.style.display = 'block'; return; }
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Entrando...';
+      const token = await apiLogin(username, password);
+      setToken(token);
+      await bootApp();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'ENTRAR';
+    }
   }
+
+  submitBtn.addEventListener('click', doLogin);
+  passwordEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  usernameEl.addEventListener('keydown', e => { if (e.key === 'Enter') passwordEl.focus(); });
 }
 
 function closeSidebar() {
