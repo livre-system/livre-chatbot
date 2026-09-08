@@ -51,22 +51,22 @@ async function fetchIdentity() {
   } catch { return null; }
 }
 
-async function apiLogin(email, password) {
+async function apiLogin(username, password) {
   const res = await fetch(HASH_CLOUD_URL + '/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ username, password }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.detail || 'Credenciales inválidas');
   return data.token;
 }
 
-async function apiRegister(email, password, name) {
+async function apiRegister(username, password, name) {
   const res = await fetch(HASH_CLOUD_URL + '/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, name }),
+    body: JSON.stringify({ username, password, name }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.detail || 'Error al registrarse');
@@ -506,22 +506,22 @@ function renderLoginScreen(mode = 'login') {
     box.innerHTML =
       '<img src="images/logo_livre.png" alt="LIVRE" class="lock-logo">' +
       '<input id="auth-name" class="lock-input" type="text" placeholder="Tu nombre" autocomplete="name">' +
-      '<input id="auth-email" class="lock-input" type="email" placeholder="Email" autocomplete="email">' +
-      '<input id="auth-password" class="lock-input" type="password" placeholder="Contraseña (mín. 8 caracteres)" autocomplete="new-password">' +
+      '<input id="auth-username" class="lock-input" type="text" placeholder="Usuario" autocomplete="username">' +
+      '<input id="auth-password" class="lock-input" type="password" placeholder="Contraseña" autocomplete="new-password">' +
       '<p id="auth-error" class="lock-error" hidden></p>' +
       '<div class="lock-submit-wrapper"><button id="auth-submit" class="lock-submit" type="button">Crear cuenta</button></div>' +
       '<p class="lock-switch">¿Ya tenés cuenta? <button type="button" class="lock-link" id="auth-switch">Iniciar sesión</button></p>';
     document.getElementById('auth-switch').addEventListener('click', () => renderLoginScreen('login'));
     document.getElementById('auth-submit').addEventListener('click', async () => {
       const name = document.getElementById('auth-name').value.trim();
-      const email = document.getElementById('auth-email').value.trim();
+      const username = document.getElementById('auth-username').value.trim();
       const password = document.getElementById('auth-password').value;
       const errEl = document.getElementById('auth-error');
       errEl.hidden = true;
-      if (!name || !email || !password) { errEl.textContent = 'Completá todos los campos.'; errEl.hidden = false; return; }
+      if (!name || !username || !password) { errEl.textContent = 'Completá todos los campos.'; errEl.hidden = false; return; }
       try {
         document.getElementById('auth-submit').disabled = true;
-        const token = await apiRegister(email, password, name);
+        const token = await apiRegister(username, password, name);
         setToken(token);
         await bootApp();
       } catch (err) {
@@ -533,21 +533,21 @@ function renderLoginScreen(mode = 'login') {
   } else {
     box.innerHTML =
       '<img src="images/logo_livre.png" alt="LIVRE" class="lock-logo">' +
-      '<input id="auth-email" class="lock-input" type="email" placeholder="Email" autocomplete="email">' +
+      '<input id="auth-username" class="lock-input" type="text" placeholder="Usuario" autocomplete="username">' +
       '<input id="auth-password" class="lock-input" type="password" placeholder="Contraseña" autocomplete="current-password">' +
       '<p id="auth-error" class="lock-error" hidden></p>' +
       '<div class="lock-submit-wrapper"><button id="auth-submit" class="lock-submit" type="button">Entrar</button></div>' +
       '<p class="lock-switch">¿No tenés cuenta? <button type="button" class="lock-link" id="auth-switch">Registrarse</button></p>';
     document.getElementById('auth-switch').addEventListener('click', () => renderLoginScreen('register'));
     document.getElementById('auth-submit').addEventListener('click', async () => {
-      const email = document.getElementById('auth-email').value.trim();
+      const username = document.getElementById('auth-username').value.trim();
       const password = document.getElementById('auth-password').value;
       const errEl = document.getElementById('auth-error');
       errEl.hidden = true;
-      if (!email || !password) { errEl.textContent = 'Completá todos los campos.'; errEl.hidden = false; return; }
+      if (!username || !password) { errEl.textContent = 'Completá todos los campos.'; errEl.hidden = false; return; }
       try {
         document.getElementById('auth-submit').disabled = true;
-        const token = await apiLogin(email, password);
+        const token = await apiLogin(username, password);
         setToken(token);
         await bootApp();
       } catch (err) {
