@@ -39,28 +39,6 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000);
 
-async function handleAuthCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (!code) return;
-
-  // Limpiar la URL inmediatamente, el código no debe quedar en historial
-  window.history.replaceState({}, '', window.location.pathname);
-
-  try {
-    const res = await fetch(HASH_CLOUD_URL + '/auth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
-    });
-    if (!res.ok) throw new Error('Código inválido o expirado');
-    const data = await res.json();
-    if (data.token) setToken(data.token);
-  } catch (err) {
-    console.error('Error en callback de auth:', err);
-  }
-}
-
 async function fetchIdentity() {
   const token = getToken();
   if (!token) return null;
@@ -73,8 +51,26 @@ async function fetchIdentity() {
   } catch { return null; }
 }
 
-function loginWithGoogle() {
-  window.location.href = HASH_CLOUD_URL + '/auth/login';
+async function apiLogin(email, password) {
+  const res = await fetch(HASH_CLOUD_URL + '/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Credenciales inválidas');
+  return data.token;
+}
+
+async function apiRegister(email, password, name) {
+  const res = await fetch(HASH_CLOUD_URL + '/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, name }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Error al registrarse');
+  return data.token;
 }
 
 function logout() {
@@ -500,15 +496,67 @@ function selectFront(chatId) {
 
 // ── Render ─────────────────────────────────────────────────────────────────
 
-function renderLoginScreen() {
+function renderLoginScreen(mode = 'login') {
   document.getElementById('app').setAttribute('hidden', '');
   const screen = document.getElementById('lock-screen');
   screen.removeAttribute('hidden');
   const box = document.getElementById('lock-box');
-  box.innerHTML =
-    '<img src="images/logo_livre.png" alt="LIVRE" class="lock-logo">' +
-    '<div class="lock-submit-wrapper"><button id="login-button" class="lock-submit" type="button">Entrar con Google</button></div>';
-  document.getElementById('login-button').addEventListener('click', loginWithGoogle);
+
+  if (mode === 'register') {
+    box.innerHTML =
+      '<img src="images/logo_livre.png" alt="LIVRE" class="lock-logo">' +
+      '<input id="auth-name" class="lock-input" type="text" placeholder="Tu nombre" autocomplete="name">' +
+      '<input id="auth-email" class="lock-input" type="email" placeholder="Email" autocomplete="email">' +
+      '<input id="auth-password" class="lock-input" type="password" placeholder="Contraseña (mín. 8 caracteres)" autocomplete="new-password">' +
+      '<p id="auth-error" class="lock-error" hidden></p>' +
+      '<div class="lock-submit-wrapper"><button id="auth-submit" class="lock-submit" type="button">Crear cuenta</button></div>' +
+      '<p class="lock-switch">¿Ya tenés cuenta? <button type="button" class="lock-link" id="auth-switch">Iniciar sesión</button></p>';
+    document.getElementById('auth-switch').addEventListener('click', () => renderLoginScreen('login'));
+    document.getElementById('auth-submit').addEventListener('click', async () => {
+      const name = document.getElementById('auth-name').value.trim();
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const errEl = document.getElementById('auth-error');
+      errEl.hidden = true;
+      if (!name || !email || !password) { errEl.textContent = 'Completá todos los campos.'; errEl.hidden = false; return; }
+      try {
+        document.getElementById('auth-submit').disabled = true;
+        const token = await apiRegister(email, password, name);
+        setToken(token);
+        await bootApp();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+        document.getElementById('auth-submit').disabled = false;
+      }
+    });
+  } else {
+    box.innerHTML =
+      '<img src="images/logo_livre.png" alt="LIVRE" class="lock-logo">' +
+      '<input id="auth-email" class="lock-input" type="email" placeholder="Email" autocomplete="email">' +
+      '<input id="auth-password" class="lock-input" type="password" placeholder="Contraseña" autocomplete="current-password">' +
+      '<p id="auth-error" class="lock-error" hidden></p>' +
+      '<div class="lock-submit-wrapper"><button id="auth-submit" class="lock-submit" type="button">Entrar</button></div>' +
+      '<p class="lock-switch">¿No tenés cuenta? <button type="button" class="lock-link" id="auth-switch">Registrarse</button></p>';
+    document.getElementById('auth-switch').addEventListener('click', () => renderLoginScreen('register'));
+    document.getElementById('auth-submit').addEventListener('click', async () => {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const errEl = document.getElementById('auth-error');
+      errEl.hidden = true;
+      if (!email || !password) { errEl.textContent = 'Completá todos los campos.'; errEl.hidden = false; return; }
+      try {
+        document.getElementById('auth-submit').disabled = true;
+        const token = await apiLogin(email, password);
+        setToken(token);
+        await bootApp();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+        document.getElementById('auth-submit').disabled = false;
+      }
+    });
+  }
 }
 
 function closeSidebar() {
@@ -1278,8 +1326,7 @@ function initApp() {
 
 // ── Auth ───────────────────────────────────────────────────────────────────
 
-async function checkAuth() {
-  await handleAuthCallback();
+async function bootApp() {
   const identity = await fetchIdentity();
   if (!identity) {
     clearToken();
@@ -1289,6 +1336,10 @@ async function checkAuth() {
   document.getElementById('lock-screen').setAttribute('hidden', '');
   document.getElementById('app').removeAttribute('hidden');
   initApp();
+}
+
+async function checkAuth() {
+  await bootApp();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
