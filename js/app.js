@@ -1045,7 +1045,6 @@ function showCryptoModal() {
   }
 }
 function initApp() {
-  loadFronts().catch(err => console.warn('Carga de chats falló:', err));
   initMessageActions();
   initVoiceChat();
 
@@ -1338,6 +1337,7 @@ async function bootApp() {
   } catch (err) {
     console.error('Error en initApp:', err);
   }
+  void loadFronts().catch(err => console.warn('Carga secundaria (chats) falló:', err));
 }
 
 async function checkAuth() {
