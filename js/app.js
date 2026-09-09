@@ -1330,6 +1330,8 @@ async function bootApp() {
   document.getElementById('lock-screen').setAttribute('hidden', '');
   document.getElementById('app').removeAttribute('hidden');
   initApp();
+  // Carga secundaria: intentar obtener chats sin bloquear, manejar error silenciosamente
+  loadFronts().catch(err => console.warn('Carga secundaria (chats) falló:', err));
 }
 
 async function checkAuth() {
