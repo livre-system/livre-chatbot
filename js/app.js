@@ -1330,7 +1330,9 @@ async function bootApp() {
     renderLoginScreen();
     return;
   }
-  document.getElementById('lock-screen').setAttribute('hidden', '');
+  const lockScreen = document.getElementById('lock-screen');
+  lockScreen.setAttribute('hidden', '');
+  lockScreen.style.removeProperty('display');
   document.getElementById('app').removeAttribute('hidden');
   try {
     initApp();
