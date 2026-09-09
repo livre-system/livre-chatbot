@@ -52,14 +52,24 @@ async function fetchIdentity() {
 }
 
 async function apiLogin(username, password) {
-  const res = await fetch(HASH_CLOUD_URL + '/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || 'Credenciales inválidas');
-  return data.token;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(HASH_CLOUD_URL + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Credenciales inválidas');
+    return data.token;
+  } catch (err) {
+    clearTimeout(id);
+    if (err.name === 'AbortError') throw new Error('El servidor tardó demasiado en responder. Intentá de nuevo.');
+    throw err;
+  }
 }
 
 
