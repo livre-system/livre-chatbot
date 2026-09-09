@@ -537,10 +537,14 @@ function renderLoginScreen() {
     try {
       submitBtn.disabled = true;
       submitBtn.textContent = 'Entrando...';
+      console.log('Login iniciado...');
       const token = await apiLogin(username, password);
+      console.log('Token recibido, bootApp iniciado...');
       setToken(token);
       await bootApp();
+      console.log('bootApp finalizado.');
     } catch (err) {
+      console.error('Error en doLogin:', err);
       errEl.textContent = err.message;
       errEl.style.display = 'block';
       submitBtn.disabled = false;
