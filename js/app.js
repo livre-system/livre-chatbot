@@ -1329,7 +1329,11 @@ async function bootApp() {
   }
   document.getElementById('lock-screen').setAttribute('hidden', '');
   document.getElementById('app').removeAttribute('hidden');
-  initApp();
+  try {
+    initApp();
+  } catch (err) {
+    console.error('Error en initApp:', err);
+  }
 }
 
 async function checkAuth() {
