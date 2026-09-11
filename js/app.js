@@ -121,6 +121,35 @@ function renderCrmTable(data) {
   });
 }
 
+function renderOperationalDashboard(summary, drivers) {
+  const value = (key) => summary[key] ?? '—';
+  const kpis = [
+    ['Viajes realizados', value('travels'), 'operational-kpi--primary'],
+    ['Kilómetros', '—', ''],
+    ['Vehículos operando', value('vehicles'), ''],
+    ['Viajes / vehículo', '—', ''],
+    ['Choferes operando', value('drivers'), ''],
+    ['Viajes / chofer', '—', ''],
+    ['Clientes del día', '—', ''],
+    ['Clientes totales', value('passengers'), ''],
+    ['Distribución por canal', '—', 'operational-kpi--wide'],
+  ];
+  document.getElementById('operational-kpis').innerHTML = kpis.map(([label, amount, modifier]) =>
+    `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong></article>`
+  ).join('');
+
+  const rows = (drivers.items || []).map(item => {
+    const data = item.raw_payload || {};
+    const name = [data.firstName || data.name, data.lastName || data.surname].filter(Boolean).join(' ') || '—';
+    const vehicle = data.vehicle || [data.brand, data.model, data.plate || data.domain].filter(Boolean).join(' ') || '—';
+    const state = data.state || data.status || data.availability || '—';
+    return `<tr><td>${crmEscape(item.magiis_id)}</td><td>${crmEscape(name)}</td><td>${crmEscape(vehicle)}</td><td>${crmEscape(state)}</td><td>—</td></tr>`;
+  }).join('');
+  document.getElementById('operational-drivers').innerHTML = rows
+    ? `<div class="operational-table-scroll"><table><thead><tr><th>ID</th><th>Chofer</th><th>Vehículo</th><th>Estado informado</th><th>Viaje actual</th></tr></thead><tbody>${rows}</tbody></table></div><small>Mostrando ${drivers.items.length} de ${drivers.total}</small>`
+    : '<p class="crm-empty">No hay choferes registrados.</p>';
+}
+
 async function loadCrmData() {
   const status = document.getElementById('crm-status');
   status.textContent = 'Cargando datos...';
@@ -128,14 +157,18 @@ async function loadCrmData() {
     const [summary, data] = await Promise.all([
       apiCrm('summary'),
       (() => {
+        if (crmMode === 'control') return apiCrm('drivers?limit=50');
         const resource = document.getElementById('crm-resource').value;
         const params = new URLSearchParams({ q: document.getElementById('crm-search').value });
         if (resource === 'vehicles') params.set('limit', '200');
         return apiCrm(resource + '?' + params.toString());
       })(),
     ]);
-    renderCrmCards(summary);
-    renderCrmTable(data);
+    if (crmMode === 'control') renderOperationalDashboard(summary, data);
+    else {
+      renderCrmCards(summary);
+      renderCrmTable(data);
+    }
     status.textContent = summary.last_sync ? `Última sincronización: ${new Date(summary.last_sync.finished_at || summary.last_sync.started_at).toLocaleString('es-AR')}` : '';
   } catch (error) {
     status.textContent = 'No se pudieron cargar los datos del CRM.';
@@ -155,7 +188,8 @@ function showCrm(resource) {
   const title = crmMode === 'control' ? ['Control operacional', 'Resumen actualizado de la operación.'] : (titles[resource] || ['Gestión de datos', 'Datos registrados.']);
   document.getElementById('crm-title').textContent = title[0];
   document.getElementById('crm-subtitle').textContent = title[1];
-  document.getElementById('crm-cards').hidden = crmMode !== 'control';
+  document.getElementById('crm-cards').hidden = true;
+  document.getElementById('operational-view').hidden = crmMode !== 'control';
   document.querySelector('.crm-toolbar').hidden = crmMode === 'control';
   document.getElementById('crm-table-wrap').hidden = crmMode === 'control';
   if (resource) document.getElementById('crm-resource').value = resource;

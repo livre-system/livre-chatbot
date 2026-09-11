@@ -71,6 +71,20 @@
           <button type="button" id="crm-refresh">Actualizar</button>
         </div>
         <div id="crm-cards" class="crm-cards"></div>
+        <div id="operational-view" hidden aria-label="Resumen operacional">
+          <div id="operational-kpis" class="operational-kpis"></div>
+          <section class="operational-section">
+            <div class="operational-section-header">
+              <div><h3>Estado de choferes</h3><p>Información disponible en el sistema.</p></div>
+              <span class="operational-pending">Disponibilidad en tiempo real pendiente</span>
+            </div>
+            <div id="operational-drivers" class="operational-drivers"></div>
+          </section>
+          <section class="operational-section operational-map-section">
+            <div class="operational-section-header"><div><h3>Ubicación de vehículos</h3><p>Mapa GPS operacional.</p></div></div>
+            <div class="operational-map-placeholder">La ubicación GPS se habilitará al integrar la petición correspondiente de MAGIIS.</div>
+          </section>
+        </div>
         <div class="crm-toolbar">
           <label id="crm-resource-label" hidden>Recurso <select id="crm-resource"><option value="travels">Viajes</option><option value="passengers">Clientes</option><option value="drivers">Choferes</option><option value="vehicles">Vehículos</option></select></label>
           <input id="crm-search" type="search" placeholder="Buscar en los datos..." autocomplete="off">
