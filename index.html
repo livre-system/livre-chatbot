@@ -44,7 +44,23 @@
         <h2 id="active-front-name" hidden>—</h2>
         <p id="active-front-description" hidden></p>
         <button type="button" id="neural-btn" aria-label="Ver red neural">⬡ Red neural</button>
+        <button type="button" id="crm-btn" aria-label="Abrir CRM">CRM MAGIIS</button>
       </header>
+
+      <section id="crm-dashboard" hidden aria-label="Datos recolectados de MAGIIS">
+        <div class="crm-dashboard-header">
+          <div><h2>CRM MAGIIS</h2><p>Datos recolectados y guardados localmente.</p></div>
+          <button type="button" id="crm-refresh">Actualizar</button>
+        </div>
+        <div id="crm-cards" class="crm-cards"></div>
+        <div class="crm-toolbar">
+          <label>Recurso <select id="crm-resource"><option value="travels">Viajes</option><option value="passengers">Clientes</option><option value="drivers">Choferes</option><option value="vehicles">Vehículos</option></select></label>
+          <input id="crm-search" type="search" placeholder="Buscar en los datos..." autocomplete="off">
+          <button type="button" id="crm-back">Volver al chat</button>
+        </div>
+        <p id="crm-status" aria-live="polite"></p>
+        <div id="crm-table-wrap" class="crm-table-wrap"></div>
+      </section>
 
   <div id="neural-modal" hidden role="dialog" aria-modal="true">
     <div id="neural-modal-box">

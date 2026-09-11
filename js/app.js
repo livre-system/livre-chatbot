@@ -5,6 +5,81 @@
 
 const HASH_CLOUD_URL = 'https://livre-cloud-production.up.railway.app';
 
+async function apiCrm(path) {
+  const token = getToken();
+  const res = await fetch(HASH_CLOUD_URL + '/crm/' + path, {
+    headers: { 'Authorization': 'Bearer ' + token },
+  });
+  if (!res.ok) throw new Error('Error ' + res.status);
+  return await res.json();
+}
+
+const CRM_LABELS = { passengers: 'Clientes', drivers: 'Choferes', vehicles: 'Vehículos', travels: 'Viajes' };
+let crmVisible = false;
+let crmSearchTimer;
+
+function crmValue(value) {
+  if (value === null || value === undefined || value === '') return '—';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
+function crmEscape(value) {
+  return crmValue(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+}
+
+function renderCrmCards(data) {
+  const cards = document.getElementById('crm-cards');
+  cards.innerHTML = Object.entries(CRM_LABELS).map(([key, label]) =>
+    `<article class="crm-card"><strong>${data[key] ?? 0}</strong><span>${label}</span></article>`
+  ).join('');
+}
+
+function renderCrmTable(data) {
+  const wrap = document.getElementById('crm-table-wrap');
+  if (!data.items.length) { wrap.innerHTML = '<p class="crm-empty">No hay resultados.</p>'; return; }
+  const rows = data.items.map(item => {
+    const payload = item.raw_payload || {};
+    const fields = Object.entries(payload).slice(0, 8);
+    return `<tr><td>${crmEscape(item.magiis_id)}</td>${fields.map(([, value]) => `<td title="${crmEscape(value)}">${crmEscape(value).slice(0, 90)}</td>`).join('')}</tr>`;
+  });
+  const headers = Object.keys(data.items[0].raw_payload || {}).slice(0, 8);
+  wrap.innerHTML = `<div class="crm-table-scroll"><table><thead><tr><th>ID</th>${headers.map(h => `<th>${crmEscape(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div><small>Mostrando ${data.items.length} de ${data.total}</small>`;
+}
+
+async function loadCrmData() {
+  const status = document.getElementById('crm-status');
+  status.textContent = 'Cargando...';
+  try {
+    const [summary, data] = await Promise.all([
+      apiCrm('summary'),
+      apiCrm(document.getElementById('crm-resource').value + '?q=' + encodeURIComponent(document.getElementById('crm-search').value)),
+    ]);
+    renderCrmCards(summary);
+    renderCrmTable(data);
+    status.textContent = summary.last_sync ? `Última carga: ${new Date(summary.last_sync.finished_at || summary.last_sync.started_at).toLocaleString('es-AR')}` : '';
+  } catch (error) {
+    status.textContent = 'No se pudieron cargar los datos del CRM.';
+    console.error(error);
+  }
+}
+
+function showCrm() {
+  crmVisible = true;
+  document.getElementById('message-list').hidden = true;
+  document.getElementById('composer').hidden = true;
+  document.getElementById('crm-dashboard').hidden = false;
+  loadCrmData();
+}
+
+function hideCrm() {
+  crmVisible = false;
+  document.getElementById('crm-dashboard').hidden = true;
+  document.getElementById('message-list').hidden = false;
+  document.getElementById('composer').hidden = false;
+}
+
+
 // ── Sesión ─────────────────────────────────────────────────────────────────
 
 const TOKEN_KEY = 'hash_token';
@@ -1349,6 +1424,14 @@ async function checkAuth() {
 document.addEventListener('DOMContentLoaded', () => {
   const savedFont = localStorage.getItem('hash_font_size') || '18';
   document.documentElement.style.setProperty('--font-size-base', savedFont + 'px');
+  document.getElementById('crm-btn').addEventListener('click', showCrm);
+  document.getElementById('crm-back').addEventListener('click', hideCrm);
+  document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
+  document.getElementById('crm-resource').addEventListener('change', loadCrmData);
+  document.getElementById('crm-search').addEventListener('input', () => {
+    clearTimeout(crmSearchTimer);
+    crmSearchTimer = setTimeout(loadCrmData, 350);
+  });
   checkAuth();
 });
 

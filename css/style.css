@@ -2175,3 +2175,28 @@ body {
 /* Neural graph hidden */
 #neural-btn, #neural-modal { display: none !important; }
 
+/* CRM MAGIIS */
+#crm-btn { margin-left: auto; border: 1px solid var(--lime); color: var(--lime); background: transparent; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600; }
+#crm-btn:hover, #crm-refresh:hover, #crm-back:hover { background: var(--lime); color: #111; }
+#crm-dashboard { flex: 1; overflow: auto; padding: 28px clamp(18px, 4vw, 56px); background: var(--black); }
+.crm-dashboard-header, .crm-toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.crm-dashboard-header { justify-content: space-between; margin-bottom: 24px; }
+.crm-dashboard-header h2 { margin: 0; color: var(--text); }
+.crm-dashboard-header p { margin: 4px 0 0; color: var(--text-dim); }
+#crm-refresh, #crm-back { border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+.crm-cards { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.crm-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; background: var(--graphite); display: flex; flex-direction: column; gap: 5px; }
+.crm-card strong { color: var(--lime); font-size: 1.7rem; }
+.crm-card span { color: var(--text-dim); }
+.crm-toolbar { padding: 14px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.crm-toolbar label { color: var(--text-dim); }
+.crm-toolbar select, #crm-search { background: var(--graphite); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; }
+#crm-search { min-width: 220px; flex: 1; }
+#crm-status { color: var(--text-dim); font-size: .85rem; }
+.crm-table-wrap { overflow: hidden; color: var(--text); }
+.crm-table-scroll { overflow-x: auto; }
+.crm-table-wrap table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: .82rem; }
+.crm-table-wrap th, .crm-table-wrap td { border-bottom: 1px solid var(--border); padding: 10px 9px; text-align: left; vertical-align: top; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crm-table-wrap th { color: var(--lime); position: sticky; top: 0; background: var(--black); }
+.crm-table-wrap small, .crm-empty { color: var(--text-dim); }
+@media (max-width: 640px) { .crm-cards { grid-template-columns: repeat(2, 1fr); } #crm-btn { padding: 7px 9px; font-size: .75rem; } }
