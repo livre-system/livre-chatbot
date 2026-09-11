@@ -200,7 +200,7 @@ async function loadCrmData() {
   status.textContent = 'Cargando datos...';
   try {
     const resource = document.getElementById('crm-resource').value;
-    const params = new URLSearchParams({ limit: resource === 'vehicles' ? '200' : '50', offset: String(crmOffset) });
+    const params = new URLSearchParams({ limit: resource === 'vehicles' ? '20' : '50', offset: String(crmOffset) });
     const query = resource === 'travels'
       ? document.getElementById('travel-management-search').value
       : resource === 'vehicles'
@@ -254,6 +254,7 @@ function showCrm(resource) {
   const genericTable = document.getElementById('crm-table-wrap');
   const usesDedicatedView = crmMode === 'resource' && ['travels', 'drivers', 'vehicles'].includes(resource);
   genericTable.hidden = crmMode === 'control' || usesDedicatedView;
+  genericTable.style.display = usesDedicatedView || crmMode === 'control' ? 'none' : '';
   if (usesDedicatedView) genericTable.replaceChildren();
   if (resource) document.getElementById('crm-resource').value = resource;
   document.getElementById('message-list').hidden = true;
