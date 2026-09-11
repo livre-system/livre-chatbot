@@ -469,7 +469,10 @@ body {
 
 /* wrapper: bandeja inline con led sutil */
 #composer[hidden],
-#message-list[hidden] {
+#message-list[hidden],
+.crm-cards[hidden],
+.crm-toolbar[hidden],
+.crm-table-wrap[hidden] {
   display: none !important;
 }
 

@@ -37,6 +37,7 @@ const CRM_FIELD_ORDER = {
 };
 let crmVisible = false;
 let crmSearchTimer;
+let crmMode = 'control';
 
 function crmValue(value, key = '') {
   if (value === null || value === undefined || value === '') return '—';
@@ -144,6 +145,19 @@ async function loadCrmData() {
 
 function showCrm(resource) {
   crmVisible = true;
+  crmMode = resource === 'control' ? 'control' : 'resource';
+  if (resource === 'control') resource = 'travels';
+  const titles = {
+    travels: ['Gestión de viajes', 'Listado y estado de los viajes.'],
+    drivers: ['Choferes', 'Listado de choferes registrados.'],
+    vehicles: ['Vehículos', 'Listado de vehículos registrados.'],
+  };
+  const title = crmMode === 'control' ? ['Control operacional', 'Resumen actualizado de la operación.'] : (titles[resource] || ['Gestión de datos', 'Datos registrados.']);
+  document.getElementById('crm-title').textContent = title[0];
+  document.getElementById('crm-subtitle').textContent = title[1];
+  document.getElementById('crm-cards').hidden = crmMode !== 'control';
+  document.querySelector('.crm-toolbar').hidden = crmMode === 'control';
+  document.getElementById('crm-table-wrap').hidden = crmMode === 'control';
   if (resource) document.getElementById('crm-resource').value = resource;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -1475,7 +1489,7 @@ async function bootApp() {
   try {
     initApp();
     document.querySelectorAll('#main-navigation .main-nav-item').forEach(item => item.classList.toggle('main-nav-item--active', item.dataset.view === 'control'));
-    showCrm('travels');
+    showCrm('control');
   } catch (err) {
     console.error('Error en initApp:', err);
   }
@@ -1495,7 +1509,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.add('main-nav-item--active');
       const view = btn.dataset.view;
       if (view === 'control') {
-        showCrm('travels');
+        showCrm('control');
       } else if (view === 'travels' || view === 'drivers' || view === 'vehicles') {
         showCrm(view);
       } else if (view === 'crear-viaje') {
