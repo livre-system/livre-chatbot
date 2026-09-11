@@ -251,7 +251,10 @@ function showCrm(resource) {
   document.getElementById('vehicle-management-view').hidden = crmMode !== 'resource' || resource !== 'vehicles';
   document.getElementById('operational-view').hidden = crmMode !== 'control';
   document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && (resource === 'travels' || resource === 'vehicles' || resource === 'drivers'));
-  document.getElementById('crm-table-wrap').hidden = crmMode === 'control' || (crmMode === 'resource' && ['travels', 'drivers', 'vehicles'].includes(resource));
+  const genericTable = document.getElementById('crm-table-wrap');
+  const usesDedicatedView = crmMode === 'resource' && ['travels', 'drivers', 'vehicles'].includes(resource);
+  genericTable.hidden = crmMode === 'control' || usesDedicatedView;
+  if (usesDedicatedView) genericTable.replaceChildren();
   if (resource) document.getElementById('crm-resource').value = resource;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
