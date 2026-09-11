@@ -150,6 +150,18 @@ function renderOperationalDashboard(summary, drivers) {
     : '<p class="crm-empty">No hay choferes registrados.</p>';
 }
 
+function renderTravelManagement(data, summary) {
+  const table = document.getElementById('travel-management-table');
+  const pick = (payload, keys) => { for (const key of keys) if (payload[key] !== undefined && payload[key] !== null && payload[key] !== '') return payload[key]; return '—'; };
+  const rows = data.items.map(item => {
+    const p = item.raw_payload || {};
+    const state = pick({ ...p, state: item.state }, ['state', 'status', 'travelStatus']);
+    return `<tr><td>${crmEscape(item.magiis_id)}</td><td>${crmEscape(p.type || p.travelType || '—')}</td><td>${crmEscape(item.travel_date || pick(p, ['date', 'travelDate', 'scheduledAt']))}</td><td>${crmEscape(p.driverName || p.driver || item.driver_magiis_id || '—')}</td><td>${crmEscape(p.passengerName || p.passenger || item.passenger_magiis_id || '—')}</td><td>${crmEscape(p.origin || p.from || '—')}</td><td>${crmEscape(p.destination || p.to || '—')}</td><td>${crmEscape(p.budget || p.price || p.amount || '—')}</td><td>${crmEscape(p.vehicleType || p.vehicle || '—')}</td><td><span class="travel-state">${crmEscape(state)}</span></td><td>${crmEscape(p.tea || '—')}</td><td>${crmEscape(p.distanceToPassenger || '—')}</td><td>${crmEscape(p.queueTime || '—')}</td><td>${crmEscape(p.cancellations || '—')}</td></tr>`;
+  }).join('');
+  table.innerHTML = `<div class="travel-table-scroll"><table><thead><tr><th>Código</th><th>Tipo</th><th>Fecha</th><th>Chofer</th><th>Pasajero</th><th>Origen</th><th>Destino</th><th>Presup.</th><th>Tipo de Vehículo</th><th>Estado</th><th>TEA</th><th>Distancia al Pasajero</th><th>T. en cola</th><th>Canc.-Cand</th></tr></thead><tbody>${rows || '<tr><td colspan="14">No hay viajes registrados.</td></tr>'}</tbody></table></div><div class="travel-table-footer"><span>Total: ${data.total}</span><span>Mostrar <b>20</b> · 1 de 1</span></div>`;
+  const sync = summary.last_sync && (summary.last_sync.finished_at || summary.last_sync.started_at);
+  document.getElementById('travel-management-sync').textContent = sync ? `Última actualización: ${new Date(sync).toLocaleString('es-AR')}` : 'Última actualización: —';
+}
 async function loadCrmData() {
   const status = document.getElementById('crm-status');
   status.textContent = 'Cargando datos...';
@@ -159,12 +171,14 @@ async function loadCrmData() {
       (() => {
         if (crmMode === 'control') return apiCrm('drivers?limit=50');
         const resource = document.getElementById('crm-resource').value;
-        const params = new URLSearchParams({ q: document.getElementById('crm-search').value });
+        const query = resource === 'travels' ? document.getElementById('travel-management-search').value : document.getElementById('crm-search').value;
+        const params = new URLSearchParams({ q: query });
         if (resource === 'vehicles') params.set('limit', '200');
         return apiCrm(resource + '?' + params.toString());
       })(),
     ]);
     if (crmMode === 'control') renderOperationalDashboard(summary, data);
+    else if (document.getElementById('crm-resource').value === 'travels') renderTravelManagement(data, summary);
     else {
       renderCrmCards(summary);
       renderCrmTable(data);
@@ -189,8 +203,9 @@ function showCrm(resource) {
   document.getElementById('crm-title').textContent = title[0];
   document.getElementById('crm-subtitle').textContent = title[1];
   document.getElementById('crm-cards').hidden = true;
+  document.getElementById('travel-management-view').hidden = crmMode !== 'resource' || resource !== 'travels';
   document.getElementById('operational-view').hidden = crmMode !== 'control';
-  document.querySelector('.crm-toolbar').hidden = crmMode === 'control';
+  document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && resource === 'travels');
   document.getElementById('crm-table-wrap').hidden = crmMode === 'control';
   if (resource) document.getElementById('crm-resource').value = resource;
   document.getElementById('message-list').hidden = true;
@@ -1563,6 +1578,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('crm-resource').addEventListener('change', loadCrmData);
   document.getElementById('crm-search').addEventListener('input', () => {
+    clearTimeout(crmSearchTimer);
+    crmSearchTimer = setTimeout(loadCrmData, 350);
+  });
+  document.getElementById('travel-management-search').addEventListener('input', () => {
     clearTimeout(crmSearchTimer);
     crmSearchTimer = setTimeout(loadCrmData, 350);
   });
