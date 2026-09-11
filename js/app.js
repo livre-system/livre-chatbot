@@ -150,6 +150,23 @@ function renderOperationalDashboard(summary, drivers) {
     : '<p class="crm-empty">No hay choferes registrados.</p>';
 }
 
+function renderDriverManagement(data) {
+  const table = document.getElementById('driver-management-table');
+  const rows = data.items.map(item => {
+    const p = item.raw_payload || {};
+    const name = p.name || [p.lastName || p.lastname, p.firstName || p.firstname].filter(Boolean).join(' ') || p.fullName || '—';
+    const phone = p.phone || p.telephone || p.mobile || '—';
+    const email = p.email || '—';
+    const vehicle = p.vehicle || p.vehicleName || p.vehicleDomain || p.plate || '—';
+    const active = p.active ?? p.isActive ?? p.enabled;
+    const rating = p.rating ?? p.score ?? p.qualification;
+    const evaluations = p.evaluations ?? p.ratingsCount ?? p.reviewCount;
+    const vehicleText = typeof vehicle === 'object' ? (vehicle.domain || vehicle.plate || vehicle.name || '—') : vehicle;
+    return `<tr><td>${crmEscape(item.magiis_id)}</td><td>${crmEscape(name)}</td><td><span class="driver-phone"><b>🇦🇷</b>${crmEscape(phone)}</span></td><td>${crmEscape(email)}</td><td class="driver-vehicle">${crmEscape(vehicleText)}</td><td>${crmEscape(p.vehicleType || p.type || 'Livre Taxi')}</td><td><span class="vehicle-active-dot ${active === false ? 'vehicle-inactive' : 'vehicle-active'}">●</span></td><td>${rating == null || rating === '' ? '—' : `${crmEscape(rating)}${evaluations == null ? '' : ` (${crmEscape(evaluations)})`}`}</td><td><button type="button" class="driver-action">◉</button><button type="button" class="driver-action">✎</button><button type="button" class="driver-action">☰</button></td></tr>`;
+  }).join('');
+  table.innerHTML = `<div class="driver-table-scroll"><table><thead><tr><th>Código<br><input data-driver-filter="code" placeholder="⌕"></th><th>Apellido y Nombre<br><input data-driver-filter="name" placeholder="⌕"></th><th>Teléfono<br><input data-driver-filter="phone" placeholder="⌕"></th><th>Email<br><input data-driver-filter="email" placeholder="⌕"></th><th>Vehículo<br><input data-driver-filter="vehicle" placeholder="⌕"></th><th>Tipo de Veh.</th><th>Activo</th><th>Calificación</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No hay choferes registrados.</td></tr>'}</tbody></table></div><div class="driver-table-footer"><span>${data.total} Filas　 <b>10</b>　20　50</span><span>‹　<b>1</b>　2　3　4　5　6　7　8　9　10　❯</span></div>`;
+}
+
 function renderVehicleManagement(data) {
   const table = document.getElementById('vehicle-management-table');
   const rows = data.items.map(item => {
@@ -193,6 +210,7 @@ async function loadCrmData() {
     ]);
     if (crmMode === 'control') renderOperationalDashboard(summary, data);
     else if (document.getElementById('crm-resource').value === 'travels') renderTravelManagement(data, summary);
+    else if (document.getElementById('crm-resource').value === 'drivers') renderDriverManagement(data);
     else if (document.getElementById('crm-resource').value === 'vehicles') renderVehicleManagement(data);
     else {
       renderCrmCards(summary);
@@ -219,9 +237,10 @@ function showCrm(resource) {
   document.getElementById('crm-subtitle').textContent = title[1];
   document.getElementById('crm-cards').hidden = true;
   document.getElementById('travel-management-view').hidden = crmMode !== 'resource' || resource !== 'travels';
+  document.getElementById('driver-management-view').hidden = crmMode !== 'resource' || resource !== 'drivers';
   document.getElementById('vehicle-management-view').hidden = crmMode !== 'resource' || resource !== 'vehicles';
   document.getElementById('operational-view').hidden = crmMode !== 'control';
-  document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && (resource === 'travels' || resource === 'vehicles'));
+  document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && (resource === 'travels' || resource === 'vehicles' || resource === 'drivers'));
   document.getElementById('crm-table-wrap').hidden = crmMode === 'control';
   if (resource) document.getElementById('crm-resource').value = resource;
   document.getElementById('message-list').hidden = true;
