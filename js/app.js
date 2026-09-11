@@ -15,17 +15,47 @@ async function apiCrm(path) {
 }
 
 const CRM_LABELS = { passengers: 'Clientes', drivers: 'Choferes', vehicles: 'Vehículos', travels: 'Viajes' };
+const CRM_FIELD_LABELS = {
+  id: 'ID', magiis_id: 'ID', passengerUserId: 'ID del cliente', driverUserId: 'ID del conductor', vehicleId: 'ID del vehículo', travelId: 'ID del viaje',
+  code: 'Código', dni: 'DNI', firstName: 'Nombre', name: 'Nombre', lastName: 'Apellido', surname: 'Apellido',
+  phone: 'Teléfono', cellphone: 'Celular', email: 'Correo electrónico', city: 'Ciudad', address: 'Domicilio', country: 'País',
+  rate: 'Tarifa', family: 'Familia', paxNote: 'Observaciones', isPaxVip: 'Cliente VIP',
+  state: 'Estado', status: 'Estado', origin: 'Origen', destination: 'Destino', channel: 'Canal', travelDate: 'Fecha del viaje',
+  creationDate: 'Fecha de creación', driverId: 'ID del conductor', passengerId: 'ID del cliente', vehicle: 'Vehículo', vehicleId: 'ID del vehículo',
+  brand: 'Marca', model: 'Modelo', plate: 'Patente', domain: 'Patente', year: 'Año', enabled: 'Habilitado',
+  vehicleOwner: 'Titular', ownerId: 'ID del titular', vehicleType: 'Tipo de vehículo', type: 'Tipo', additionalTypes: 'Tipos adicionales',
+  characteristics: 'Características', documents: 'Documentación', photo: 'Foto', currentBase: 'Base actual',
+};
+const CRM_FIELD_ORDER = {
+  passengers: ['code', 'passengerUserId', 'firstName', 'lastName', 'dni', 'phone', 'email', 'city', 'address', 'rate', 'family', 'paxNote', 'isPaxVip'],
+  drivers: ['driverUserId', 'driverId', 'lastName', 'surname', 'firstName', 'name', 'phone', 'email', 'state'],
+  vehicles: ['vehicleId', 'id', 'brand', 'model', 'plate', 'domain', 'year', 'vehicleType', 'enabled', 'vehicleOwner', 'characteristics', 'documents'],
+};
 let crmVisible = false;
 let crmSearchTimer;
 
-function crmValue(value) {
+function crmValue(value, key = '') {
   if (value === null || value === undefined || value === '') return '—';
-  if (typeof value === 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return value.map(item => crmValue(item, key)).join(', ');
+  if (typeof value === 'object') {
+    const preferred = ['name', 'description', 'label', 'value', 'number', 'plate', 'domain', 'brand', 'model'];
+    const readable = preferred.find(field => value[field] !== null && value[field] !== undefined && value[field] !== '');
+    if (readable) return crmValue(value[readable], readable);
+    return Object.entries(value).map(([field, item]) => `${crmFieldLabel(field)}: ${crmValue(item, field)}`).join(' · ');
+  }
+  if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+  if ((key.toLowerCase().includes('date') || key.toLowerCase().endsWith('at')) && !Number.isNaN(Date.parse(value))) {
+    return new Date(value).toLocaleString('es-AR');
+  }
   return String(value);
 }
 
-function crmEscape(value) {
-  return crmValue(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+function crmFieldLabel(key) {
+  return CRM_FIELD_LABELS[key] || key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, char => char.toUpperCase());
+}
+
+function crmEscape(value, key = '') {
+  return crmValue(value, key).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 }
 
 function renderCrmCards(data) {
@@ -35,21 +65,34 @@ function renderCrmCards(data) {
   ).join('');
 }
 
+function crmColumns(resource, items) {
+  const available = new Set(items.flatMap(item => Object.keys(item.raw_payload || {})));
+  if (resource === 'travels') ['state', 'travelDate', 'passengerId', 'driverId'].forEach(key => available.add(key));
+  const preferred = CRM_FIELD_ORDER[resource] || [];
+  const ordered = [...preferred.filter(key => available.has(key)), ...available].filter((key, index, all) => all.indexOf(key) === index);
+  return ordered.filter(key => !['photo', 'documents', 'additionalTypes'].includes(key) || resource === 'vehicles').slice(0, 12);
+}
+
 function renderCrmTable(data) {
   const wrap = document.getElementById('crm-table-wrap');
   if (!data.items.length) { wrap.innerHTML = '<p class="crm-empty">No hay resultados.</p>'; return; }
+  const resource = data.resource;
+  const columns = crmColumns(resource, data.items);
   const rows = data.items.map(item => {
-    const payload = item.raw_payload || {};
-    const fields = Object.entries(payload).slice(0, 8);
-    return `<tr><td>${crmEscape(item.magiis_id)}</td>${fields.map(([, value]) => `<td title="${crmEscape(value)}">${crmEscape(value).slice(0, 90)}</td>`).join('')}</tr>`;
+    const payload = { ...(item.raw_payload || {}),
+      ...(item.state !== undefined ? { state: item.state } : {}),
+      ...(item.travel_date !== undefined ? { travelDate: item.travel_date } : {}),
+      ...(item.passenger_magiis_id !== undefined ? { passengerId: item.passenger_magiis_id } : {}),
+      ...(item.driver_magiis_id !== undefined ? { driverId: item.driver_magiis_id } : {}),
+    };
+    return `<tr><td>${crmEscape(item.magiis_id, 'magiis_id')}</td>${columns.map(key => `<td title="${crmEscape(payload[key], key)}">${crmEscape(payload[key], key)}</td>`).join('')}</tr>`;
   });
-  const headers = Object.keys(data.items[0].raw_payload || {}).slice(0, 8);
-  wrap.innerHTML = `<div class="crm-table-scroll"><table><thead><tr><th>ID</th>${headers.map(h => `<th>${crmEscape(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div><small>Mostrando ${data.items.length} de ${data.total}</small>`;
+  wrap.innerHTML = `<div class="crm-table-scroll"><table><thead><tr><th>ID</th>${columns.map(key => `<th>${crmEscape(crmFieldLabel(key))}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div><small>Mostrando ${data.items.length} de ${data.total}</small>`;
 }
 
 async function loadCrmData() {
   const status = document.getElementById('crm-status');
-  status.textContent = 'Cargando...';
+  status.textContent = 'Cargando datos...';
   try {
     const [summary, data] = await Promise.all([
       apiCrm('summary'),
@@ -57,15 +100,16 @@ async function loadCrmData() {
     ]);
     renderCrmCards(summary);
     renderCrmTable(data);
-    status.textContent = summary.last_sync ? `Última carga: ${new Date(summary.last_sync.finished_at || summary.last_sync.started_at).toLocaleString('es-AR')}` : '';
+    status.textContent = summary.last_sync ? `Última sincronización: ${new Date(summary.last_sync.finished_at || summary.last_sync.started_at).toLocaleString('es-AR')}` : '';
   } catch (error) {
     status.textContent = 'No se pudieron cargar los datos del CRM.';
     console.error(error);
   }
 }
 
-function showCrm() {
+function showCrm(resource) {
   crmVisible = true;
+  if (resource) document.getElementById('crm-resource').value = resource;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
   document.getElementById('crm-dashboard').hidden = false;
@@ -1424,7 +1468,20 @@ async function checkAuth() {
 document.addEventListener('DOMContentLoaded', () => {
   const savedFont = localStorage.getItem('hash_font_size') || '18';
   document.documentElement.style.setProperty('--font-size-base', savedFont + 'px');
-  document.getElementById('crm-btn').addEventListener('click', showCrm);
+  document.querySelectorAll('#main-navigation .main-nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#main-navigation .main-nav-item').forEach(item => item.classList.remove('main-nav-item--active'));
+      btn.classList.add('main-nav-item--active');
+      const view = btn.dataset.view;
+      if (view === 'travels' || view === 'drivers' || view === 'vehicles') {
+        showCrm(view);
+      } else {
+        hideCrm();
+        if (view === 'crear-viaje') document.getElementById('message-input')?.focus();
+      }
+      closeSidebar();
+    });
+  });
   document.getElementById('crm-back').addEventListener('click', hideCrm);
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('crm-resource').addEventListener('change', loadCrmData);

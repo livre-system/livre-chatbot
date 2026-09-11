@@ -221,6 +221,32 @@ body {
   object-fit: contain;
 }
 
+#main-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+
+.main-nav-item {
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 11px 12px;
+  background: transparent;
+  color: #111111;
+  font: 600 0.88rem "Inter", system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease), color 150ms var(--ease);
+}
+
+.main-nav-item:hover,
+.main-nav-item--active {
+  background: #eeeeee;
+  color: var(--lime);
+}
+
 #front-list {
   display: flex;
   flex-direction: column;
@@ -2176,8 +2202,7 @@ body {
 #neural-btn, #neural-modal { display: none !important; }
 
 /* CRM MAGIIS */
-#crm-btn { margin-left: auto; border: 1px solid var(--lime); color: var(--lime); background: transparent; border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 600; }
-#crm-btn:hover, #crm-refresh:hover, #crm-back:hover { background: var(--lime); color: #111; }
+#crm-refresh:hover, #crm-back:hover { background: var(--lime); color: #111; }
 #crm-dashboard { flex: 1; overflow: auto; padding: 28px clamp(18px, 4vw, 56px); background: var(--black); }
 .crm-dashboard-header, .crm-toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .crm-dashboard-header { justify-content: space-between; margin-bottom: 24px; }

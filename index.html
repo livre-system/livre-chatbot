@@ -33,7 +33,14 @@
       <div id="app-title">
         <img src="images/logo_livre.png" alt="HASH" id="app-logo">
       </div>
-      <nav id="front-list"></nav>
+      <nav id="main-navigation" aria-label="Navegación principal">
+        <button type="button" class="main-nav-item main-nav-item--active" data-view="livi">LIVI</button>
+        <button type="button" class="main-nav-item" data-view="crear-viaje">Crear un viaje</button>
+        <button type="button" class="main-nav-item" data-view="travels">Gestión de viajes</button>
+        <button type="button" class="main-nav-item" data-view="drivers">Choferes</button>
+        <button type="button" class="main-nav-item" data-view="vehicles">Vehículos</button>
+      </nav>
+      <nav id="front-list" aria-label="Chats guardados"></nav>
     </aside>
 
     <main id="main">
@@ -44,7 +51,6 @@
         <h2 id="active-front-name" hidden>—</h2>
         <p id="active-front-description" hidden></p>
         <button type="button" id="neural-btn" aria-label="Ver red neural">⬡ Red neural</button>
-        <button type="button" id="crm-btn" aria-label="Abrir CRM">CRM MAGIIS</button>
       </header>
 
       <section id="crm-dashboard" hidden aria-label="Datos recolectados de MAGIIS">
