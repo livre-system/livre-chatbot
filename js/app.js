@@ -38,6 +38,8 @@ const CRM_FIELD_ORDER = {
 let crmVisible = false;
 let crmSearchTimer;
 let crmMode = 'control';
+let crmOffset = 0;
+let travelStateFilter = '';
 
 function crmValue(value, key = '') {
   if (value === null || value === undefined || value === '') return '—';
@@ -197,21 +199,27 @@ async function loadCrmData() {
   const status = document.getElementById('crm-status');
   status.textContent = 'Cargando datos...';
   try {
+    const resource = document.getElementById('crm-resource').value;
+    const params = new URLSearchParams({ limit: resource === 'vehicles' ? '200' : '50', offset: String(crmOffset) });
+    const query = resource === 'travels'
+      ? document.getElementById('travel-management-search').value
+      : resource === 'vehicles'
+        ? document.getElementById('vehicle-management-search').value
+        : document.getElementById('crm-search').value;
+    if (query.trim()) params.set('q', query.trim());
+    if (resource === 'travels') {
+      const date = document.getElementById('travel-management-date').value;
+      if (date) params.set('travel_date', date);
+      if (travelStateFilter) params.set('state', travelStateFilter);
+    }
     const [summary, data] = await Promise.all([
       apiCrm('summary'),
-      (() => {
-        if (crmMode === 'control') return apiCrm('drivers?limit=50');
-        const resource = document.getElementById('crm-resource').value;
-        const query = resource === 'travels' ? document.getElementById('travel-management-search').value : resource === 'vehicles' ? document.getElementById('vehicle-management-search').value : document.getElementById('crm-search').value;
-        const params = new URLSearchParams({ q: query });
-        if (resource === 'vehicles') params.set('limit', '200');
-        return apiCrm(resource + '?' + params.toString());
-      })(),
+      crmMode === 'control' ? apiCrm('drivers?limit=50') : apiCrm(resource + '?' + params.toString()),
     ]);
     if (crmMode === 'control') renderOperationalDashboard(summary, data);
-    else if (document.getElementById('crm-resource').value === 'travels') renderTravelManagement(data, summary);
-    else if (document.getElementById('crm-resource').value === 'drivers') renderDriverManagement(data);
-    else if (document.getElementById('crm-resource').value === 'vehicles') renderVehicleManagement(data);
+    else if (resource === 'travels') renderTravelManagement(data, summary);
+    else if (resource === 'drivers') renderDriverManagement(data);
+    else if (resource === 'vehicles') renderVehicleManagement(data);
     else {
       renderCrmCards(summary);
       renderCrmTable(data);
@@ -227,6 +235,8 @@ function showCrm(resource) {
   crmVisible = true;
   crmMode = resource === 'control' ? 'control' : 'resource';
   if (resource === 'control') resource = 'travels';
+  crmOffset = 0;
+  travelStateFilter = '';
   const titles = {
     travels: ['Gestión de viajes', 'Listado y estado de los viajes.'],
     drivers: ['Choferes', 'Listado de choferes registrados.'],
@@ -1611,18 +1621,29 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('vehicle-photo-modal').addEventListener('click', event => {
     if (event.target.id === 'vehicle-photo-modal') closeVehiclePhoto();
   });
-  document.getElementById('crm-resource').addEventListener('change', loadCrmData);
-  document.getElementById('crm-search').addEventListener('input', () => {
-    clearTimeout(crmSearchTimer);
-    crmSearchTimer = setTimeout(loadCrmData, 350);
+  document.getElementById('crm-resource').addEventListener('change', () => {
+    crmOffset = 0;
+    travelStateFilter = '';
+    loadCrmData();
   });
-  document.getElementById('travel-management-search').addEventListener('input', () => {
+  const reloadFromStart = () => {
     clearTimeout(crmSearchTimer);
+    crmOffset = 0;
     crmSearchTimer = setTimeout(loadCrmData, 350);
-  });
-  document.getElementById('vehicle-management-search').addEventListener('input', () => {
-    clearTimeout(crmSearchTimer);
-    crmSearchTimer = setTimeout(loadCrmData, 350);
+  };
+  document.getElementById('crm-search').addEventListener('input', reloadFromStart);
+  document.getElementById('travel-management-search').addEventListener('input', reloadFromStart);
+  document.getElementById('travel-management-date').addEventListener('change', reloadFromStart);
+  document.getElementById('vehicle-management-search').addEventListener('input', reloadFromStart);
+  const travelStates = ['SEARCHING_DRIVER', 'WITH_DRIVER_ASSIGNED', 'RESERVED', 'IN_CONFLICT', 'LOST', 'CANCELLED', 'DONE'];
+  document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
+    button.addEventListener('click', () => {
+      travelStateFilter = travelStates[index] || '';
+      crmOffset = 0;
+      document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      loadCrmData();
+    });
   });
   checkAuth();
 });
