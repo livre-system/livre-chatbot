@@ -150,6 +150,20 @@ function renderOperationalDashboard(summary, drivers) {
     : '<p class="crm-empty">No hay choferes registrados.</p>';
 }
 
+function renderVehicleManagement(data) {
+  const table = document.getElementById('vehicle-management-table');
+  const rows = data.items.map(item => {
+    const p = item.raw_payload || {};
+    const photo = crmPhotoUrl(p.photo || p.image || p.images);
+    const name = [p.brand || p.make, p.model].filter(Boolean).join(' ') || '—';
+    const owner = p.ownerName || p.owner || p.proprietor || '—';
+    const active = p.active ?? p.isActive ?? p.enabled;
+    const activeClass = active === false ? 'vehicle-inactive' : 'vehicle-active';
+    return `<tr><td>${crmEscape(item.magiis_id)}</td><td><span class="vehicle-domain-cell">${photo && /^https?:\/\//i.test(photo) ? `<img src="${crmEscape(photo)}" alt="Vehículo" loading="lazy">` : '<span class="vehicle-image-empty">—</span>'}${crmEscape(p.domain || p.plate || p.licensePlate || '—')}</span></td><td>${crmEscape(p.brand || p.make || '—')}</td><td>${crmEscape(p.model || '—')}</td><td>${crmEscape(p.type || p.vehicleType || 'Livre Taxi')}</td><td class="vehicle-owner">${crmEscape(owner)}</td><td><span class="vehicle-active-dot ${activeClass}">●</span></td><td><button type="button" class="vehicle-action" aria-label="Ver vehículo">◉</button><button type="button" class="vehicle-action" aria-label="Editar vehículo">✎</button></td></tr>`;
+  }).join('');
+  table.innerHTML = `<div class="vehicle-table-scroll"><table><thead><tr><th>↕ Código</th><th>↕ Dominio</th><th>↕ Marca</th><th>↕ Modelo</th><th>↕ Tipo</th><th>↕ Propietario</th><th>Activo</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="8">No hay vehículos registrados.</td></tr>'}</tbody></table></div><div class="vehicle-table-footer"><span>Total: ${data.total}</span><span>Mostrar <b>20⌄</b>　1 de ${Math.max(1, Math.ceil(data.total / 20))}　❯❯</span><span>⟳</span></div>`;
+}
+
 function renderTravelManagement(data, summary) {
   const table = document.getElementById('travel-management-table');
   const pick = (payload, keys) => { for (const key of keys) if (payload[key] !== undefined && payload[key] !== null && payload[key] !== '') return payload[key]; return '—'; };
@@ -171,7 +185,7 @@ async function loadCrmData() {
       (() => {
         if (crmMode === 'control') return apiCrm('drivers?limit=50');
         const resource = document.getElementById('crm-resource').value;
-        const query = resource === 'travels' ? document.getElementById('travel-management-search').value : document.getElementById('crm-search').value;
+        const query = resource === 'travels' ? document.getElementById('travel-management-search').value : resource === 'vehicles' ? document.getElementById('vehicle-management-search').value : document.getElementById('crm-search').value;
         const params = new URLSearchParams({ q: query });
         if (resource === 'vehicles') params.set('limit', '200');
         return apiCrm(resource + '?' + params.toString());
@@ -179,6 +193,7 @@ async function loadCrmData() {
     ]);
     if (crmMode === 'control') renderOperationalDashboard(summary, data);
     else if (document.getElementById('crm-resource').value === 'travels') renderTravelManagement(data, summary);
+    else if (document.getElementById('crm-resource').value === 'vehicles') renderVehicleManagement(data);
     else {
       renderCrmCards(summary);
       renderCrmTable(data);
@@ -204,8 +219,9 @@ function showCrm(resource) {
   document.getElementById('crm-subtitle').textContent = title[1];
   document.getElementById('crm-cards').hidden = true;
   document.getElementById('travel-management-view').hidden = crmMode !== 'resource' || resource !== 'travels';
+  document.getElementById('vehicle-management-view').hidden = crmMode !== 'resource' || resource !== 'vehicles';
   document.getElementById('operational-view').hidden = crmMode !== 'control';
-  document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && resource === 'travels');
+  document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && (resource === 'travels' || resource === 'vehicles'));
   document.getElementById('crm-table-wrap').hidden = crmMode === 'control';
   if (resource) document.getElementById('crm-resource').value = resource;
   document.getElementById('message-list').hidden = true;
@@ -1582,6 +1598,10 @@ document.addEventListener('DOMContentLoaded', () => {
     crmSearchTimer = setTimeout(loadCrmData, 350);
   });
   document.getElementById('travel-management-search').addEventListener('input', () => {
+    clearTimeout(crmSearchTimer);
+    crmSearchTimer = setTimeout(loadCrmData, 350);
+  });
+  document.getElementById('vehicle-management-search').addEventListener('input', () => {
     clearTimeout(crmSearchTimer);
     crmSearchTimer = setTimeout(loadCrmData, 350);
   });
