@@ -468,6 +468,11 @@ body {
 /* ---------- Composer ---------- */
 
 /* wrapper: bandeja inline con led sutil */
+#composer[hidden],
+#message-list[hidden] {
+  display: none !important;
+}
+
 #composer {
   border-top: 1px solid var(--border);
   padding: 14px 26px;
