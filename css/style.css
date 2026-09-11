@@ -2225,3 +2225,15 @@ body {
 .crm-table-wrap th { color: var(--lime); position: sticky; top: 0; background: var(--black); }
 .crm-table-wrap small, .crm-empty { color: var(--text-dim); }
 @media (max-width: 640px) { .crm-cards { grid-template-columns: repeat(2, 1fr); } #crm-btn { padding: 7px 9px; font-size: .75rem; } }
+.travel-form { max-width: 620px; display: grid; gap: 10px; padding: 28px; border: 1px solid rgba(180,255,0,.2); border-radius: 14px; background: rgba(255,255,255,.02); }
+.travel-form label { color: var(--lime); font-size: .85rem; }
+.travel-form input { width: 100%; padding: 13px 14px; color: inherit; background: var(--graphite); border: 1px solid var(--border); border-radius: 8px; }
+.travel-form button { width: fit-content; margin-top: 10px; padding: 11px 18px; color: var(--black); background: var(--lime); border: 0; border-radius: 8px; cursor: pointer; }
+#travel-form-status { min-height: 1.3em; color: var(--lime); }
+.vehicle-photo-button { padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+.vehicle-photo-button img { display: block; width: 64px; height: 48px; object-fit: cover; border-radius: 5px; }
+#vehicle-photo-modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(0,0,0,.82); }
+#vehicle-photo-modal[hidden] { display: none; }
+#vehicle-photo-modal-box { position: relative; max-width: min(900px, 96vw); max-height: 90vh; }
+#vehicle-photo-large { display: block; max-width: 100%; max-height: 85vh; object-fit: contain; }
+#vehicle-photo-close { position: absolute; top: -34px; right: 0; color: #fff; background: transparent; border: 0; font-size: 22px; cursor: pointer; }

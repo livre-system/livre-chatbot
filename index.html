@@ -34,13 +34,12 @@
         <img src="images/logo_livre.png" alt="HASH" id="app-logo">
       </div>
       <nav id="main-navigation" aria-label="Navegación principal">
-        <button type="button" class="main-nav-item main-nav-item--active" data-view="livi">LIVI</button>
+        <button type="button" class="main-nav-item main-nav-item--active" data-view="livi">LIVI IA</button>
         <button type="button" class="main-nav-item" data-view="crear-viaje">Crear un viaje</button>
         <button type="button" class="main-nav-item" data-view="travels">Gestión de viajes</button>
         <button type="button" class="main-nav-item" data-view="drivers">Choferes</button>
         <button type="button" class="main-nav-item" data-view="vehicles">Vehículos</button>
       </nav>
-      <nav id="front-list" aria-label="Chats guardados"></nav>
     </aside>
 
     <main id="main">
@@ -53,16 +52,28 @@
         <button type="button" id="neural-btn" aria-label="Ver red neural">⬡ Red neural</button>
       </header>
 
-      <section id="crm-dashboard" hidden aria-label="Datos recolectados de MAGIIS">
+      <section id="travel-form-view" class="panel-view" hidden aria-label="Crear un viaje">
+        <div class="panel-view-header"><div><h2>Nuevo viaje</h2><p>Completá los datos del viaje.</p></div></div>
+        <form id="travel-create-form" class="travel-form">
+          <label for="travel-origin">Origen</label>
+          <input id="travel-origin" name="origin" type="text" required autocomplete="street-address" placeholder="Dirección de origen">
+          <label for="travel-destination">Destino</label>
+          <input id="travel-destination" name="destination" type="text" required autocomplete="street-address" placeholder="Dirección de destino">
+          <p id="travel-form-status" aria-live="polite"></p>
+          <button type="submit">Crear viaje</button>
+        </form>
+      </section>
+
+      <section id="crm-dashboard" class="panel-view" hidden aria-label="Datos recolectados de MAGIIS">
         <div class="crm-dashboard-header">
-          <div><h2>CRM MAGIIS</h2><p>Datos recolectados y guardados localmente.</p></div>
+          <div><h2>Gestión de datos</h2><p>Datos recolectados y guardados localmente.</p></div>
           <button type="button" id="crm-refresh">Actualizar</button>
         </div>
         <div id="crm-cards" class="crm-cards"></div>
         <div class="crm-toolbar">
           <label>Recurso <select id="crm-resource"><option value="travels">Viajes</option><option value="passengers">Clientes</option><option value="drivers">Choferes</option><option value="vehicles">Vehículos</option></select></label>
           <input id="crm-search" type="search" placeholder="Buscar en los datos..." autocomplete="off">
-          <button type="button" id="crm-back">Volver al chat</button>
+          <button type="button" id="crm-back">Volver a LIVI IA</button>
         </div>
         <p id="crm-status" aria-live="polite"></p>
         <div id="crm-table-wrap" class="crm-table-wrap"></div>
@@ -83,6 +94,12 @@
       </footer>
     </main>
 
+  </div>
+  <div id="vehicle-photo-modal" hidden role="dialog" aria-modal="true" aria-label="Foto del vehículo">
+    <div id="vehicle-photo-modal-box">
+      <button type="button" id="vehicle-photo-close" aria-label="Cerrar">✕</button>
+      <img id="vehicle-photo-large" alt="Foto del vehículo">
+    </div>
   </div>
   <div id="sidebar-overlay"></div>
   <div id="new-front-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">

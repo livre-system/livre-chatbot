@@ -73,6 +73,27 @@ function crmColumns(resource, items) {
   return ordered.filter(key => !['photo', 'documents', 'additionalTypes'].includes(key) || resource === 'vehicles').slice(0, 12);
 }
 
+function crmPhotoUrl(value) {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.find(item => crmPhotoUrl(item)) ? crmPhotoUrl(value.find(item => crmPhotoUrl(item))) : '';
+  if (value && typeof value === 'object') {
+    for (const key of ['url', 'src', 'photo', 'path']) {
+      const url = crmPhotoUrl(value[key]);
+      if (url) return url;
+    }
+  }
+  return '';
+}
+
+function renderCrmCell(value, key) {
+  const url = key === 'photo' ? crmPhotoUrl(value) : '';
+  if (url && /^https?:\/\//i.test(url)) {
+    const safeUrl = crmEscape(url);
+    return `<button type="button" class="vehicle-photo-button" data-photo-url="${safeUrl}"><img src="${safeUrl}" alt="Foto del vehículo" loading="lazy"></button>`;
+  }
+  return crmEscape(value, key);
+}
+
 function renderCrmTable(data) {
   const wrap = document.getElementById('crm-table-wrap');
   if (!data.items.length) { wrap.innerHTML = '<p class="crm-empty">No hay resultados.</p>'; return; }
@@ -85,9 +106,12 @@ function renderCrmTable(data) {
       ...(item.passenger_magiis_id !== undefined ? { passengerId: item.passenger_magiis_id } : {}),
       ...(item.driver_magiis_id !== undefined ? { driverId: item.driver_magiis_id } : {}),
     };
-    return `<tr><td>${crmEscape(item.magiis_id, 'magiis_id')}</td>${columns.map(key => `<td title="${crmEscape(payload[key], key)}">${crmEscape(payload[key], key)}</td>`).join('')}</tr>`;
+    return `<tr><td>${crmEscape(item.magiis_id, 'magiis_id')}</td>${columns.map(key => `<td title="${crmEscape(payload[key], key)}">${renderCrmCell(payload[key], key)}</td>`).join('')}</tr>`;
   });
   wrap.innerHTML = `<div class="crm-table-scroll"><table><thead><tr><th>ID</th>${columns.map(key => `<th>${crmEscape(crmFieldLabel(key))}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div><small>Mostrando ${data.items.length} de ${data.total}</small>`;
+  wrap.querySelectorAll('.vehicle-photo-button').forEach(button => {
+    button.addEventListener('click', () => openVehiclePhoto(button.dataset.photoUrl));
+  });
 }
 
 async function loadCrmData() {
@@ -112,6 +136,7 @@ function showCrm(resource) {
   if (resource) document.getElementById('crm-resource').value = resource;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
+  document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = false;
   loadCrmData();
 }
@@ -121,6 +146,66 @@ function hideCrm() {
   document.getElementById('crm-dashboard').hidden = true;
   document.getElementById('message-list').hidden = false;
   document.getElementById('composer').hidden = false;
+}
+
+function showChat() {
+  document.getElementById('travel-form-view').hidden = true;
+  document.getElementById('crm-dashboard').hidden = true;
+  document.getElementById('message-list').hidden = false;
+  document.getElementById('composer').hidden = false;
+  crmVisible = false;
+}
+
+function showTravelForm() {
+  document.getElementById('travel-form-view').hidden = false;
+  document.getElementById('crm-dashboard').hidden = true;
+  document.getElementById('message-list').hidden = true;
+  document.getElementById('composer').hidden = true;
+  crmVisible = false;
+}
+
+function openVehiclePhoto(url) {
+  const modal = document.getElementById('vehicle-photo-modal');
+  const image = document.getElementById('vehicle-photo-large');
+  image.src = url;
+  modal.removeAttribute('hidden');
+}
+
+function closeVehiclePhoto() {
+  const modal = document.getElementById('vehicle-photo-modal');
+  const image = document.getElementById('vehicle-photo-large');
+  modal.setAttribute('hidden', '');
+  image.removeAttribute('src');
+}
+
+async function createTravelFromForm(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.getElementById('travel-form-status');
+  const origin = form.elements.origin.value.trim();
+  const destination = form.elements.destination.value.trim();
+  if (!origin || !destination) return;
+  status.textContent = 'Creando viaje...';
+  form.querySelector('button[type="submit"]').disabled = true;
+  try {
+    const response = await fetch(HASH_CLOUD_URL + '/elevenlabs/trip', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        origen: origin,
+        destino: destination,
+        conversation_id: 'panel_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now()),
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'No se pudo crear el viaje.');
+    status.textContent = data.result || 'Viaje creado correctamente.';
+    form.reset();
+  } catch (error) {
+    status.textContent = error.message || 'No se pudo crear el viaje.';
+  } finally {
+    form.querySelector('button[type="submit"]').disabled = false;
+  }
 }
 
 
@@ -685,6 +770,7 @@ function closeSidebar() {
 
 function renderFrontList() {
   const nav = document.getElementById('front-list');
+  if (!nav) return;
   nav.innerHTML = '';
   const newBtn = document.createElement('button');
   newBtn.type = 'button';
@@ -1475,15 +1561,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const view = btn.dataset.view;
       if (view === 'travels' || view === 'drivers' || view === 'vehicles') {
         showCrm(view);
+      } else if (view === 'crear-viaje') {
+        showTravelForm();
       } else {
-        hideCrm();
-        if (view === 'crear-viaje') document.getElementById('message-input')?.focus();
+        showChat();
       }
       closeSidebar();
     });
   });
-  document.getElementById('crm-back').addEventListener('click', hideCrm);
+  document.getElementById('crm-back').addEventListener('click', showChat);
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
+  document.getElementById('travel-create-form').addEventListener('submit', createTravelFromForm);
+  document.getElementById('vehicle-photo-close').addEventListener('click', closeVehiclePhoto);
+  document.getElementById('vehicle-photo-modal').addEventListener('click', event => {
+    if (event.target.id === 'vehicle-photo-modal') closeVehiclePhoto();
+  });
   document.getElementById('crm-resource').addEventListener('change', loadCrmData);
   document.getElementById('crm-search').addEventListener('input', () => {
     clearTimeout(crmSearchTimer);
