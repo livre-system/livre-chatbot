@@ -25,11 +25,15 @@ const CRM_FIELD_LABELS = {
   brand: 'Marca', model: 'Modelo', plate: 'Patente', domain: 'Patente', year: 'Año', enabled: 'Habilitado',
   vehicleOwner: 'Titular', ownerId: 'ID del titular', vehicleType: 'Tipo de vehículo', type: 'Tipo', additionalTypes: 'Tipos adicionales',
   characteristics: 'Características', documents: 'Documentación', photo: 'Foto', currentBase: 'Base actual',
+  haveGas: 'Tiene GNC', 'Have Gas': 'Tiene GNC', gas: 'Tiene GNC',
+  haveDiesel: 'Tiene diésel', 'Have Diesel': 'Tiene diésel', diesel: 'Tiene diésel',
+  havePetrol: 'Tiene nafta', 'Have Petrol': 'Tiene nafta', petrol: 'Tiene nafta',
+  airConditioning: 'Aire acondicionado', hasAirConditioning: 'Aire acondicionado',
 };
 const CRM_FIELD_ORDER = {
   passengers: ['code', 'passengerUserId', 'firstName', 'lastName', 'dni', 'phone', 'email', 'city', 'address', 'rate', 'family', 'paxNote', 'isPaxVip'],
   drivers: ['driverUserId', 'driverId', 'lastName', 'surname', 'firstName', 'name', 'phone', 'email', 'state'],
-  vehicles: ['vehicleId', 'id', 'brand', 'model', 'plate', 'domain', 'year', 'vehicleType', 'enabled', 'vehicleOwner', 'characteristics', 'documents'],
+  vehicles: ['vehicleId', 'id', 'brand', 'model', 'plate', 'domain', 'year', 'photo', 'vehicleType', 'enabled', 'vehicleOwner', 'characteristics', 'documents'],
 };
 let crmVisible = false;
 let crmSearchTimer;
@@ -51,7 +55,9 @@ function crmValue(value, key = '') {
 }
 
 function crmFieldLabel(key) {
-  return CRM_FIELD_LABELS[key] || key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, char => char.toUpperCase());
+  const normalized = String(key).replace(/[ _-]/g, '').toLowerCase();
+  const match = Object.keys(CRM_FIELD_LABELS).find(label => label.replace(/[ _-]/g, '').toLowerCase() === normalized);
+  return (match && CRM_FIELD_LABELS[match]) || key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, char => char.toUpperCase());
 }
 
 function crmEscape(value, key = '') {
@@ -120,7 +126,12 @@ async function loadCrmData() {
   try {
     const [summary, data] = await Promise.all([
       apiCrm('summary'),
-      apiCrm(document.getElementById('crm-resource').value + '?q=' + encodeURIComponent(document.getElementById('crm-search').value)),
+      (() => {
+        const resource = document.getElementById('crm-resource').value;
+        const params = new URLSearchParams({ q: document.getElementById('crm-search').value });
+        if (resource === 'vehicles') params.set('limit', '200');
+        return apiCrm(resource + '?' + params.toString());
+      })(),
     ]);
     renderCrmCards(summary);
     renderCrmTable(data);
@@ -769,85 +780,7 @@ function closeSidebar() {
 }
 
 function renderFrontList() {
-  const nav = document.getElementById('front-list');
-  if (!nav) return;
-  nav.innerHTML = '';
-  const newBtn = document.createElement('button');
-  newBtn.type = 'button';
-  newBtn.id = 'new-front-button';
-  newBtn.className = 'front-item front-item--new';
-  newBtn.textContent = '+ Nuevo chat';
-  newBtn.onclick = () => { openNewChat(); closeSidebar(); };
-  nav.appendChild(newBtn);
-
-  FRONTS.forEach(f => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'front-item-wrapper';
-
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'front-item' + (f.chat_id === activeChatId ? ' front-item--active' : '');
-    btn.textContent = f.name;
-    btn.onclick = () => { selectFront(f.chat_id); closeSidebar(); };
-
-    if (!f._isTemp) {
-    const menuBtn = document.createElement('button');
-    menuBtn.type = 'button';
-    menuBtn.className = 'front-menu-trigger';
-    menuBtn.setAttribute('aria-label', 'Opciones de ' + f.name);
-    menuBtn.textContent = '···';
-    menuBtn.onclick = (e) => {
-      e.stopPropagation();
-      document.querySelectorAll('.front-context-menu').forEach(m => m.remove());
-      const menu = document.createElement('div');
-      menu.className = 'front-context-menu';
-
-      const renameOpt = document.createElement('button');
-      renameOpt.type = 'button';
-      renameOpt.textContent = 'Renombrar';
-      renameOpt.onclick = () => { menu.remove(); openRenameModal(f); };
-
-      const deleteOpt = document.createElement('button');
-      deleteOpt.type = 'button';
-      deleteOpt.className = 'front-context-menu-delete';
-      deleteOpt.textContent = 'Eliminar';
-      deleteOpt.onclick = () => { menu.remove(); confirmDeleteFront(f); };
-
-      menu.appendChild(renameOpt);
-      menu.appendChild(deleteOpt);
-      wrapper.appendChild(menu);
-
-      setTimeout(() => {
-        document.addEventListener('click', () => menu.remove(), { once: true });
-      }, 0);
-    };
-
-    wrapper.appendChild(btn);
-    wrapper.appendChild(menuBtn);
-    } // end if !_isTemp
-    nav.appendChild(wrapper);
-  });
-
-  const spacer = document.createElement('div');
-  spacer.className = 'front-list-spacer';
-  nav.appendChild(spacer);
-
-  const settingsBtn = document.createElement('button');
-  settingsBtn.type = 'button';
-  settingsBtn.id = 'settings-button';
-  settingsBtn.className = 'sidebar-settings-button';
-  settingsBtn.textContent = '⚙ Ajustes';
-  settingsBtn.onclick = () => {
-    document.getElementById('settings-modal').removeAttribute('hidden');
-  };
-  nav.appendChild(settingsBtn);
-
-  const logoutBtn = document.createElement('button');
-  logoutBtn.type = 'button';
-  logoutBtn.className = 'logout-button';
-  logoutBtn.textContent = 'Cerrar sesión';
-  logoutBtn.onclick = logout;
-  nav.appendChild(logoutBtn);
+  // La navegación principal reemplaza el historial de conversaciones.
 }
 
 function renderHeader() {
@@ -1541,6 +1474,8 @@ async function bootApp() {
   document.getElementById('app').removeAttribute('hidden');
   try {
     initApp();
+    document.querySelectorAll('#main-navigation .main-nav-item').forEach(item => item.classList.toggle('main-nav-item--active', item.dataset.view === 'control'));
+    showCrm('travels');
   } catch (err) {
     console.error('Error en initApp:', err);
   }
@@ -1559,7 +1494,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('#main-navigation .main-nav-item').forEach(item => item.classList.remove('main-nav-item--active'));
       btn.classList.add('main-nav-item--active');
       const view = btn.dataset.view;
-      if (view === 'travels' || view === 'drivers' || view === 'vehicles') {
+      if (view === 'control') {
+        showCrm('travels');
+      } else if (view === 'travels' || view === 'drivers' || view === 'vehicles') {
         showCrm(view);
       } else if (view === 'crear-viaje') {
         showTravelForm();
