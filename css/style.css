@@ -2,11 +2,9 @@
  * style.css
  * HASH — sistema de registro de conocimiento.
  *
- * Identidad: fondo casi negro + acento lime ácido (paleta de marca:
- * Lime #C7F532, Black #0E0E0E, Graphite #1A1A1A). El logo de HASH son
- * nodos conectados por curvas — ese vocabulario de "nodo + conexión"
- * inspira el indicador de frente activo (punto lime) en vez de un
- * simple fondo gris.
+ * Identidad: fondo blanco + acento rojo LIVI (paleta del panel:
+ * Rojo #E8003D, rojo oscuro #B50030, blanco #FFFFFF y grises neutros).
+ * Las vistas operativas mantienen esta identidad en lugar de la paleta MAGIIS.
  *
  * Tipografía: Space Grotesk para todo lo que es identidad/estructura
  * (título, frentes, encabezados) — geométrica, con carácter técnico,
@@ -2369,7 +2367,119 @@ body {
 .travel-map-tabs button { border: 0; border-right: 1px solid #e2e5e7; padding: 8px 11px; background: #fff; color: #4d5960; font-size: .7rem; cursor: pointer; }
 .travel-map-tabs button.active { font-weight: 700; }
 @media (max-width: 760px) { .travel-create-layout { grid-template-columns: 1fr; } .travel-map-panel, .travel-map-panel iframe { min-height: 300px; height: 300px; } .travel-account-row { justify-content: flex-start; flex-wrap: wrap; } }
+/* Identidad LIVI aplicada a las vistas operativas copiadas */
+.driver-management-heading,
+.vehicle-page-heading,
+.travel-breadcrumb,
+.travel-page-heading span,
+.travel-page-heading h2,
+.operational-section h3,
+.operational-kpi strong,
+.travel-note-heading button,
+#travel-form-status { color: var(--lime); }
+
+.driver-new-button,
+.driver-table-footer b,
+.vehicle-new-button,
+.travel-toggle,
+.travel-account-row span,
+.travel-input-with-action button,
+.travel-location-field button,
+.travel-marker,
+.travel-submit { background: var(--lime); }
+
+.travel-marker--destination { background: var(--lime-dim); }
+
+.driver-pdf-button,
+.vehicle-pdf-button,
+.travel-management-filters button,
+.travel-account-row button,
+.travel-note-heading button,
+.operational-section,
+.operational-kpi,
+.travel-form,
+.distribution-chart,
+.driver-management-table,
+.vehicle-management-table,
+.travel-management-table,
+.travel-map-tabs { background: var(--black); }
+
+.driver-management-table,
+.vehicle-management-table,
+.travel-management-table,
+.travel-form,
+.travel-map-panel,
+.distribution-chart,
+.operational-section,
+.operational-kpi { border-color: var(--border); }
+
+.driver-management-table table,
+.vehicle-management-table table,
+.travel-management-table table,
+.operational-section,
+.operational-kpi,
+.travel-form,
+.travel-management-filters input,
+.travel-form input,
+.travel-form select { color: var(--text); }
+
+.driver-management-table th,
+.vehicle-management-table th,
+.travel-management-table th,
+.travel-status-tabs,
+.operational-map-placeholder { background: var(--graphite); }
+
+.driver-management-table th,
+.driver-management-table td,
+.vehicle-management-table th,
+.vehicle-management-table td,
+.travel-management-table th,
+.travel-management-table td,
+.travel-status-tabs,
+.travel-status-tabs button,
+.travel-table-footer b,
+.vehicle-table-footer b { border-color: var(--border); }
+
+.driver-management-table tbody tr:hover,
+.vehicle-management-table tbody tr:hover,
+.travel-management-table tbody tr:first-child { background: var(--graphite-soft); }
+
+.driver-vehicle,
+.vehicle-owner,
+.travel-status-tabs button.active,
+.travel-page-heading h2,
+.travel-note-heading button { color: var(--lime); }
+
+.travel-status-tabs button.active { border-top-color: var(--lime); }
+
+.driver-action,
+.vehicle-action,
+.vehicle-image-empty { background: var(--text-dim); }
+
+.driver-pdf-button,
+.vehicle-pdf-button,
+.travel-management-top label,
+.travel-form label,
+.travel-form input,
+.travel-form select,
+.travel-options,
+.travel-table-footer,
+.vehicle-table-footer,
+.driver-table-footer,
+.operational-section p,
+.operational-drivers th,
+.operational-drivers small,
+.distribution-heading small { color: var(--text-dim); }
+
+.travel-management-top strong,
+.operational-kpi--primary { color: var(--lime); }
+.operational-kpi--primary { border-top-color: var(--lime); }
+
+.travel-map-panel { background: var(--graphite-soft); }
+.travel-map-tabs button { color: var(--text); background: var(--black); border-color: var(--border); }
+
 .vehicle-photo-button { padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+
 .vehicle-photo-button img { display: block; width: 64px; height: 48px; object-fit: cover; border-radius: 5px; }
 #vehicle-photo-modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(0,0,0,.82); }
 #vehicle-photo-modal[hidden] { display: none; }
