@@ -63,6 +63,7 @@ let crmOffset = 0;
 let crmPageSize = 20;
 let travelPageSize = 20;
 let travelStateFilter = '';
+const driverFilters = { code: '', name: '', phone: '', email: '', vehicle: '' };
 const TRAVEL_DATE_FROM_STATES = new Set(['LOST', 'CANCELED', 'CANCELLED', 'DONE']);
 
 function syncTravelDateFromFilter() {
@@ -233,6 +234,18 @@ function renderDriverManagement(data) {
   table.querySelectorAll('[data-driver-edit]').forEach(button => button.addEventListener('click', () => {
     document.getElementById('crm-status').textContent = 'Editar chofer: MAGIIS no expone una petición de edición en el contrato capturado; no se envió ningún cambio.';
   }));
+  table.querySelectorAll('[data-driver-filter]').forEach(input => {
+    const key = input.dataset.driverFilter;
+    input.value = driverFilters[key] || '';
+    input.addEventListener('input', () => {
+      driverFilters[key] = input.value;
+      clearTimeout(crmSearchTimer);
+      crmSearchTimer = setTimeout(() => {
+        crmOffset = 0;
+        loadCrmData();
+      }, 300);
+    });
+  });
 }
 
 async function loadDriverDetail(driverId) {
@@ -255,7 +268,20 @@ function renderVehicleManagement(data) {
     const activeClass = active === false ? 'vehicle-inactive' : 'vehicle-active';
     return `<tr><td>${crmEscape(item.magiis_id)}</td><td><span class="vehicle-domain-cell">${photo && /^https?:\/\//i.test(photo) ? `<img src="${crmEscape(photo)}" alt="Vehículo" loading="lazy">` : '<span class="vehicle-image-empty">—</span>'}${crmEscape(card.domain || p.domain || p.plate || p.licensePlate || '—')}</span></td><td>${crmEscape(card.mark || p.brand || p.make || '—')}</td><td>${crmEscape(card.model || p.model || '—')}</td><td>${crmEscape(card.transportType?.name || card.typeTraslated || p.type || p.vehicleType || 'Livre Taxi')}</td><td class="vehicle-owner">${crmEscape(owner)}</td><td><span class="vehicle-active-dot ${activeClass}">●</span></td><td><button type="button" class="vehicle-action" aria-label="Ver vehículo">◉</button><button type="button" class="vehicle-action" aria-label="Editar vehículo">✎</button></td></tr>`;
   }).join('');
-  table.innerHTML = `<div class="vehicle-table-scroll"><table><thead><tr><th>↕ Código</th><th>↕ Dominio</th><th>↕ Marca</th><th>↕ Modelo</th><th>↕ Tipo</th><th>↕ Propietario</th><th>Activo</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="8">No hay vehículos registrados.</td></tr>'}</tbody></table></div><div class="vehicle-table-footer"><span>Total: ${data.total}</span><span>Mostrar <b>20⌄</b>　1 de ${Math.max(1, Math.ceil(data.total / 20))}　❯❯</span><span>⟳</span></div>`;
+  const total = Number(data.total) || 0;
+  const size = Number(data.size) || crmPageSize;
+  const page = Number(data.page) || Math.floor(crmOffset / size) + 1;
+  const totalPages = Math.max(1, Math.ceil(total / size));
+  table.innerHTML = `<div class="vehicle-table-scroll"><table><thead><tr><th>Código</th><th>Dominio</th><th>Marca</th><th>Modelo</th><th>Tipo</th><th>Propietario</th><th>Activo</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="8">No hay vehículos registrados.</td></tr>'}</tbody></table></div><div class="vehicle-table-footer"><span>Total: ${total}</span><label>Mostrar <select data-vehicle-size><option value="20" ${size === 20 ? 'selected' : ''}>20</option><option value="50" ${size === 50 ? 'selected' : ''}>50</option><option value="100" ${size === 100 ? 'selected' : ''}>100</option></select></label><span>Página ${page} de ${totalPages}</span><button type="button" data-vehicle-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>Anterior</button><button type="button" data-vehicle-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>Siguiente</button></div>`;
+  table.querySelectorAll('[data-vehicle-page]').forEach(button => button.addEventListener('click', () => {
+    crmOffset = (Number(button.dataset.vehiclePage) - 1) * crmPageSize;
+    loadCrmData();
+  }));
+  table.querySelector('[data-vehicle-size]').addEventListener('change', event => {
+    crmPageSize = Number(event.target.value) || 20;
+    crmOffset = 0;
+    loadCrmData();
+  });
 }
 
 function openNewVehicleModal() {
@@ -419,7 +445,11 @@ async function loadCrmData() {
       const liveParams = new URLSearchParams({
         page: String(Math.floor(crmOffset / crmPageSize) + 1),
         size: String(crmPageSize),
-        driver_name: query.trim(),
+        driver_code: driverFilters.code.trim(),
+        driver_name: driverFilters.name.trim(),
+        phone: driverFilters.phone.trim(),
+        email: driverFilters.email.trim(),
+        vehicle: driverFilters.vehicle.trim(),
       });
       const data = await apiCrm('drivers/live?' + liveParams.toString());
       renderDriverManagement(data);

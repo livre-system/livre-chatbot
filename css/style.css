@@ -2235,12 +2235,10 @@ body {
 .driver-table-footer b { padding: 3px 7px; border-radius: 2px; color: #fff; background: #55b9a9; font-weight: 400; }
 
 .vehicle-page-heading { padding-bottom: 12px; border-bottom: 1px solid #d9dddf; color: #4da9a3; }
-.vehicle-page-heading span { font-size: .7rem; }
 .vehicle-page-heading h2 { margin: 20px 0 3px; font-size: 1rem; }
 .vehicle-management-toolbar { display: flex; align-items: center; gap: 14px; padding: 14px 0 10px; color: #6b767b; font-size: .7rem; }
-.vehicle-management-toolbar > input { width: 150px; padding: 7px 10px; border: 1px solid #d7dddf; border-radius: 15px; color: #657078; background: #fff; }
+.vehicle-management-toolbar > input { width: 260px; padding: 7px 10px; border: 1px solid #d7dddf; border-radius: 15px; color: #657078; background: #fff; }
 .vehicle-management-toolbar label { display: flex; align-items: center; gap: 6px; }
-.vehicle-switch { width: 20px; height: 13px; border-radius: 9px; background: #bfc7ca; }
 .vehicle-new-button { margin-left: auto; padding: 7px 14px; border: 0; border-radius: 15px; color: #fff; background: #55b9a9; font-size: .68rem; }
 .vehicle-pdf-button { padding: 7px 12px; border: 1px solid #e1e5e7; border-radius: 15px; color: #657078; background: #f6f7f7; font-size: .68rem; }
 .vehicle-management-table { overflow: hidden; border: 1px solid #dce2e3; border-radius: 3px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
