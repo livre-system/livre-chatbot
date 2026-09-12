@@ -40,12 +40,16 @@ const CRM_FIELD_LABELS = {
   airConditioning: 'Aire acondicionado', hasAirConditioning: 'Aire acondicionado',
 };
 const CRM_FIELD_ORDER = {
-  passengers: ['firstName', 'lastName', 'phone', 'email', 'rate', 'paxNote', 'isPaxVip'],
+  passengers: ['firstName', 'lastName', 'phone', 'email', 'rate', 'isPaxVip'],
   drivers: ['driverUserId', 'driverId', 'lastName', 'surname', 'firstName', 'name', 'phone', 'email', 'state'],
   vehicles: ['vehicleId', 'id', 'brand', 'model', 'plate', 'domain', 'year', 'photo', 'vehicleType', 'enabled', 'vehicleOwner', 'characteristics', 'documents'],
 };
 const CRM_HIDDEN_FIELDS = {
-  passengers: new Set(['code', 'passengerUserId', 'dni', 'city', 'address', 'family']),
+  passengers: new Set([
+    'code', 'passengerUserId', 'passengerUserIdForCarrier', 'passenger_user_id_for_carrier',
+    'dni', 'city', 'address', 'family', 'paxNote', 'countryCode', 'country_code',
+    'rateDetail', 'rate_detail', 'notificationsQuantity', 'notifications_quantity',
+  ]),
 };
 let crmVisible = false;
 let crmSearchTimer;
