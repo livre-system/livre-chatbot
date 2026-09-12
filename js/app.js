@@ -402,10 +402,14 @@ function closeVehiclePhoto() {
   image.removeAttribute('src');
 }
 
+let travelQuote = null;
+
 async function createTravelFromForm(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const status = document.getElementById('travel-form-status');
+  const quoteBox = document.getElementById('travel-quote');
+  const submit = form.querySelector('button[type="submit"]');
   const origin = form.elements.origin.value.trim();
   const destination = form.elements.destination.value.trim();
   const programmed = form.elements.programmed.checked;
@@ -416,27 +420,61 @@ async function createTravelFromForm(event) {
     status.textContent = 'Elegí fecha y hora para programar el viaje.';
     return;
   }
-  status.textContent = programmed ? 'Programando viaje...' : 'Creando viaje...';
-  form.querySelector('button[type="submit"]').disabled = true;
+
+  const payload = {
+    origen: origin,
+    destino: destination,
+    date_programmed: programmed ? `${date}T${time}:00` : null,
+    conversation_id: travelQuote?.conversation_id || ('panel_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now())),
+  };
+  const confirming = Boolean(travelQuote
+    && travelQuote.origin === origin
+    && travelQuote.destination === destination
+    && travelQuote.programmed === programmed
+    && travelQuote.date === date
+    && travelQuote.time === time);
+  status.textContent = confirming ? 'Registrando viaje...' : 'Cotizando viaje...';
+  submit.disabled = true;
   try {
-    const response = await fetch(HASH_CLOUD_URL + '/elevenlabs/trip', {
+    const endpoint = confirming ? '/elevenlabs/trip' : '/elevenlabs/quote';
+    const response = await fetch(HASH_CLOUD_URL + endpoint, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        origen: origin,
-        destino: destination,
-        date_programmed: programmed ? `${date}T${time}:00` : null,
-        conversation_id: 'panel_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now()),
-      }),
+      body: JSON.stringify(payload),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || 'No se pudo crear el viaje.');
-    status.textContent = data.result || 'Viaje creado correctamente.';
+    if (!response.ok) throw new Error(data.detail || 'No se pudo procesar el viaje.');
+    const result = data.result || '';
+
+    if (!confirming) {
+      if (!result || /no pude cotizar|error:/i.test(result) || !/\$\s*[\d.,]+/.test(result)) {
+        throw new Error(result || 'No se pudo obtener la cotización.');
+      }
+      travelQuote = {
+        conversation_id: payload.conversation_id,
+        origin,
+        destination,
+        programmed,
+        date,
+        time,
+      };
+      quoteBox.textContent = result;
+      quoteBox.hidden = false;
+      status.textContent = 'Revisá la cotización y confirmá para crear el viaje.';
+      submit.textContent = 'Confirmar y crear viaje';
+      return;
+    }
+
+    status.textContent = result || 'Viaje creado correctamente.';
     form.reset();
+    quoteBox.hidden = true;
+    quoteBox.textContent = '';
+    submit.textContent = 'Cotizar viaje';
+    travelQuote = null;
   } catch (error) {
-    status.textContent = error.message || 'No se pudo crear el viaje.';
+    status.textContent = error.message || 'No se pudo procesar el viaje.';
   } finally {
-    form.querySelector('button[type="submit"]').disabled = false;
+    submit.disabled = false;
   }
 }
 
