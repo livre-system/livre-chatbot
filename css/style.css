@@ -2336,15 +2336,11 @@ body {
 #travel-form-view:not([hidden]) .travel-form,
 #travel-form-view:not([hidden]) .travel-form input,
 #travel-form-view:not([hidden]) .travel-form select { pointer-events: auto; }
-.travel-form { max-width: none; display: grid; gap: 12px; align-content: start; padding: 22px 24px; border: 1px solid #dce1e4; border-radius: 3px; background: #fff; color: #657078; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-.travel-field { display: grid; gap: 5px; }
-.travel-page-heading { padding: 0 0 14px; border-bottom: 1px solid #dce1e4; color: #7f8a91; }
-.travel-page-heading span { font-size: .7rem; color: #4da9a3; }
-.travel-page-heading h2 { margin: 18px 0 4px; color: #4da9a3; font-size: 1.15rem; }
-.travel-page-heading p { margin: 0; font-size: .72rem; }
-.travel-create-layout { display: grid; grid-template-columns: minmax(320px, 680px) minmax(320px, 1fr); gap: 18px; align-items: start; }
-.travel-form label { color: #59646c; font-size: .76rem; }
-.travel-form input, .travel-form select { width: 100%; min-height: 34px; padding: 8px 11px; color: #6b757c; background: #fff; border: 1px solid #d5dadd; border-radius: 16px; font-size: .75rem; }
+.travel-create-layout { display: grid; grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.travel-form { max-width: none; display: grid; gap: 8px; align-content: start; padding: 16px; border: 1px solid #dce1e4; border-radius: 3px; background: #fff; color: #657078; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.travel-field { display: grid; gap: 3px; }
+.travel-form label { color: #59646c; font-size: .68rem; }
+.travel-form input, .travel-form select { width: 100%; min-height: 24px; padding: 4px 9px; color: #6b757c; background: #fff; border: 1px solid #d5dadd; border-radius: 16px; font-size: .68rem; }
 .travel-form input:focus, .travel-form select:focus { outline: 2px solid rgba(77,169,163,.25); border-color: #4da9a3; }
 .travel-account-row { display: flex; align-items: center; gap: 7px; min-height: 32px; justify-content: flex-end; }
 .travel-account-row span { padding: 7px 12px; border-radius: 14px; background: #55b9a9; color: #fff; font-size: .68rem; }
@@ -2370,13 +2366,13 @@ body {
 .travel-schedule-toggle input { width: auto; min-height: auto; accent-color: var(--lime); }
 .travel-schedule-fields { display: grid; grid-template-columns: auto minmax(120px, 1fr) auto minmax(100px, 1fr); align-items: center; gap: 7px; }
 .travel-schedule-fields input { width: auto; }
-#travel-map { width: 100%; height: 570px; }
+#travel-map { width: 100%; height: 382px; }
 #travel-form-status { min-height: 1.3em; margin: 3px 0 0; color: #4da9a3; font-size: .75rem; }
-.travel-submit { margin-top: 0; padding: 9px 16px; border: 0; border-radius: 16px; color: #fff; background: #55b9a9; cursor: pointer; font-size: .72rem; }
+.travel-submit { margin-top: 0; padding: 7px 13px; border: 0; border-radius: 16px; color: #fff; background: #55b9a9; cursor: pointer; font-size: .68rem; }
 .travel-form-actions { display: flex; justify-content: flex-end; align-items: center; gap: 9px; padding-top: 2px; }
 .travel-cancel-submit { background: #b04b97; }
-.travel-map-panel { position: relative; min-height: 570px; overflow: hidden; border: 1px solid #d5dadd; background: #e5f0e9; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-.travel-map-panel iframe { display: block; width: 100%; height: 570px; border: 0; }
+.travel-map-panel { position: relative; min-height: 382px; overflow: hidden; border: 1px solid #d5dadd; background: #e5f0e9; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.travel-map-panel iframe { display: block; width: 100%; height: 382px; border: 0; }
 .travel-map-panel small { position: absolute; bottom: 0; left: 0; right: 0; padding: 5px 8px; background: rgba(255,255,255,.86); color: #7f898f; font-size: .62rem; }
 .travel-map-tabs { position: absolute; z-index: 1; top: 6px; left: 6px; display: flex; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
 .travel-map-tabs button { border: 0; border-right: 1px solid #e2e5e7; padding: 8px 11px; background: #fff; color: #4d5960; font-size: .7rem; cursor: pointer; }
@@ -2501,3 +2497,58 @@ body {
 #vehicle-photo-modal-box { position: relative; max-width: min(900px, 96vw); max-height: 90vh; }
 #vehicle-photo-large { display: block; max-width: 100%; max-height: 85vh; object-fit: contain; }
 #vehicle-photo-close { position: absolute; top: -34px; right: 0; color: #fff; background: transparent; border: 0; font-size: 22px; cursor: pointer; }
+
+/* ---------- Mobile / PWA ---------- */
+@media (max-width: 760px) {
+  html, body { min-width: 0; overflow-x: hidden; }
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  #app { min-height: 100dvh; height: auto; }
+  #main-header { min-height: 56px; padding: max(10px, env(safe-area-inset-top)) 12px 10px; }
+  #hamburger { width: 42px; height: 42px; margin-right: 8px; }
+  #neural-btn { min-height: 42px; padding: 8px 10px; font-size: .72rem; }
+  #active-front-name { max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9rem; }
+  #content { padding: 14px 12px calc(22px + env(safe-area-inset-bottom)); }
+  .panel-view { width: 100%; min-width: 0; }
+  .panel-view > h2, .travel-page-heading h2 { font-size: 1.2rem; }
+  .travel-page-heading { margin-bottom: 14px; }
+  .travel-page-heading p { font-size: .82rem; }
+  .travel-create-layout { grid-template-columns: 1fr; gap: 12px; }
+  .travel-form { padding: 16px 14px; gap: 12px; }
+  .travel-form input, .travel-form select, .travel-form textarea { min-height: 44px; padding: 10px 12px; font-size: 16px; }
+  .travel-form label { font-size: .78rem; }
+  .travel-location-field { min-height: 44px; }
+  .travel-schedule-fields { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .travel-schedule-fields label { align-self: end; }
+  .travel-form-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .travel-submit { width: 100%; min-height: 46px; font-size: .85rem; }
+  .travel-map-panel, .travel-map-panel iframe, #travel-map { min-height: 280px; height: 280px; }
+  .travel-map-panel { order: 2; }
+  .travel-account-row { gap: 8px; }
+  .travel-account-row > * { max-width: 100%; }
+  .table-wrap, .data-table-wrap, .travel-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 620px; }
+  .operational-kpis { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .operational-kpi { min-width: 0; padding: 12px 10px; }
+  .operational-kpi--wide { grid-column: span 2; }
+  .distribution-charts, .crm-cards { grid-template-columns: 1fr; }
+  .modal-box, #settings-modal-box, #crypto-modal-box, #new-front-modal-box { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); margin: 12px; padding: 18px 14px; overflow-y: auto; }
+  .settings-row { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .settings-row button, .settings-row a { width: 100%; min-height: 42px; }
+  #crypto-address-row { flex-wrap: wrap; }
+  #crypto-address { max-width: 100%; overflow-wrap: anywhere; }
+}
+
+@media (max-width: 420px) {
+  #main-header { padding-left: 8px; padding-right: 8px; }
+  #content { padding-left: 8px; padding-right: 8px; }
+  #neural-btn { font-size: 0; width: 42px; padding: 0; }
+  #neural-btn::first-letter { font-size: 1rem; }
+  .operational-kpis { grid-template-columns: 1fr; }
+  .operational-kpi--wide { grid-column: auto; }
+  .travel-schedule-fields { grid-template-columns: 1fr; }
+}
+
+@media (pointer: coarse) {
+  button, a, input, select, textarea { min-height: 44px; }
+  button, a { touch-action: manipulation; }
+}
