@@ -4,18 +4,18 @@
  *
  * Identidad: fondo blanco + acento rojo LIVI (paleta del panel:
  * Rojo #E8003D, rojo oscuro #B50030, blanco #FFFFFF y grises neutros).
- * Las vistas operativas mantienen esta identidad en lugar de la paleta MAGIIS.
+ * Las vistas operativas comparten esta identidad visual propia.
  *
- * Tipografía: Inter SemiBold para la interfaz y Bold para títulos,
- * estados y acciones. La misma familia se usa en toda la web para una
- * lectura más consistente y una identidad visual más actual.
+ * Tipografía: Inter como familia única. Se usa Regular para el cuerpo,
+ * Medium para controles y labels, SemiBold para títulos y Bold para
+ * acciones o datos destacados, manteniendo una jerarquía clara.
  *
  * Forma: radios generosos y formas tipo "pill" en los elementos
  * interactivos (frente activo, botón Guardar) como contraste deliberado
  * a la versión anterior, que era toda esquinas rectas de 3-4px.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
   --font-size-base: 16px;
@@ -225,6 +225,15 @@ body {
   margin-bottom: 18px;
 }
 
+.sidebar-account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
 .main-nav-item {
   width: 100%;
   border: 0;
@@ -266,7 +275,7 @@ body {
   padding: 10px 11px;
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 400;
   color: #111111;
   cursor: pointer;
   width: 100%;
@@ -293,7 +302,7 @@ body {
 .front-item--active {
   background: #f9f9f9;
   color: var(--lime);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .front-item--active::before {
@@ -613,7 +622,7 @@ body {
 
 .front-item--new {
   color: #111111;
-  font-weight: 600;
+  font-weight: 400;
   margin-bottom: 6px;
   border-bottom: 1px solid var(--border);
   padding-bottom: 10px;
@@ -663,14 +672,14 @@ body {
 
 #new-front-modal-box label {
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-dim);
   margin-top: 4px;
 }
 
 #new-front-modal-box label .optional {
   color: var(--text-faint);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 #new-front-name,
@@ -719,7 +728,7 @@ body {
   color: var(--text-dim);
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 150ms var(--ease), color 150ms var(--ease);
 }
@@ -897,7 +906,7 @@ body {
   padding-left: 11px;
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
   color: #111111;
@@ -950,7 +959,7 @@ body {
 
 .settings-row label {
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-dim);
 }
 
@@ -981,7 +990,7 @@ body {
   color: var(--text-dim);
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 150ms var(--ease), color 150ms var(--ease);
 }
@@ -1035,7 +1044,7 @@ body {
   color: var(--lime);
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 150ms var(--ease), color 150ms var(--ease);
 }
@@ -1090,7 +1099,7 @@ body {
   color: #bbb;
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   text-decoration: none;
   transition: border-color 150ms var(--ease), color 150ms var(--ease), background-color 150ms var(--ease);
@@ -1144,7 +1153,7 @@ body {
   padding: 6px 11px 14px;
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
   color: #111111;
@@ -1242,7 +1251,7 @@ body {
   padding: 8px 12px;
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-dim);
   cursor: pointer;
   transition: background-color 100ms var(--ease), color 100ms var(--ease);
@@ -1342,7 +1351,7 @@ body {
   padding: 8px 12px;
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-dim);
   cursor: pointer;
   transition: background-color 100ms var(--ease), color 100ms var(--ease);
@@ -1426,7 +1435,7 @@ body {
   color: var(--text-dim);
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 150ms var(--ease), color 150ms var(--ease);
 }
@@ -1699,7 +1708,7 @@ body {
 #upgrade-modal-box ul li {
   font-family: "Inter", system-ui, sans-serif;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #111111;
 }
 
@@ -2189,7 +2198,7 @@ body {
 /* ── Precio upgrade ─────────────────────────────────────────────────────── */
 .upgrade-period {
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--text-dim);
   margin-left: 4px;
 }
@@ -2206,7 +2215,7 @@ body {
 /* Neural graph hidden */
 #neural-btn, #neural-modal { display: none !important; }
 
-/* CRM MAGIIS */
+/* Operaciones: tablas y formularios */
 .driver-management-heading { padding: 0 0 12px; border-bottom: 1px solid #d9dddf; color: #4da9a3; font-size: .7rem; }
 .driver-management-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 0 8px; }
 .driver-new-button, .driver-pdf-button { padding: 7px 14px; border-radius: 15px; font-size: .68rem; }
@@ -2215,16 +2224,16 @@ body {
 .driver-management-table { overflow: hidden; border: 1px solid #dce2e3; border-radius: 3px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .driver-table-scroll { overflow-x: auto; }
 .driver-management-table table { width: 100%; min-width: 1050px; border-collapse: collapse; color: #59666c; font-size: .65rem; }
-.driver-management-table th { padding: 5px 7px; border-bottom: 1px solid #d5dcdd; text-align: left; background: #f5f8f8; white-space: nowrap; font-weight: 600; vertical-align: top; }
+.driver-management-table th { padding: 5px 7px; border-bottom: 1px solid #d5dcdd; text-align: left; background: #f5f8f8; white-space: nowrap; font-weight: 500; vertical-align: top; }
 .driver-management-table th input { box-sizing: border-box; width: 100%; min-width: 62px; margin-top: 5px; padding: 4px 5px; border: 1px solid #d5dcdd; color: #657078; background: #fff; font-size: .62rem; }
 .driver-management-table td { padding: 6px 7px; border-bottom: 1px solid #e0e5e5; white-space: nowrap; }
 .driver-management-table tbody tr:hover { background: #f1fbfa; }
 .driver-phone { display: inline-flex; align-items: center; gap: 5px; }
-.driver-phone b { font-size: .8rem; font-weight: 600; }
+.driver-phone b { font-size: .8rem; font-weight: 400; }
 .driver-vehicle { color: #4d9e9a; text-decoration: underline; }
 .driver-action { width: 19px; height: 19px; margin-right: 3px; padding: 0; border: 0; border-radius: 50%; color: #fff; background: #899397; font-size: .58rem; }
 .driver-table-footer { display: flex; justify-content: space-between; padding: 8px; color: #657078; font-size: .65rem; }
-.driver-table-footer b { padding: 3px 7px; border-radius: 2px; color: #fff; background: #55b9a9; font-weight: 600; }
+.driver-table-footer b { padding: 3px 7px; border-radius: 2px; color: #fff; background: #55b9a9; font-weight: 400; }
 
 .vehicle-page-heading { padding-bottom: 12px; border-bottom: 1px solid #d9dddf; color: #4da9a3; }
 .vehicle-page-heading span { font-size: .7rem; }
@@ -2250,7 +2259,7 @@ body {
 .vehicle-inactive { color: #d0d4d5; }
 .vehicle-action { width: 20px; height: 20px; margin-right: 4px; padding: 0; border: 0; border-radius: 50%; color: #fff; background: #8c969a; font-size: .62rem; }
 .vehicle-table-footer { display: flex; justify-content: space-between; padding: 9px; color: #667176; font-size: .67rem; }
-.vehicle-table-footer b { padding: 3px 8px; border: 1px solid #d4dbdc; border-radius: 12px; font-weight: 600; }
+.vehicle-table-footer b { padding: 3px 8px; border: 1px solid #d4dbdc; border-radius: 12px; font-weight: 400; }
 
 .travel-management-filters { display: flex; align-items: end; gap: 10px; padding: 14px 0 10px; font-size: .67rem; }
 .travel-management-filters input { min-height: 30px; padding: 6px 10px; border: 1px solid #d5dadd; border-radius: 14px; color: #657078; background: #fff; }
@@ -2271,7 +2280,7 @@ body {
 .travel-cancel-row:hover { color: #fff; background: #c75c66; }
 .travel-cancel-row:disabled { opacity: .55; cursor: wait; }
 .travel-table-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding: 9px 12px; color: #6c767b; font-size: .67rem; }
-.travel-table-footer b { padding: 3px 9px; border: 1px solid #d5dadd; border-radius: 12px; font-weight: 600; }
+.travel-table-footer b { padding: 3px 9px; border: 1px solid #d5dadd; border-radius: 12px; font-weight: 400; }
 .travel-table-footer select, .travel-table-footer button { padding: 5px 10px; border: 1px solid #d5dadd; border-radius: 14px; color: #657078; background: #fff; font-size: .67rem; }
 .travel-table-footer button { cursor: pointer; }
 .travel-table-footer button:disabled { cursor: default; opacity: .45; }
@@ -2543,4 +2552,203 @@ body {
 @media (pointer: coarse) {
   button, a, input, select, textarea { min-height: 44px; }
   button, a { touch-action: manipulation; }
+}
+
+/* =====================================================================
+ * LIVRE / UI REFRESH
+ * Fachada propia para las vistas operativas y el chat.
+ * La capa visual no modifica datos, navegación ni comportamiento.
+ * =================================================================== */
+:root {
+  --black: #f6f8fb;
+  --graphite: #ffffff;
+  --graphite-soft: #f0f3f7;
+  --border: #e3e8ef;
+  --border-soft: #d4dce6;
+  --text: #17212b;
+  --text-dim: #667485;
+  --text-faint: #94a0ad;
+  --surface-raised: #ffffff;
+  --surface-tint: #fff4f7;
+  --shadow-sm: 0 1px 2px rgba(18, 32, 48, .04), 0 5px 18px rgba(18, 32, 48, .05);
+  --shadow-md: 0 12px 30px rgba(18, 32, 48, .08);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+}
+
+body { background: var(--black); color: var(--text); }
+button, input, select, textarea { font-family: inherit; }
+
+/* Navegación: panel compacto, con estado activo tipo producto SaaS */
+#sidebar {
+  width: 244px;
+  padding: 24px 14px 18px;
+  border-right: 1px solid var(--border);
+  background: #fbfcfe;
+}
+#app-title { justify-content: flex-start; padding: 0 12px; margin-bottom: 30px; }
+#app-logo { height: 48px; }
+#main-navigation { gap: 5px; margin-bottom: 22px; }
+.main-nav-item, .front-item { border-radius: 12px; }
+.main-nav-item {
+  padding: 12px 13px;
+  color: #536171;
+  font-size: .82rem;
+  font-weight: 600;
+}
+.main-nav-item:hover { background: #f1f4f8; color: var(--text); }
+.main-nav-item--active { background: var(--surface-tint); color: var(--lime); box-shadow: inset 3px 0 var(--lime); }
+.front-list { gap: 4px; }
+.front-item {
+  padding: 10px 12px;
+  color: #536171;
+  font-size: .82rem;
+  font-weight: 500;
+}
+.front-item:hover { background: #f1f4f8; color: var(--text); }
+.front-item--active { background: #fff0f4; color: #b50030; font-weight: 600; }
+.front-item--active::before { box-shadow: 0 0 0 4px rgba(232,0,61,.10); }
+.front-item::before { width: 7px; height: 7px; }
+
+/* Barra superior y área de conversación */
+#main { background: var(--black); }
+#main-header {
+  min-height: 64px;
+  padding: 12px 28px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.84);
+  backdrop-filter: blur(12px);
+}
+#active-front-name { font-weight: 600; letter-spacing: -.01em; }
+#message-list { padding: 28px clamp(20px, 5vw, 80px); gap: 10px; }
+.message-item {
+  max-width: 840px;
+  padding: 15px 17px;
+  border-color: var(--border);
+  border-radius: 14px;
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-sm);
+}
+.message-item-date { font-size: .67rem; font-weight: 500; }
+.message-item-text { font-size: .9rem; line-height: 1.6; }
+#composer {
+  padding: 16px clamp(20px, 5vw, 80px) 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(255,255,255,.72);
+}
+#composer .input-wrapper { animation: none; background: var(--border-soft); border-radius: 15px; }
+#composer .input-wrapper::before { background: #fff; border-radius: 14px; }
+#message-input { min-height: 44px; padding-left: 16px; font-size: .9rem; }
+#message-submit { min-height: 38px; padding: 8px 18px; box-shadow: 0 5px 14px rgba(232,0,61,.16); }
+
+/* Elementos comunes: controles, modales y estados */
+input, select, textarea {
+  border-radius: 10px;
+  border-color: var(--border-soft);
+  background: #fff;
+  color: var(--text);
+}
+input:focus, select:focus, textarea:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(232,0,61,.10); outline: none; }
+button { transition: transform 140ms var(--ease), box-shadow 140ms var(--ease), background 140ms var(--ease); }
+button:not(:disabled):hover { transform: translateY(-1px); }
+.modal-box, #settings-modal-box, #crypto-modal-box, #new-front-modal-box {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+/* CRM: jerarquía clara, tarjetas de métricas y tabla tipo workspace */
+#crm-dashboard { padding: 34px clamp(18px, 4vw, 64px); background: var(--black); }
+.crm-dashboard-header { margin-bottom: 28px; }
+.crm-dashboard-header h2 { font-size: clamp(1.35rem, 2vw, 1.8rem); letter-spacing: -.035em; }
+.crm-dashboard-header p { font-size: .86rem; }
+#crm-refresh, #crm-back {
+  min-height: 38px;
+  border-color: var(--border-soft);
+  background: #fff;
+  color: #536171;
+  box-shadow: var(--shadow-sm);
+}
+#crm-refresh:hover, #crm-back:hover { border-color: var(--lime); color: var(--lime); }
+.crm-cards { gap: 14px; margin-bottom: 26px; }
+.crm-card {
+  min-height: 108px;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.crm-card span { color: var(--text-dim); font-size: .76rem; font-weight: 500; }
+.crm-card strong { color: var(--text); font-size: 1.75rem; letter-spacing: -.04em; }
+.crm-card:first-child { border-top: 3px solid var(--lime); }
+.crm-toolbar {
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.crm-toolbar label { color: var(--text-dim); font-size: .76rem; font-weight: 500; }
+.crm-toolbar select, #crm-search { min-height: 40px; border-radius: 10px; background: #fff; box-shadow: var(--shadow-sm); }
+#crm-search { min-width: 260px; }
+#crm-status { font-size: .78rem; }
+.crm-table-wrap {
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.crm-table-wrap table { font-size: .79rem; }
+.crm-table-wrap th, .crm-table-wrap td { padding: 13px 14px; border-bottom-color: var(--border); }
+.crm-table-wrap th { color: #536171; background: #f8fafc; font-size: .7rem; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; }
+.crm-table-wrap tbody tr:hover { background: #fff7f9; }
+
+/* Vistas operativas: un único lenguaje visual, sin rastros de tabla legacy */
+.driver-management-heading, .vehicle-page-heading { padding-bottom: 16px; border-bottom-color: var(--border); font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; }
+.driver-management-actions, .vehicle-management-toolbar, .travel-management-filters { padding: 18px 0 14px; }
+.driver-new-button, .vehicle-new-button, .travel-submit { border-radius: 10px; padding: 10px 16px; font-size: .75rem; font-weight: 600; box-shadow: 0 5px 12px rgba(232,0,61,.14); }
+.driver-pdf-button, .vehicle-pdf-button { border-radius: 10px; padding: 10px 14px; background: #fff; font-size: .75rem; }
+.driver-management-table, .vehicle-management-table, .travel-management-table, .distribution-chart, .operational-section, .operational-kpi, .travel-form {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.driver-management-table table, .vehicle-management-table table, .travel-management-table table { color: var(--text); font-size: .74rem; }
+.driver-management-table th, .vehicle-management-table th, .travel-management-table th { padding: 12px 12px; color: #536171; background: #f8fafc; font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .025em; }
+.driver-management-table td, .vehicle-management-table td, .travel-management-table td { padding: 12px; border-bottom-color: var(--border); }
+.driver-management-table tbody tr:hover, .vehicle-management-table tbody tr:hover, .travel-management-table tbody tr:first-child { background: #fff7f9; }
+.driver-action, .vehicle-action { width: 28px; height: 28px; background: #eef1f5; color: #536171; }
+.travel-status-tabs { padding: 5px; border: 1px solid var(--border); border-radius: 12px; background: #eef2f6; }
+.travel-status-tabs button { padding: 8px 13px; border-radius: 8px; font-weight: 500; }
+.travel-status-tabs button.active { color: var(--lime); background: #fff; box-shadow: var(--shadow-sm); }
+.travel-state { padding: 5px 9px; background: #fff0f4; color: #b50030; font-weight: 500; }
+.travel-form { padding: 22px; gap: 12px; }
+.travel-form label { font-size: .72rem; font-weight: 500; color: #536171; }
+.travel-form input, .travel-form select { min-height: 38px; padding: 8px 11px; font-size: .76rem; }
+.travel-subheading { margin-top: 14px; color: var(--text); font-weight: 600; }
+.travel-map-panel { border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-sm); }
+.travel-map-tabs { top: 12px; left: 12px; overflow: hidden; border-radius: 9px; box-shadow: var(--shadow-sm); }
+.travel-map-tabs button { padding: 9px 12px; font-weight: 500; }
+.operational-kpis { gap: 14px; }
+.operational-kpi { min-height: 96px; padding: 16px 18px; }
+.operational-kpi span { color: var(--text-dim); font-size: .72rem; font-weight: 500; }
+.operational-kpi strong { font-size: 1.55rem; }
+.operational-section { padding: 20px; }
+.operational-section h3 { font-size: 1rem; letter-spacing: -.015em; }
+.operational-map-placeholder { border-radius: 12px; background: #f3f6f9; }
+.distribution-chart { padding: 16px; }
+
+@media (max-width: 760px) {
+  #sidebar { width: 100%; padding: 12px; }
+  #app-title { justify-content: center; margin-bottom: 14px; }
+  #main-header { padding: 10px 14px; }
+  #message-list { padding: 18px 12px; }
+  #composer { padding: 12px; }
+  #crm-dashboard { padding: 22px 14px; }
+  .crm-cards { gap: 10px; }
+  .crm-card { min-height: 96px; padding: 14px; }
 }

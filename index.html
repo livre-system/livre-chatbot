@@ -23,9 +23,9 @@
   <link rel="apple-touch-icon" href="images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3R9z8qkq5p8t1p3f3gD3wXQ5v0xQ=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css?v=1786658006">
+  <link rel="stylesheet" href="css/style.css?v=1786658008">
 </head>
 <body>
 
@@ -40,13 +40,18 @@
         <img src="images/logo_livre.png" alt="HASH" id="app-logo">
       </div>
       <nav id="main-navigation" aria-label="Navegación principal">
-        <button type="button" class="main-nav-item main-nav-item--active" data-view="control">Control operacional</button>
+        <button type="button" class="main-nav-item main-nav-item--active" data-view="control">Operaciones</button>
         <button type="button" class="main-nav-item" data-view="livi">LIVI IA</button>
         <button type="button" class="main-nav-item" data-view="crear-viaje">Crear un viaje</button>
         <button type="button" class="main-nav-item" data-view="travels">Gestión de viajes</button>
         <button type="button" class="main-nav-item" data-view="drivers">Choferes</button>
         <button type="button" class="main-nav-item" data-view="vehicles">Vehículos</button>
+        <button type="button" class="main-nav-item" data-view="passengers">Clientes</button>
       </nav>
+      <div class="sidebar-account-actions">
+        <button type="button" class="main-nav-item" id="sidebar-settings">Ajustes</button>
+        <button type="button" class="main-nav-item" id="sidebar-logout">Cerrar sesión</button>
+      </div>
     </aside>
 
     <main id="main">
@@ -86,9 +91,9 @@
           <div class="travel-map-panel" aria-label="Mapa OpenStreetMap"><div id="travel-map"></div><small>OpenStreetMap · Las direcciones se ubican en el mapa para verificar el recorrido.</small></div>
       </section>
 
-      <section id="crm-dashboard" class="panel-view" hidden aria-label="Control operacional">
+      <section id="crm-dashboard" class="panel-view" hidden aria-label="Operaciones">
         <div class="crm-dashboard-header">
-          <div><h2 id="crm-title">Control operacional</h2><p id="crm-subtitle">Resumen actualizado de la operación.</p></div>
+          <div><h2 id="crm-title">Operaciones</h2><p id="crm-subtitle">Resumen actualizado de la operación.</p></div>
           <button type="button" id="crm-refresh">Actualizar</button>
         </div>
         <div id="crm-cards" class="crm-cards"></div>

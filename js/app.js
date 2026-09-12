@@ -310,6 +310,21 @@ async function loadCrmData() {
       status.textContent = 'Viajes actualizados desde MAGIIS.';
       return;
     }
+    if (resource === 'passengers') {
+      const liveParams = new URLSearchParams({
+        page: String(Math.floor(crmOffset / 20) + 1),
+        size: '20',
+        q: query.trim(),
+      });
+      const data = await apiCrm('passengers?' + liveParams.toString());
+      renderCrmTable({
+        resource: 'passengers',
+        items: data.items.map(item => ({ magiis_id: item.id || item.passengerUserId || item.code, raw_payload: item })),
+        total: data.total,
+      });
+      status.textContent = 'Clientes actualizados desde MAGIIS.';
+      return;
+    }
     const [summary, data] = await Promise.all([
       apiCrm('summary'),
       apiCrm(resource + '?' + params.toString()),
@@ -337,8 +352,9 @@ function showCrm(resource) {
     travels: ['Gestión de viajes', 'Listado y estado de los viajes.'],
     drivers: ['Choferes', 'Listado de choferes registrados.'],
     vehicles: ['Vehículos', 'Listado de vehículos registrados.'],
+    passengers: ['Clientes', 'Listado de clientes registrados.'],
   };
-  const title = crmMode === 'control' ? ['Control operacional', 'Resumen actualizado de la operación.'] : (titles[resource] || ['Gestión de datos', 'Datos registrados.']);
+  const title = crmMode === 'control' ? ['Operaciones', 'Resumen actualizado de la operación.'] : (titles[resource] || ['Gestión de datos', 'Datos registrados.']);
   document.getElementById('crm-title').textContent = title[0];
   document.getElementById('crm-subtitle').textContent = title[1];
   document.getElementById('crm-cards').hidden = true;
@@ -1860,7 +1876,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const view = btn.dataset.view;
       if (view === 'control') {
         showCrm('control');
-      } else if (view === 'travels' || view === 'drivers' || view === 'vehicles') {
+      } else if (view === 'travels' || view === 'drivers' || view === 'vehicles' || view === 'passengers') {
         showCrm(view);
       } else if (view === 'crear-viaje') {
         showTravelForm();
@@ -1872,6 +1888,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('crm-back').addEventListener('click', showChat);
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
+  document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
+  document.getElementById('sidebar-logout').addEventListener('click', logout);
   document.getElementById('travel-create-form').addEventListener('submit', createTravelFromForm);
   document.getElementById('travel-cancel-button').addEventListener('click', cancelCreatedTravel);
   document.getElementById('travel-programmed').addEventListener('change', toggleTravelSchedule);
