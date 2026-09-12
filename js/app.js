@@ -200,13 +200,15 @@ function renderTravelManagement(data, summary) {
   const table = document.getElementById('travel-management-table');
   const pick = (payload, keys) => { for (const key of keys) if (payload[key] !== undefined && payload[key] !== null && payload[key] !== '') return payload[key]; return '—'; };
   const rows = data.items.map(item => {
-    const p = item.raw_payload || {};
-    const state = pick({ ...p, state: item.state }, ['state', 'status', 'travelStatus']);
-    return `<tr><td>${crmEscape(item.magiis_id)}</td><td>${crmEscape(p.type || p.travelType || '—')}</td><td>${crmEscape(item.travel_date || pick(p, ['date', 'travelDate', 'scheduledAt']))}</td><td>${crmEscape(p.driverName || p.driver || item.driver_magiis_id || '—')}</td><td>${crmEscape(p.passengerName || p.passenger || item.passenger_magiis_id || '—')}</td><td>${crmEscape(p.origin || p.from || '—')}</td><td>${crmEscape(p.destination || p.to || '—')}</td><td>${crmEscape(p.budget || p.price || p.amount || '—')}</td><td>${crmEscape(p.vehicleType || p.vehicle || '—')}</td><td><span class="travel-state">${crmEscape(state)}</span></td><td>${crmEscape(p.tea || '—')}</td><td>${crmEscape(p.distanceToPassenger || '—')}</td><td>${crmEscape(p.queueTime || '—')}</td><td>${crmEscape(p.cancellations || '—')}</td></tr>`;
+    const p = item.raw_payload || item;
+    const state = pick(p, ['state', 'status', 'travelStatus']);
+    const driver = [p.driverFirstName, p.driverLastName].filter(Boolean).join(' ') || p.driverName || p.driver || '—';
+    const passenger = [p.passengerFirstName, p.passengerLastName].filter(Boolean).join(' ') || p.passengerName || p.passenger || '—';
+    return `<tr><td>${crmEscape(p.travelId ?? item.magiis_id)}</td><td>${crmEscape(p.serviceType || p.type || p.travelType || '—')}</td><td>${crmEscape(p.travelDate || p.creationDate || p.scheduledAt)}</td><td>${crmEscape(driver)}</td><td>${crmEscape(passenger)}</td><td>${crmEscape(p.origin || p.from || '—')}</td><td>${crmEscape(p.destination || p.to || '—')}</td><td>${crmEscape(p.finalPrice ?? p.budget ?? p.price ?? p.amount)}</td><td>${crmEscape(p.vehicleMark && p.vehicleModel ? `${p.vehicleMark} ${p.vehicleModel}` : p.vehicleType || p.vehicle || '—')}</td><td><span class="travel-state">${crmEscape(state)}</span></td><td>${crmEscape(p.etafromBase)}</td><td>${crmEscape(p.distanceToPPUP)}</td><td>${crmEscape(p.travelDuration)}</td><td>${crmEscape(p.candidateCanceledQty)}</td></tr>`;
   }).join('');
-  table.innerHTML = `<div class="travel-table-scroll"><table><thead><tr><th>Código</th><th>Tipo</th><th>Fecha</th><th>Chofer</th><th>Pasajero</th><th>Origen</th><th>Destino</th><th>Presup.</th><th>Tipo de Vehículo</th><th>Estado</th><th>TEA</th><th>Distancia al Pasajero</th><th>T. en cola</th><th>Canc.-Cand</th></tr></thead><tbody>${rows || '<tr><td colspan="14">No hay viajes registrados.</td></tr>'}</tbody></table></div><div class="travel-table-footer"><span>Total: ${data.total}</span><span>Mostrar <b>20</b> · 1 de 1</span></div>`;
-  const sync = summary.last_sync && (summary.last_sync.finished_at || summary.last_sync.started_at);
-  document.getElementById('travel-management-sync').textContent = sync ? `Última actualización: ${new Date(sync).toLocaleString('es-AR')}` : 'Última actualización: —';
+  table.innerHTML = `<div class="travel-table-scroll"><table><thead><tr><th>Código</th><th>Tipo</th><th>Fecha</th><th>Chofer</th><th>Pasajero</th><th>Origen</th><th>Destino</th><th>Presup.</th><th>Tipo de Vehículo</th><th>Estado</th><th>TEA</th><th>Distancia al Pasajero</th><th>T. en cola</th><th>Canc.-Cand</th></tr></thead><tbody>${rows || '<tr><td colspan="14">No hay viajes registrados.</td></tr>'}</tbody></table></div><div class="travel-table-footer"><span>Total: ${data.total}</span><span>Mostrar <b>${data.size || 20}</b> · página ${data.page || 1}</span></div>`;
+  const sync = data.source === 'magiis' ? new Date().toLocaleString('es-AR') : summary.last_sync && (summary.last_sync.finished_at || summary.last_sync.started_at);
+  document.getElementById('travel-management-sync').textContent = sync ? `Última actualización: ${sync}` : 'Última actualización: —';
 }
 async function loadCrmData() {
   const status = document.getElementById('crm-status');
@@ -221,8 +223,10 @@ async function loadCrmData() {
         : document.getElementById('crm-search').value;
     if (query.trim()) params.set('q', query.trim());
     if (resource === 'travels') {
-      const date = document.getElementById('travel-management-date').value;
-      if (date) params.set('travel_date', date);
+      const dateFrom = document.getElementById('travel-management-date-from').value;
+      const dateTo = document.getElementById('travel-management-date').value;
+      if (dateFrom) params.set('date_from', dateFrom);
+      if (dateTo) params.set('date_to', dateTo);
       if (travelStateFilter) params.set('state', travelStateFilter);
     }
     if (crmMode === 'control') {
@@ -231,12 +235,30 @@ async function loadCrmData() {
       status.textContent = 'Datos operativos actualizados.';
       return;
     }
+    if (resource === 'travels') {
+      const liveParams = new URLSearchParams({
+        page: String(Math.floor(crmOffset / 20) + 1),
+        size: '20',
+        q: query.trim(),
+        state: travelStateFilter,
+        date_from: document.getElementById('travel-management-date-from').value,
+        date_to: document.getElementById('travel-management-date').value,
+      });
+      const data = await apiCrm('travels/live?' + liveParams.toString());
+      renderTravelManagement(data, {});
+      const totals = data.totals || {};
+      const counts = ['toAsignQuantity', 'inProgressQuantity', 'scheduledQuantity', 'inConflictQuantity', 'lostQuantity', 'cancelledQuantity', 'doneQuantity'];
+      document.querySelectorAll('#travel-management-view .travel-status-tabs small').forEach((node, index) => {
+        node.textContent = totals[counts[index]] ?? 0;
+      });
+      status.textContent = 'Viajes actualizados desde MAGIIS.';
+      return;
+    }
     const [summary, data] = await Promise.all([
       apiCrm('summary'),
       apiCrm(resource + '?' + params.toString()),
     ]);
-    if (resource === 'travels') renderTravelManagement(data, summary);
-    else if (resource === 'drivers') renderDriverManagement(data);
+    if (resource === 'drivers') renderDriverManagement(data);
     else if (resource === 'vehicles') renderVehicleManagement(data);
     else {
       renderCrmCards(summary);
@@ -1815,9 +1837,18 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   document.getElementById('crm-search').addEventListener('input', reloadFromStart);
   document.getElementById('travel-management-search').addEventListener('input', reloadFromStart);
+  document.getElementById('travel-management-date-from').addEventListener('change', reloadFromStart);
   document.getElementById('travel-management-date').addEventListener('change', reloadFromStart);
   document.getElementById('vehicle-management-search').addEventListener('input', reloadFromStart);
-  const travelStates = ['SEARCHING_DRIVER', 'WITH_DRIVER_ASSIGNED', 'RESERVED', 'IN_CONFLICT', 'LOST', 'CANCELLED', 'DONE'];
+  const travelStates = [
+    'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED',
+    'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION',
+    'SCHEDULED-SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED',
+    'NO_AUTH-NO_PAY',
+    'LOST',
+    'CANCELLED',
+    'DONE',
+  ];
   document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
     button.addEventListener('click', () => {
       travelStateFilter = travelStates[index] || '';
