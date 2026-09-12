@@ -49,6 +49,7 @@ const CRM_HIDDEN_FIELDS = {
     'code', 'passengerUserId', 'passengerUserIdForCarrier', 'passenger_user_id_for_carrier',
     'dni', 'city', 'address', 'family', 'paxNote', 'country', 'countryCode', 'country_code',
     'province', 'defaultCarrierCode', 'default_carrier_code', 'isCellphone', 'is_cellphone',
+    'streetName', 'street_name', 'streetNumber', 'street_number', 'addresses', 'isContractor', 'is_contractor',
     'rateDetail', 'rate_detail', 'notificationsQuantity', 'notifications_quantity',
   ]),
 };
