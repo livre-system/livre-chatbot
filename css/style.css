@@ -2750,3 +2750,32 @@ button:not(:disabled):hover { transform: translateY(-1px); }
   .crm-cards { gap: 10px; }
   .crm-card { min-height: 96px; padding: 14px; }
 }
+/* Ajustes de consistencia visual del panel */
+:root { --ui-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+body, button, input, select, textarea { font-family: var(--ui-font); }
+.panel-view { padding: 28px 32px 40px; }
+.travel-page-heading, .crm-heading, .operational-heading { margin-bottom: 24px; }
+.travel-page-heading h2, .crm-heading h2, .operational-heading h2 { margin: 0 0 8px; line-height: 1.2; }
+.travel-page-heading p, .crm-heading p, .operational-heading p { margin: 0; }
+.driver-table-footer, .crm-table-footer { gap: 14px; flex-wrap: wrap; align-items: center; }
+.driver-table-footer button, .crm-table-footer button { min-width: 92px; }
+.driver-table-footer select, .crm-table-footer select { min-width: 72px; }
+.travel-quote { display: grid; gap: 10px; margin-top: 16px; }
+.travel-quote-option { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 14px 16px; border: 1px solid #d9e0ec; border-radius: 12px; background: #fff; cursor: pointer; }
+.travel-quote-option:has(input:checked) { border-color: #2864dc; box-shadow: 0 0 0 2px rgba(40,100,220,.12); }
+.travel-quote-option span { display: grid; gap: 4px; }
+.travel-quote-option small { color: #64748b; font-size: .82rem; }
+.travel-quote-option b { white-space: nowrap; font-size: 1.05rem; }
+.operational-vehicle-summary { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 14px; margin: 0 0 18px; }
+.operational-vehicle-summary article { padding: 16px 18px; border: 1px solid #d9e0ec; border-radius: 12px; background: #fff; }
+.operational-vehicle-summary strong, .operational-vehicle-summary span { display: block; }
+.operational-vehicle-summary strong { font-size: 1.55rem; }
+.operational-vehicle-summary span { color: #64748b; margin-top: 4px; }
+.vehicle-state { display: inline-flex; padding: 4px 9px; border-radius: 999px; font-size: .75rem; font-weight: 700; }
+.vehicle-state--available { color: #11623b; background: #dff7e9; }
+.vehicle-state--unavailable { color: #8b2e2e; background: #fde4e4; }
+@media (max-width: 760px) { .panel-view { padding: 20px 16px 28px; } .operational-vehicle-summary { grid-template-columns: 1fr; } }
+#new-vehicle-modal { background: rgba(15, 23, 42, .58); padding: 20px; }
+#new-vehicle-modal-box { width: min(520px, 100%); max-height: min(680px, calc(100dvh - 40px)); overflow-y: auto; padding: 28px; gap: 16px; background: #fff; color: #172033; border: 0; border-radius: 16px; box-shadow: 0 22px 60px rgba(15,23,42,.28); }
+#new-vehicle-modal-box input, #new-vehicle-modal-box select { padding: 11px 12px; background: #f8fafc; color: #172033; border: 1px solid #cbd5e1; border-radius: 8px; font-size: .95rem; }
+#new-vehicle-modal-box label { gap: 7px; font-size: .86rem; font-weight: 600; }

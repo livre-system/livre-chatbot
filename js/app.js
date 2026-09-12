@@ -185,7 +185,7 @@ function renderCrmTable(data) {
 
 function renderOperationalDashboard(snapshot) {
   const summary = snapshot.status || {};
-  const dashboard = snapshot.drivers || {};
+  const dashboard = snapshot.drivers_by_vehicle || snapshot.drivers || {};
   const items = Array.isArray(dashboard) ? dashboard : dashboard.content || dashboard.page?.content || [];
   const drivers = { items, total: Array.isArray(dashboard) ? dashboard.length : dashboard.totalElements || items.length };
   const value = (key) => summary[key] ?? '—';
@@ -204,16 +204,24 @@ function renderOperationalDashboard(snapshot) {
     `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong></article>`
   ).join('');
 
+  const vehicleStatus = item => {
+    const raw = item.vehicleAvailable ?? item.vehicleStatus ?? item.vehicleState ?? item.driverState ?? item.operability;
+    if (raw === undefined || raw === null || raw === '') return 'SIN ESTADO';
+    if (typeof raw === 'boolean') return raw ? 'DISPONIBLE' : 'NO DISPONIBLE';
+    return /available|disponible|active|operat|libre/i.test(String(raw)) ? 'DISPONIBLE' : 'NO DISPONIBLE';
+  };
+  const availableVehicles = drivers.items.filter(item => vehicleStatus(item) === 'DISPONIBLE').length;
+  const unavailableVehicles = drivers.items.length - availableVehicles;
   const rows = (drivers.items || []).map(item => {
     const data = item;
     const name = [data.firstName || data.name, data.lastName || data.surname].filter(Boolean).join(' ') || '—';
-    const vehicle = data.vehicle || '—';
-    const state = data.driverState || '—';
-    return `<tr><td>${crmEscape(data.driverUserId)}</td><td>${crmEscape(name)}</td><td>${crmEscape(typeof vehicle === 'object' ? vehicle.domain || vehicle.model || '—' : vehicle)}</td><td>${crmEscape(state)}</td><td>—</td></tr>`;
+    const vehicle = data.vehicle || data.vehicleDescription || '—';
+    const state = vehicleStatus(data);
+    return `<tr><td>${crmEscape(data.driverUserId)}</td><td>${crmEscape(name)}</td><td>${crmEscape(typeof vehicle === 'object' ? vehicle.domain || vehicle.model || '—' : vehicle)}</td><td><span class="vehicle-state vehicle-state--${state === 'DISPONIBLE' ? 'available' : 'unavailable'}">${state}</span></td><td>${crmEscape(data.currentTravelId || '—')}</td></tr>`;
   }).join('');
-  document.getElementById('operational-drivers').innerHTML = rows
-    ? `<div class="operational-table-scroll"><table><thead><tr><th>ID</th><th>Chofer</th><th>Vehículo</th><th>Estado informado</th><th>Viaje actual</th></tr></thead><tbody>${rows}</tbody></table></div><small>Mostrando ${drivers.items.length} de ${drivers.total}</small>`
-    : '<p class="crm-empty">No hay choferes registrados.</p>';
+  document.getElementById('operational-drivers').innerHTML = `<div class="operational-vehicle-summary"><article><strong>${availableVehicles}</strong><span>Vehículos disponibles</span></article><article><strong>${unavailableVehicles}</strong><span>Vehículos no disponibles</span></article></div>` + (rows
+    ? `<div class="operational-table-scroll"><table><thead><tr><th>ID</th><th>Chofer</th><th>Vehículo</th><th>Disponibilidad</th><th>Viaje actual</th></tr></thead><tbody>${rows}</tbody></table></div><small>Mostrando ${drivers.items.length} de ${drivers.total}</small>`
+    : '<p class="crm-empty">No hay choferes registrados.</p>');
 }
 
 function renderDriverManagement(data) {
@@ -229,7 +237,20 @@ function renderDriverManagement(data) {
     const rating = p.rating;
     return `<tr><td>${crmEscape(id)}</td><td>${crmEscape(name)}</td><td><span class="driver-phone"><b>🇦🇷</b>${crmEscape(phone)}</span></td><td>${crmEscape(email)}</td><td class="driver-vehicle">${crmEscape(vehicle)}</td><td>${crmEscape(p.vehicleType || '—')}</td><td><span class="vehicle-active-dot ${String(active) === '0' || String(active).toLowerCase() === 'false' ? 'vehicle-inactive' : 'vehicle-active'}">●</span></td><td>${crmEscape(rating || '—')}</td><td><button type="button" class="driver-action" data-driver-detail="${crmEscape(id)}" aria-label="Ver chofer">◉</button><button type="button" class="driver-action" data-driver-edit="${crmEscape(id)}" aria-label="Editar chofer">✎</button></td></tr>`;
   }).join('');
-  table.innerHTML = `<div class="driver-table-scroll"><table><thead><tr><th>Código<br><input data-driver-filter="code" placeholder="⌕"></th><th>Apellido y Nombre<br><input data-driver-filter="name" placeholder="⌕"></th><th>Teléfono<br><input data-driver-filter="phone" placeholder="⌕"></th><th>Email<br><input data-driver-filter="email" placeholder="⌕"></th><th>Vehículo<br><input data-driver-filter="vehicle" placeholder="⌕"></th><th>Tipo de Veh.</th><th>Activo</th><th>Calificación</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No hay choferes registrados.</td></tr>'}</tbody></table></div><div class="driver-table-footer"><span>${data.total} filas</span><span>Página ${data.page || 1} de ${Math.max(1, Math.ceil((data.total || 0) / (data.size || 20)))}</span></div>`;
+  const size = Number(data.size) || crmPageSize;
+  const page = Number(data.page) || Math.floor(crmOffset / size) + 1;
+  const total = Number(data.total) || 0;
+  const totalPages = Math.max(1, Math.ceil(total / size));
+  table.innerHTML = `<div class="driver-table-scroll"><table><thead><tr><th>Código<br><input data-driver-filter="code" placeholder="Buscar"></th><th>Apellido y Nombre<br><input data-driver-filter="name" placeholder="Buscar"></th><th>Teléfono<br><input data-driver-filter="phone" placeholder="Buscar"></th><th>Email<br><input data-driver-filter="email" placeholder="Buscar"></th><th>Vehículo<br><input data-driver-filter="vehicle" placeholder="Buscar"></th><th>Tipo de Veh.</th><th>Activo</th><th>Calificación</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No hay choferes registrados.</td></tr>'}</tbody></table></div><div class="driver-table-footer"><span>Total: ${total}</span><label>Mostrar <select data-driver-size><option value="20" ${size === 20 ? 'selected' : ''}>20</option><option value="50" ${size === 50 ? 'selected' : ''}>50</option><option value="100" ${size === 100 ? 'selected' : ''}>100</option></select></label><span>Página ${page} de ${totalPages}</span><button type="button" data-driver-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>Anterior</button><button type="button" data-driver-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>Siguiente</button></div>`;
+  table.querySelectorAll('[data-driver-page]').forEach(button => button.addEventListener('click', () => {
+    crmOffset = (Number(button.dataset.driverPage) - 1) * crmPageSize;
+    loadCrmData();
+  }));
+  table.querySelector('[data-driver-size]').addEventListener('change', event => {
+    crmPageSize = Number(event.target.value) || 20;
+    crmOffset = 0;
+    loadCrmData();
+  });
   table.querySelectorAll('[data-driver-detail]').forEach(button => button.addEventListener('click', () => loadDriverDetail(button.dataset.driverDetail)));
   table.querySelectorAll('[data-driver-edit]').forEach(button => button.addEventListener('click', () => {
     document.getElementById('crm-status').textContent = 'Editar chofer: MAGIIS no expone una petición de edición en el contrato capturado; no se envió ningún cambio.';
@@ -629,7 +650,22 @@ function closeVehiclePhoto() {
 }
 
 let travelQuote = null;
+let travelQuoteOptions = [];
 const PANEL_WHATSAPP_USER = '5492915650870';
+
+function renderTravelQuotes(options) {
+  const quoteBox = document.getElementById('travel-quote');
+  const available = (options || []).filter(option => ['1', '2'].includes(String(option.transportTypeId)) && String(option.serviceStatus || '').toUpperCase() === 'AVAILABLE');
+  travelQuoteOptions = available;
+  quoteBox.innerHTML = available.map((option, index) => {
+    const id = String(option.transportTypeId || '');
+    const label = id === '1' ? 'Livre Premium' : id === '2' ? 'Livre Ahorro' : `Livre ${id}`;
+    const selected = index === 0 ? ' checked' : '';
+    return `<label class="travel-quote-option"><input type="radio" name="travel-service" value="${crmEscape(id)}"${selected}><span><strong>${label}</strong><small>${crmEscape(option.duration || 'Tiempo no informado')} · ${crmEscape(option.distance ? `${option.distance} km` : 'Distancia no informada')}</small></span><b>$ ${Number(option.pricePointToPoint || 0).toLocaleString('es-AR')}</b></label>`;
+  }).join('');
+  quoteBox.hidden = !available.length;
+  return available;
+}
 
 async function createTravelFromForm(event) {
   event.preventDefault();
@@ -654,6 +690,7 @@ async function createTravelFromForm(event) {
     destino: destination,
     whatsapp_user: PANEL_WHATSAPP_USER,
     date_programmed: programmed ? `${date}T${time}:00` : null,
+    service_type_id: document.querySelector('input[name="travel-service"]:checked')?.value || null,
     conversation_id: travelQuote?.conversation_id || ('panel_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now())),
   };
   const confirming = Boolean(travelQuote
@@ -676,7 +713,8 @@ async function createTravelFromForm(event) {
     const result = data.result || '';
 
     if (!confirming) {
-      if (!result || /no pude cotizar|error:/i.test(result) || !/\$\s*[\d.,]+/.test(result)) {
+      const options = Array.isArray(data.options) ? data.options : [];
+      if (!options.length && (!result || /no pude cotizar|error:/i.test(result))) {
         throw new Error(result || 'No se pudo obtener la cotización.');
       }
       travelQuote = {
@@ -687,9 +725,8 @@ async function createTravelFromForm(event) {
         date,
         time,
       };
-      quoteBox.textContent = result;
-      quoteBox.hidden = false;
-      status.textContent = 'Revisá la cotización y confirmá para crear el viaje.';
+      renderTravelQuotes(options);
+      status.textContent = options.length ? 'Elegí Livre Premium o Livre Ahorro y confirmá el viaje.' : result;
       submit.textContent = 'Confirmar y crear viaje';
       return;
     }
