@@ -2294,6 +2294,7 @@ body {
 #crm-refresh, #crm-back { border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
 .crm-cards { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
 #operational-view { display: grid; gap: 18px; }
+#operational-view[hidden] { display: none !important; }
 .operational-kpis { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px; }
 .operational-kpi { min-height: 76px; padding: 13px 16px; border: 1px solid var(--border); border-radius: 3px; background: #fff; color: #56606b; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .operational-kpi span { font-size: .73rem; }
