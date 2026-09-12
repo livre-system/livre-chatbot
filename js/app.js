@@ -27,7 +27,7 @@ const CRM_LABELS = { passengers: 'Clientes', drivers: 'Choferes', vehicles: 'Veh
 const CRM_FIELD_LABELS = {
   id: 'ID', magiis_id: 'ID', passengerUserId: 'ID del cliente', driverUserId: 'ID del conductor', vehicleId: 'ID del vehículo', travelId: 'ID del viaje',
   code: 'Código', dni: 'DNI', firstName: 'Nombre', name: 'Nombre', lastName: 'Apellido', surname: 'Apellido',
-  phone: 'Teléfono', cellphone: 'Celular', email: 'Correo electrónico', city: 'Ciudad', address: 'Domicilio', country: 'País',
+  phone: 'Teléfono', phoneNumber: 'Phone Number', cellphone: 'Celular', email: 'Correo electrónico', passengerUserEmail: 'Passenger User Email', city: 'Ciudad', address: 'Domicilio', country: 'País',
   rate: 'Tarifa', family: 'Familia', paxNote: 'Observaciones', isPaxVip: 'Cliente VIP',
   state: 'Estado', status: 'Estado', origin: 'Origen', destination: 'Destino', channel: 'Canal', travelDate: 'Fecha del viaje',
   creationDate: 'Fecha de creación', driverId: 'ID del conductor', passengerId: 'ID del cliente', vehicle: 'Vehículo', vehicleId: 'ID del vehículo',
@@ -108,6 +108,15 @@ function renderCrmCards(data) {
 
 function crmColumns(resource, items) {
   const available = new Set(items.flatMap(item => Object.keys(item.raw_payload || {})));
+  if (resource === 'passengers') {
+    const clientFields = [
+      ['firstName'],
+      ['lastName'],
+      ['passengerUserEmail', 'email'],
+      ['phoneNumber', 'phone', 'cellphone'],
+    ];
+    return clientFields.map(keys => keys.find(key => available.has(key))).filter(Boolean);
+  }
   if (resource === 'travels') ['state', 'travelDate', 'passengerId', 'driverId'].forEach(key => available.add(key));
   const preferred = CRM_FIELD_ORDER[resource] || [];
   const ordered = [...preferred.filter(key => available.has(key)), ...available].filter((key, index, all) => all.indexOf(key) === index);
