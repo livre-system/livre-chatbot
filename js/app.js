@@ -410,6 +410,7 @@ async function createTravelFromForm(event) {
   const form = event.currentTarget;
   const status = document.getElementById('travel-form-status');
   const quoteBox = document.getElementById('travel-quote');
+  const cancelButton = document.getElementById('travel-cancel-button');
   const submit = form.querySelector('button[type="submit"]');
   const origin = form.elements.origin.value.trim();
   const destination = form.elements.destination.value.trim();
@@ -468,6 +469,8 @@ async function createTravelFromForm(event) {
     }
 
     status.textContent = result || 'Viaje creado correctamente.';
+    const sentToMagiis = /Viaje pedido correctamente|Viaje ya registrado/i.test(result);
+    cancelButton.hidden = !sentToMagiis;
     form.reset();
     quoteBox.hidden = true;
     quoteBox.textContent = '';
@@ -477,6 +480,28 @@ async function createTravelFromForm(event) {
     status.textContent = error.message || 'No se pudo procesar el viaje.';
   } finally {
     submit.disabled = false;
+  }
+}
+async function cancelCreatedTravel() {
+  const status = document.getElementById('travel-form-status');
+  const cancelButton = document.getElementById('travel-cancel-button');
+  cancelButton.disabled = true;
+  status.textContent = 'Cancelando viaje...';
+  try {
+    const response = await fetch(HASH_CLOUD_URL + '/elevenlabs/cancel', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ whatsapp_user: PANEL_WHATSAPP_USER, reason: 'Cancelación solicitada desde el panel' }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'No se pudo cancelar el viaje.');
+    const result = data.result || '';
+    status.textContent = result || 'Viaje cancelado.';
+    if (/cancelado correctamente/i.test(result)) cancelButton.hidden = true;
+  } catch (error) {
+    status.textContent = error.message || 'No se pudo cancelar el viaje.';
+  } finally {
+    cancelButton.disabled = false;
   }
 }
 
@@ -1770,6 +1795,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('crm-back').addEventListener('click', showChat);
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('travel-create-form').addEventListener('submit', createTravelFromForm);
+  document.getElementById('travel-cancel-button').addEventListener('click', cancelCreatedTravel);
   document.getElementById('travel-programmed').addEventListener('change', toggleTravelSchedule);
   document.getElementById('travel-origin').addEventListener('input', refreshTravelMap);
   document.getElementById('travel-destination').addEventListener('input', refreshTravelMap);
