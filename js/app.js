@@ -274,11 +274,11 @@ async function createManagedVehicle() {
   const status = document.getElementById('new-vehicle-status');
   const submit = document.getElementById('new-vehicle-submit');
   const value = id => document.getElementById(id).value.trim();
-  const card = { domain: value('new-vehicle-domain'), mark: value('new-vehicle-brand'), model: value('new-vehicle-model'), yearOfVehicle: value('new-vehicle-year'), color: value('new-vehicle-color'), vehicleTypeId: value('new-vehicle-type'), chassis: null, motor: null };
+  const card = { domain: value('new-vehicle-domain'), mark: value('new-vehicle-brand'), model: value('new-vehicle-model'), yearOfVehicle: value('new-vehicle-year'), color: value('new-vehicle-color'), vehicleTypeId: value('new-vehicle-type'), chassis: value('new-vehicle-chassis') || null, motor: value('new-vehicle-motor') || null };
   if ([card.domain, card.mark, card.model, card.yearOfVehicle, card.color, card.vehicleTypeId].some(item => !item)) { status.textContent = 'Completá todos los campos obligatorios.'; return; }
   submit.disabled = true; status.textContent = 'Creando...';
   try {
-    const response = await fetch(`${HASH_CLOUD_URL}/crm/vehicles`, { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ carrierUserId: '2421', documents: [], identificationCard: card, characteristics: { haveAirConditioner: false, haveGas: false, haveDiesel: false, haveLuggage: false, haveMascotsPlace: false, kmsTraveled: 0 }, vehicleOwnerId: null, photo: null }) });
+    const response = await fetch(`${HASH_CLOUD_URL}/crm/vehicles`, { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ documents: [], identificationCard: card, characteristics: { haveAirConditioner: false, haveGas: false, haveDiesel: false, haveLuggage: false, haveMascotsPlace: false, kmsTraveled: 0 }, vehicleOwnerId: null, photo: null }) });
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || 'No se pudo crear el vehículo.');
     document.getElementById('new-vehicle-modal').setAttribute('hidden', '');
