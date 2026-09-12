@@ -298,8 +298,13 @@ function showChat() {
 }
 
 function showTravelForm() {
+  const lockScreen = document.getElementById('lock-screen');
+  const app = document.getElementById('app');
   const view = document.getElementById('travel-form-view');
   const form = document.getElementById('travel-create-form');
+  lockScreen.hidden = true;
+  lockScreen.style.removeProperty('display');
+  app.hidden = false;
   view.hidden = false;
   // Clear any stale inline state left by a previous panel/render transition.
   view.style.removeProperty('display');
