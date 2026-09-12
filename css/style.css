@@ -2329,6 +2329,11 @@ body {
 .crm-table-wrap th { color: var(--lime); position: sticky; top: 0; background: var(--black); }
 .crm-table-wrap small, .crm-empty { color: var(--text-dim); }
 @media (max-width: 640px) { .crm-cards { grid-template-columns: repeat(2, 1fr); } #crm-btn { padding: 7px 9px; font-size: .75rem; } }
+#travel-form-view[hidden] { display: none !important; }
+#travel-form-view:not([hidden]),
+#travel-form-view:not([hidden]) .travel-form,
+#travel-form-view:not([hidden]) .travel-form input,
+#travel-form-view:not([hidden]) .travel-form select { pointer-events: auto; }
 .travel-form { max-width: none; display: grid; gap: 10px; padding: 22px 24px; border: 1px solid #dce1e4; border-radius: 3px; background: #fff; color: #657078; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .travel-page-heading { padding: 0 0 14px; border-bottom: 1px solid #dce1e4; color: #7f8a91; }
 .travel-page-heading span { font-size: .7rem; color: #4da9a3; }

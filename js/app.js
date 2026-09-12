@@ -298,11 +298,22 @@ function showChat() {
 }
 
 function showTravelForm() {
-  document.getElementById('travel-form-view').hidden = false;
+  const view = document.getElementById('travel-form-view');
+  const form = document.getElementById('travel-create-form');
+  view.hidden = false;
+  // Clear any stale inline state left by a previous panel/render transition.
+  view.style.removeProperty('display');
+  view.style.removeProperty('pointer-events');
+  form.querySelectorAll('input, select, textarea').forEach(field => {
+    field.disabled = false;
+    field.readOnly = false;
+    field.style.removeProperty('pointer-events');
+  });
   document.getElementById('crm-dashboard').hidden = true;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
   crmVisible = false;
+  form.elements.origin.focus();
 }
 
 function openVehiclePhoto(url) {
