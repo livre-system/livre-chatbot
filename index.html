@@ -58,10 +58,14 @@
         <div class="travel-page-heading"><h2>Crear un viaje</h2><p>Ingresá las direcciones de origen y destino.</p></div>
         <div class="travel-create-layout">
           <form id="travel-create-form" class="travel-form">
-            <label for="travel-origin">Origen <b>*</b></label>
-            <div class="travel-location-field"><i class="travel-marker travel-marker--origin"></i><input id="travel-origin" name="origin" type="text" required autocomplete="street-address" placeholder="Dirección de origen"></div>
-            <label for="travel-destination">Destino <b>*</b></label>
-            <div class="travel-location-field"><i class="travel-marker travel-marker--destination"></i><input id="travel-destination" name="destination" type="text" required autocomplete="street-address" placeholder="Dirección de destino"></div>
+            <div class="travel-field">
+              <label for="travel-origin">Origen <b>*</b></label>
+              <div class="travel-location-field"><i class="travel-marker travel-marker--origin"></i><input id="travel-origin" name="origin" type="text" required autocomplete="street-address" placeholder="Dirección de origen"></div>
+            </div>
+            <div class="travel-field">
+              <label for="travel-destination">Destino <b>*</b></label>
+              <div class="travel-location-field"><i class="travel-marker travel-marker--destination"></i><input id="travel-destination" name="destination" type="text" required autocomplete="street-address" placeholder="Dirección de destino"></div>
+            </div>
             <label class="travel-schedule-toggle"><input id="travel-programmed" name="programmed" type="checkbox"> Programar viaje</label>
             <div id="travel-schedule-fields" class="travel-schedule-fields" hidden>
               <label for="travel-date">Fecha</label><input id="travel-date" name="date" type="date">
@@ -69,8 +73,10 @@
             </div>
             <p id="travel-form-status" aria-live="polite"></p>
             <div id="travel-quote" class="travel-quote" hidden aria-live="polite"></div>
-            <button type="submit" class="travel-submit">Cotizar viaje</button>
-            <button type="button" id="travel-cancel-button" class="travel-submit travel-cancel-submit" hidden>Cancelar viaje</button>
+            <div class="travel-form-actions">
+              <button type="submit" class="travel-submit">Cotizar viaje</button>
+              <button type="button" id="travel-cancel-button" class="travel-submit travel-cancel-submit" hidden>Cancelar viaje</button>
+            </div>
           </form>
           <div class="travel-map-panel" aria-label="Mapa OpenStreetMap"><div id="travel-map"></div><small>OpenStreetMap · Las direcciones se ubican en el mapa para verificar el recorrido.</small></div>
       </section>
