@@ -51,6 +51,7 @@ let crmVisible = false;
 let crmSearchTimer;
 let crmMode = 'control';
 let crmOffset = 0;
+let crmPageSize = 20;
 let travelPageSize = 20;
 let travelStateFilter = '';
 const TRAVEL_DATE_FROM_STATES = new Set(['LOST', 'CANCELED', 'CANCELLED', 'DONE']);
@@ -144,9 +145,22 @@ function renderCrmTable(data) {
     };
     return `<tr><td>${crmEscape(item.magiis_id, 'magiis_id')}</td>${columns.map(key => `<td title="${crmEscape(payload[key], key)}">${renderCrmCell(payload[key], key)}</td>`).join('')}</tr>`;
   });
-  wrap.innerHTML = `<div class="crm-table-scroll"><table><thead><tr><th>ID</th>${columns.map(key => `<th>${crmEscape(crmFieldLabel(key))}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div><small>Mostrando ${data.items.length} de ${data.total}</small>`;
+  const total = Number(data.total) || 0;
+  const size = Number(data.size) || crmPageSize;
+  const page = Number(data.page) || Math.floor(crmOffset / size) + 1;
+  const totalPages = Math.max(1, Math.ceil(total / size));
+  wrap.innerHTML = `<div class="crm-table-scroll"><table><thead><tr><th>ID</th>${columns.map(key => `<th>${crmEscape(crmFieldLabel(key))}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div><div class="crm-table-footer"><span>Total: ${total}</span><label>Mostrar <select data-crm-size><option value="20" ${size === 20 ? 'selected' : ''}>20</option><option value="50" ${size === 50 ? 'selected' : ''}>50</option><option value="100" ${size === 100 ? 'selected' : ''}>100</option></select></label><span>Página ${page} de ${totalPages}</span><button type="button" data-crm-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>Anterior</button><button type="button" data-crm-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>Siguiente</button></div>`;
   wrap.querySelectorAll('.vehicle-photo-button').forEach(button => {
     button.addEventListener('click', () => openVehiclePhoto(button.dataset.photoUrl));
+  });
+  wrap.querySelectorAll('[data-crm-page]').forEach(button => button.addEventListener('click', () => {
+    crmOffset = (Number(button.dataset.crmPage) - 1) * crmPageSize;
+    loadCrmData();
+  }));
+  wrap.querySelector('[data-crm-size]').addEventListener('change', event => {
+    crmPageSize = Number(event.target.value) || 20;
+    crmOffset = 0;
+    loadCrmData();
   });
 }
 
@@ -320,8 +334,8 @@ async function loadCrmData() {
     }
     if (resource === 'passengers') {
       const liveParams = new URLSearchParams({
-        page: String(Math.floor(crmOffset / 20) + 1),
-        size: '20',
+        page: String(Math.floor(crmOffset / crmPageSize) + 1),
+        size: String(crmPageSize),
         q: query.trim(),
       });
       const data = await apiCrm('passengers?' + liveParams.toString());
@@ -329,6 +343,8 @@ async function loadCrmData() {
         resource: 'passengers',
         items: data.items.map(item => ({ magiis_id: item.id || item.passengerUserId || item.code, raw_payload: item })),
         total: data.total,
+        page: data.page,
+        size: data.size,
       });
       status.textContent = 'Clientes actualizados desde MAGIIS.';
       return;
@@ -355,6 +371,7 @@ function showCrm(resource) {
   crmMode = resource === 'control' ? 'control' : 'resource';
   if (resource === 'control') resource = 'travels';
   crmOffset = 0;
+  crmPageSize = 20;
   travelStateFilter = '';
   const titles = {
     travels: ['Gestión de viajes', 'Listado y estado de los viajes.'],

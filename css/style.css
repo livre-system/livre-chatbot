@@ -2334,6 +2334,10 @@ body {
 .crm-table-wrap th, .crm-table-wrap td { border-bottom: 1px solid var(--border); padding: 10px 9px; text-align: left; vertical-align: top; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .crm-table-wrap th { color: var(--lime); position: sticky; top: 0; background: var(--black); }
 .crm-table-wrap small, .crm-empty { color: var(--text-dim); }
+.crm-table-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding: 12px 0; color: var(--text-dim); font-size: .78rem; }
+.crm-table-footer select, .crm-table-footer button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 14px; color: var(--text-dim); background: var(--black); font-size: .75rem; }
+.crm-table-footer button { cursor: pointer; }
+.crm-table-footer button:disabled { cursor: default; opacity: .45; }
 @media (max-width: 640px) { .crm-cards { grid-template-columns: repeat(2, 1fr); } #crm-btn { padding: 7px 9px; font-size: .75rem; } }
 #lock-screen[hidden],
 #app[hidden],
