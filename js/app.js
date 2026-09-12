@@ -14,6 +14,15 @@ async function apiCrm(path) {
   return await res.json();
 }
 
+async function apiOperational() {
+  const token = getToken();
+  const res = await fetch(HASH_CLOUD_URL + '/crm/operational', {
+    headers: { 'Authorization': 'Bearer ' + token },
+  });
+  if (!res.ok) throw new Error('Error ' + res.status);
+  return await res.json();
+}
+
 const CRM_LABELS = { passengers: 'Clientes', drivers: 'Choferes', vehicles: 'Vehículos', travels: 'Viajes' };
 const CRM_FIELD_LABELS = {
   id: 'ID', magiis_id: 'ID', passengerUserId: 'ID del cliente', driverUserId: 'ID del conductor', vehicleId: 'ID del vehículo', travelId: 'ID del viaje',
@@ -123,29 +132,33 @@ function renderCrmTable(data) {
   });
 }
 
-function renderOperationalDashboard(summary, drivers) {
+function renderOperationalDashboard(snapshot) {
+  const summary = snapshot.status || {};
+  const dashboard = snapshot.drivers || {};
+  const items = Array.isArray(dashboard) ? dashboard : dashboard.content || dashboard.page?.content || [];
+  const drivers = { items, total: Array.isArray(dashboard) ? dashboard.length : dashboard.totalElements || items.length };
   const value = (key) => summary[key] ?? '—';
   const kpis = [
-    ['Viajes realizados', value('travels'), 'operational-kpi--primary'],
-    ['Kilómetros', '—', ''],
-    ['Vehículos operando', value('vehicles'), ''],
-    ['Viajes / vehículo', '—', ''],
+    ['Viajes realizados', value('travelsQuantity'), 'operational-kpi--primary'],
+    ['Kilómetros', value('kilometersTotal'), ''],
+    ['Vehículos operando', value('workingVehiclesQuantity'), ''],
+    ['Viajes / vehículo', value('travelsPerVehicle'), ''],
     ['Choferes operando', value('drivers'), ''],
-    ['Viajes / chofer', '—', ''],
-    ['Clientes del día', '—', ''],
-    ['Clientes totales', value('passengers'), ''],
-    ['Distribución por canal', '—', 'operational-kpi--wide'],
+    ['Viajes / chofer', value('travelsPerDriver'), ''],
+    ['Clientes del día', value('clientsIndividualsAmount'), ''],
+    ['Clientes totales', value('clientsTotalAmount'), ''],
+    ['Distribución por canal', value('webTotal'), 'operational-kpi--wide'],
   ];
   document.getElementById('operational-kpis').innerHTML = kpis.map(([label, amount, modifier]) =>
     `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong></article>`
   ).join('');
 
   const rows = (drivers.items || []).map(item => {
-    const data = item.raw_payload || {};
+    const data = item;
     const name = [data.firstName || data.name, data.lastName || data.surname].filter(Boolean).join(' ') || '—';
-    const vehicle = data.vehicle || [data.brand, data.model, data.plate || data.domain].filter(Boolean).join(' ') || '—';
-    const state = data.state || data.status || data.availability || '—';
-    return `<tr><td>${crmEscape(item.magiis_id)}</td><td>${crmEscape(name)}</td><td>${crmEscape(vehicle)}</td><td>${crmEscape(state)}</td><td>—</td></tr>`;
+    const vehicle = data.vehicle || '—';
+    const state = data.driverState || '—';
+    return `<tr><td>${crmEscape(data.driverUserId)}</td><td>${crmEscape(name)}</td><td>${crmEscape(typeof vehicle === 'object' ? vehicle.domain || vehicle.model || '—' : vehicle)}</td><td>${crmEscape(state)}</td><td>—</td></tr>`;
   }).join('');
   document.getElementById('operational-drivers').innerHTML = rows
     ? `<div class="operational-table-scroll"><table><thead><tr><th>ID</th><th>Chofer</th><th>Vehículo</th><th>Estado informado</th><th>Viaje actual</th></tr></thead><tbody>${rows}</tbody></table></div><small>Mostrando ${drivers.items.length} de ${drivers.total}</small>`
@@ -212,12 +225,17 @@ async function loadCrmData() {
       if (date) params.set('travel_date', date);
       if (travelStateFilter) params.set('state', travelStateFilter);
     }
+    if (crmMode === 'control') {
+      const snapshot = await apiOperational();
+      renderOperationalDashboard(snapshot);
+      status.textContent = 'Datos operativos actualizados.';
+      return;
+    }
     const [summary, data] = await Promise.all([
       apiCrm('summary'),
-      crmMode === 'control' ? apiCrm('drivers?limit=50') : apiCrm(resource + '?' + params.toString()),
+      apiCrm(resource + '?' + params.toString()),
     ]);
-    if (crmMode === 'control') renderOperationalDashboard(summary, data);
-    else if (resource === 'travels') renderTravelManagement(data, summary);
+    if (resource === 'travels') renderTravelManagement(data, summary);
     else if (resource === 'drivers') renderDriverManagement(data);
     else if (resource === 'vehicles') renderVehicleManagement(data);
     else {
