@@ -2257,19 +2257,22 @@ body {
 .travel-management-filters input { min-height: 30px; padding: 6px 10px; border: 1px solid #d5dadd; border-radius: 14px; color: #657078; background: #fff; }
 .travel-management-filters label { display: grid; gap: 3px; }
 .travel-management-filters > input { width: 145px; }
-.travel-status-tabs { display: flex; overflow-x: auto; border: 1px solid #dce2e3; background: #f4f7f7; }
-.travel-status-tabs button { flex: 0 0 auto; padding: 9px 12px; border: 0; border-right: 1px solid #e2e7e7; background: transparent; color: #869196; font-size: .67rem; cursor: pointer; }
-.travel-status-tabs button.active { color: #4da9a3; background: #fff; border-top: 2px solid #55b9a9; }
+.travel-status-tabs { display: flex; overflow-x: auto; gap: 4px; padding: 4px; border: 1px solid #dce2e3; border-radius: 14px; background: #f4f7f7; }
+.travel-status-tabs button { flex: 0 0 auto; padding: 8px 12px; border: 0; border-radius: 999px; background: transparent; color: #869196; font-size: .67rem; cursor: pointer; }
+.travel-status-tabs button.active { color: #4da9a3; background: #fff; border-top: 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .travel-status-tabs small { color: #9aa2a6; }
-.travel-management-table { overflow: hidden; border: 1px solid #dce2e3; border-top: 0; background: #fff; }
+.travel-management-table { overflow: hidden; margin-top: 10px; border: 1px solid #dce2e3; border-radius: 12px; background: #fff; }
 .travel-table-scroll { overflow-x: auto; }
 .travel-management-table table { width: 100%; min-width: 1370px; border-collapse: collapse; font-size: .64rem; }
 .travel-management-table th { padding: 9px 7px; text-align: left; color: #59666c; background: #f5f8f8; white-space: nowrap; font-weight: 600; }
 .travel-management-table td { max-width: 125px; padding: 10px 7px; border-top: 1px solid #e4e8e8; color: #59666c; vertical-align: top; }
 .travel-management-table tbody tr:first-child { background: #effafa; }
 .travel-state { display: inline-block; padding: 4px 8px; border-radius: 10px; background: #fff0a8; color: #9d8615; white-space: nowrap; }
-.travel-table-footer { display: flex; justify-content: space-between; padding: 9px; color: #6c767b; font-size: .67rem; }
+.travel-table-footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding: 9px 12px; color: #6c767b; font-size: .67rem; }
 .travel-table-footer b { padding: 3px 9px; border: 1px solid #d5dadd; border-radius: 12px; font-weight: 400; }
+.travel-table-footer select, .travel-table-footer button { padding: 5px 10px; border: 1px solid #d5dadd; border-radius: 14px; color: #657078; background: #fff; font-size: .67rem; }
+.travel-table-footer button { cursor: pointer; }
+.travel-table-footer button:disabled { cursor: default; opacity: .45; }
 .travel-distribution { margin-top: 16px; }
 .distribution-heading { display: flex; gap: 20px; align-items: center; margin-bottom: 12px; color: #4d5960; font-size: .82rem; }
 .distribution-heading small { color: #7e898e; font-size: .65rem; }

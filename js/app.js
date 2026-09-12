@@ -50,6 +50,15 @@ let crmMode = 'control';
 let crmOffset = 0;
 let travelPageSize = 20;
 let travelStateFilter = '';
+const TRAVEL_DATE_FROM_STATES = new Set(['LOST', 'CANCELED', 'CANCELLED', 'DONE']);
+
+function syncTravelDateFromFilter() {
+  const filter = document.getElementById('travel-date-from-filter');
+  const input = document.getElementById('travel-management-date-from');
+  const enabled = TRAVEL_DATE_FROM_STATES.has(travelStateFilter);
+  filter.hidden = !enabled;
+  input.disabled = !enabled;
+}
 
 function crmValue(value, key = '') {
   if (value === null || value === undefined || value === '') return '—';
@@ -263,7 +272,7 @@ async function loadCrmData() {
         state: travelStateFilter,
         date_to: document.getElementById('travel-management-date').value,
       });
-      if (travelStateFilter !== 'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION') {
+      if (TRAVEL_DATE_FROM_STATES.has(travelStateFilter)) {
         liveParams.set('date_from', document.getElementById('travel-management-date-from').value);
       }
       const data = await apiCrm('travels/live?' + liveParams.toString());
@@ -1875,12 +1884,13 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', () => {
       travelStateFilter = travelStates[index] || '';
       crmOffset = 0;
-      document.getElementById('travel-management-date-from').disabled = travelStateFilter === 'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION';
+      syncTravelDateFromFilter();
       document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach(item => item.classList.remove('active'));
       button.classList.add('active');
       loadCrmData();
     });
   });
+  syncTravelDateFromFilter();
   checkAuth();
 });
 
