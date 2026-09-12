@@ -40,9 +40,12 @@ const CRM_FIELD_LABELS = {
   airConditioning: 'Aire acondicionado', hasAirConditioning: 'Aire acondicionado',
 };
 const CRM_FIELD_ORDER = {
-  passengers: ['code', 'passengerUserId', 'firstName', 'lastName', 'dni', 'phone', 'email', 'city', 'address', 'rate', 'family', 'paxNote', 'isPaxVip'],
+  passengers: ['firstName', 'lastName', 'phone', 'email', 'rate', 'paxNote', 'isPaxVip'],
   drivers: ['driverUserId', 'driverId', 'lastName', 'surname', 'firstName', 'name', 'phone', 'email', 'state'],
   vehicles: ['vehicleId', 'id', 'brand', 'model', 'plate', 'domain', 'year', 'photo', 'vehicleType', 'enabled', 'vehicleOwner', 'characteristics', 'documents'],
+};
+const CRM_HIDDEN_FIELDS = {
+  passengers: new Set(['code', 'passengerUserId', 'dni', 'city', 'address', 'family']),
 };
 let crmVisible = false;
 let crmSearchTimer;
@@ -98,7 +101,12 @@ function crmColumns(resource, items) {
   if (resource === 'travels') ['state', 'travelDate', 'passengerId', 'driverId'].forEach(key => available.add(key));
   const preferred = CRM_FIELD_ORDER[resource] || [];
   const ordered = [...preferred.filter(key => available.has(key)), ...available].filter((key, index, all) => all.indexOf(key) === index);
-  return ordered.filter(key => !['photo', 'documents', 'additionalTypes'].includes(key) || resource === 'vehicles').slice(0, 12);
+  const hidden = CRM_HIDDEN_FIELDS[resource] || new Set();
+  return ordered.filter(key => {
+    if (hidden.has(key)) return false;
+    if (['photo', 'documents', 'additionalTypes'].includes(key)) return resource === 'vehicles' && key === 'photo';
+    return true;
+  }).slice(0, 12);
 }
 
 function crmPhotoUrl(value) {
