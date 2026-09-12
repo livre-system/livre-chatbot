@@ -218,18 +218,30 @@ function renderOperationalDashboard(snapshot) {
 function renderDriverManagement(data) {
   const table = document.getElementById('driver-management-table');
   const rows = data.items.map(item => {
-    const p = item.raw_payload || {};
-    const name = p.name || [p.lastName || p.lastname, p.firstName || p.firstname].filter(Boolean).join(' ') || p.fullName || '—';
-    const phone = p.phone || p.telephone || p.mobile || '—';
-    const email = p.email || '—';
-    const vehicle = p.vehicle || p.vehicleName || p.vehicleDomain || p.plate || '—';
-    const active = p.active ?? p.isActive ?? p.enabled;
-    const rating = p.rating ?? p.score ?? p.qualification;
-    const evaluations = p.evaluations ?? p.ratingsCount ?? p.reviewCount;
-    const vehicleText = typeof vehicle === 'object' ? (vehicle.domain || vehicle.plate || vehicle.name || '—') : vehicle;
-    return `<tr><td>${crmEscape(item.magiis_id)}</td><td>${crmEscape(name)}</td><td><span class="driver-phone"><b>🇦🇷</b>${crmEscape(phone)}</span></td><td>${crmEscape(email)}</td><td class="driver-vehicle">${crmEscape(vehicleText)}</td><td>${crmEscape(p.vehicleType || p.type || 'Livre Taxi')}</td><td><span class="vehicle-active-dot ${active === false ? 'vehicle-inactive' : 'vehicle-active'}">●</span></td><td>${rating == null || rating === '' ? '—' : `${crmEscape(rating)}${evaluations == null ? '' : ` (${crmEscape(evaluations)})`}`}</td><td><button type="button" class="driver-action">◉</button><button type="button" class="driver-action">✎</button><button type="button" class="driver-action">☰</button></td></tr>`;
+    const p = item.raw_payload || item;
+    const id = p.driverUserId ?? p.id ?? item.magiis_id;
+    const name = p.driverName || [p.lastName, p.firstName].filter(Boolean).join(' ') || '—';
+    const phone = p.phoneNumber || p.phone || '—';
+    const email = p.driverUserEmail || p.mail || p.email || '—';
+    const vehicle = p.vehicleDescription || [p.vehicleBrand, p.vehicleModel, p.vehicleDomain].filter(Boolean).join(' ') || '—';
+    const active = p.operability;
+    const rating = p.rating;
+    return `<tr><td>${crmEscape(id)}</td><td>${crmEscape(name)}</td><td><span class="driver-phone"><b>🇦🇷</b>${crmEscape(phone)}</span></td><td>${crmEscape(email)}</td><td class="driver-vehicle">${crmEscape(vehicle)}</td><td>${crmEscape(p.vehicleType || '—')}</td><td><span class="vehicle-active-dot ${String(active) === '0' || String(active).toLowerCase() === 'false' ? 'vehicle-inactive' : 'vehicle-active'}">●</span></td><td>${crmEscape(rating || '—')}</td><td><button type="button" class="driver-action" data-driver-detail="${crmEscape(id)}" aria-label="Ver chofer">◉</button><button type="button" class="driver-action" data-driver-edit="${crmEscape(id)}" aria-label="Editar chofer">✎</button></td></tr>`;
   }).join('');
-  table.innerHTML = `<div class="driver-table-scroll"><table><thead><tr><th>Código<br><input data-driver-filter="code" placeholder="⌕"></th><th>Apellido y Nombre<br><input data-driver-filter="name" placeholder="⌕"></th><th>Teléfono<br><input data-driver-filter="phone" placeholder="⌕"></th><th>Email<br><input data-driver-filter="email" placeholder="⌕"></th><th>Vehículo<br><input data-driver-filter="vehicle" placeholder="⌕"></th><th>Tipo de Veh.</th><th>Activo</th><th>Calificación</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No hay choferes registrados.</td></tr>'}</tbody></table></div><div class="driver-table-footer"><span>${data.total} Filas　 <b>10</b>　20　50</span><span>‹　<b>1</b>　2　3　4　5　6　7　8　9　10　❯</span></div>`;
+  table.innerHTML = `<div class="driver-table-scroll"><table><thead><tr><th>Código<br><input data-driver-filter="code" placeholder="⌕"></th><th>Apellido y Nombre<br><input data-driver-filter="name" placeholder="⌕"></th><th>Teléfono<br><input data-driver-filter="phone" placeholder="⌕"></th><th>Email<br><input data-driver-filter="email" placeholder="⌕"></th><th>Vehículo<br><input data-driver-filter="vehicle" placeholder="⌕"></th><th>Tipo de Veh.</th><th>Activo</th><th>Calificación</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No hay choferes registrados.</td></tr>'}</tbody></table></div><div class="driver-table-footer"><span>${data.total} filas</span><span>Página ${data.page || 1} de ${Math.max(1, Math.ceil((data.total || 0) / (data.size || 20)))}</span></div>`;
+  table.querySelectorAll('[data-driver-detail]').forEach(button => button.addEventListener('click', () => loadDriverDetail(button.dataset.driverDetail)));
+  table.querySelectorAll('[data-driver-edit]').forEach(button => button.addEventListener('click', () => {
+    document.getElementById('crm-status').textContent = 'Editar chofer: MAGIIS no expone una petición de edición en el contrato capturado; no se envió ningún cambio.';
+  }));
+}
+
+async function loadDriverDetail(driverId) {
+  try {
+    const detail = await apiCrm(`drivers/${encodeURIComponent(driverId)}/detail`);
+    document.getElementById('crm-status').textContent = `Detalle cargado: ${detail.firstName || ''} ${detail.lastName || ''} · ${detail.mail || detail.driverUserEmail || 'sin email'} · ${detail.phoneNumber || 'sin teléfono'}`;
+  } catch (error) {
+    document.getElementById('crm-status').textContent = 'No se pudo cargar el detalle del chofer.';
+  }
 }
 
 function renderVehicleManagement(data) {
@@ -365,6 +377,17 @@ async function loadCrmData() {
         size: data.size,
       });
       status.textContent = 'Clientes actualizados desde MAGIIS.';
+      return;
+    }
+    if (resource === 'drivers') {
+      const liveParams = new URLSearchParams({
+        page: String(Math.floor(crmOffset / crmPageSize) + 1),
+        size: String(crmPageSize),
+        driver_name: query.trim(),
+      });
+      const data = await apiCrm('drivers/live?' + liveParams.toString());
+      renderDriverManagement(data);
+      status.textContent = 'Choferes actualizados desde MAGIIS.';
       return;
     }
     const [summary, data] = await Promise.all([

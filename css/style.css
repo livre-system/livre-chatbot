@@ -2218,11 +2218,8 @@ body {
 /* Operaciones: tablas y formularios */
 .driver-management-heading { padding: 0 0 12px; border-bottom: 1px solid #d9dddf; color: #4da9a3; font-size: .7rem; }
 .driver-management-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 0 8px; }
-.driver-new-button, .driver-pdf-button { padding: 7px 14px; border-radius: 15px; font-size: .68rem; }
-.driver-new-button { border: 0; color: #fff; background: #55b9a9; }
-.driver-pdf-button { border: 1px solid #e1e5e7; color: #657078; background: #f6f7f7; }
 .driver-management-table { overflow: hidden; border: 1px solid #dce2e3; border-radius: 3px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-.driver-table-scroll { overflow-x: auto; }
+.driver-table-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
 .driver-management-table table { width: 100%; min-width: 1050px; border-collapse: collapse; color: #59666c; font-size: .65rem; }
 .driver-management-table th { padding: 5px 7px; border-bottom: 1px solid #d5dcdd; text-align: left; background: #f5f8f8; white-space: nowrap; font-weight: 500; vertical-align: top; }
 .driver-management-table th input { box-sizing: border-box; width: 100%; min-width: 62px; margin-top: 5px; padding: 4px 5px; border: 1px solid #d5dcdd; color: #657078; background: #fff; font-size: .62rem; }
@@ -2398,7 +2395,6 @@ body {
 .travel-note-heading button,
 #travel-form-status { color: var(--lime); }
 
-.driver-new-button,
 .driver-table-footer b,
 .vehicle-new-button,
 .travel-account-row span,
@@ -2409,7 +2405,6 @@ body {
 
 .travel-marker--destination { background: var(--lime-dim); }
 
-.driver-pdf-button,
 .vehicle-pdf-button,
 .travel-account-row button,
 .travel-note-heading button,
@@ -2474,7 +2469,6 @@ body {
 .vehicle-action,
 .vehicle-image-empty { background: var(--text-dim); }
 
-.driver-pdf-button,
 .vehicle-pdf-button,
 .travel-form label,
 .travel-form input,
@@ -2713,8 +2707,8 @@ button:not(:disabled):hover { transform: translateY(-1px); }
 /* Vistas operativas: un único lenguaje visual, sin rastros de tabla legacy */
 .driver-management-heading, .vehicle-page-heading { padding-bottom: 16px; border-bottom-color: var(--border); font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; }
 .driver-management-actions, .vehicle-management-toolbar, .travel-management-filters { padding: 18px 0 14px; }
-.driver-new-button, .vehicle-new-button, .travel-submit { border-radius: 10px; padding: 10px 16px; font-size: .75rem; font-weight: 600; box-shadow: 0 5px 12px rgba(232,0,61,.14); }
-.driver-pdf-button, .vehicle-pdf-button { border-radius: 10px; padding: 10px 14px; background: #fff; font-size: .75rem; }
+.vehicle-new-button, .travel-submit { border-radius: 10px; padding: 10px 16px; font-size: .75rem; font-weight: 600; box-shadow: 0 5px 12px rgba(232,0,61,.14); }
+.vehicle-pdf-button { border-radius: 10px; padding: 10px 14px; background: #fff; font-size: .75rem; }
 .driver-management-table, .vehicle-management-table, .travel-management-table, .distribution-chart, .operational-section, .operational-kpi, .travel-form {
   border: 1px solid var(--border);
   border-radius: 16px;
