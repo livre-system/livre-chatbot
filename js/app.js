@@ -249,13 +249,42 @@ function renderVehicleManagement(data) {
   const rows = data.items.map(item => {
     const p = item.raw_payload || {};
     const photo = crmPhotoUrl(p.photo || p.image || p.images);
-    const name = [p.brand || p.make, p.model].filter(Boolean).join(' ') || '—';
+    const card = p.identificationCard || {};
     const owner = p.ownerName || p.owner || p.proprietor || '—';
     const active = p.active ?? p.isActive ?? p.enabled;
     const activeClass = active === false ? 'vehicle-inactive' : 'vehicle-active';
-    return `<tr><td>${crmEscape(item.magiis_id)}</td><td><span class="vehicle-domain-cell">${photo && /^https?:\/\//i.test(photo) ? `<img src="${crmEscape(photo)}" alt="Vehículo" loading="lazy">` : '<span class="vehicle-image-empty">—</span>'}${crmEscape(p.domain || p.plate || p.licensePlate || '—')}</span></td><td>${crmEscape(p.brand || p.make || '—')}</td><td>${crmEscape(p.model || '—')}</td><td>${crmEscape(p.type || p.vehicleType || 'Livre Taxi')}</td><td class="vehicle-owner">${crmEscape(owner)}</td><td><span class="vehicle-active-dot ${activeClass}">●</span></td><td><button type="button" class="vehicle-action" aria-label="Ver vehículo">◉</button><button type="button" class="vehicle-action" aria-label="Editar vehículo">✎</button></td></tr>`;
+    return `<tr><td>${crmEscape(item.magiis_id)}</td><td><span class="vehicle-domain-cell">${photo && /^https?:\/\//i.test(photo) ? `<img src="${crmEscape(photo)}" alt="Vehículo" loading="lazy">` : '<span class="vehicle-image-empty">—</span>'}${crmEscape(card.domain || p.domain || p.plate || p.licensePlate || '—')}</span></td><td>${crmEscape(card.mark || p.brand || p.make || '—')}</td><td>${crmEscape(card.model || p.model || '—')}</td><td>${crmEscape(card.transportType?.name || card.typeTraslated || p.type || p.vehicleType || 'Livre Taxi')}</td><td class="vehicle-owner">${crmEscape(owner)}</td><td><span class="vehicle-active-dot ${activeClass}">●</span></td><td><button type="button" class="vehicle-action" aria-label="Ver vehículo">◉</button><button type="button" class="vehicle-action" aria-label="Editar vehículo">✎</button></td></tr>`;
   }).join('');
   table.innerHTML = `<div class="vehicle-table-scroll"><table><thead><tr><th>↕ Código</th><th>↕ Dominio</th><th>↕ Marca</th><th>↕ Modelo</th><th>↕ Tipo</th><th>↕ Propietario</th><th>Activo</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="8">No hay vehículos registrados.</td></tr>'}</tbody></table></div><div class="vehicle-table-footer"><span>Total: ${data.total}</span><span>Mostrar <b>20⌄</b>　1 de ${Math.max(1, Math.ceil(data.total / 20))}　❯❯</span><span>⟳</span></div>`;
+}
+
+function openNewVehicleModal() {
+  const modal = document.getElementById('new-vehicle-modal');
+  const status = document.getElementById('new-vehicle-status');
+  status.textContent = 'Cargando tipos...';
+  apiCrm('vehicles/types').then(data => {
+    document.getElementById('new-vehicle-type').innerHTML = (data.items || []).map(type => `<option value="${crmEscape(type.id)}">${crmEscape(type.name || type.description || type.id)}</option>`).join('');
+    status.textContent = '';
+    modal.removeAttribute('hidden');
+    document.getElementById('new-vehicle-domain').focus();
+  }).catch(() => { status.textContent = 'No se pudieron cargar los tipos de vehículo.'; modal.removeAttribute('hidden'); });
+}
+
+async function createManagedVehicle() {
+  const status = document.getElementById('new-vehicle-status');
+  const submit = document.getElementById('new-vehicle-submit');
+  const value = id => document.getElementById(id).value.trim();
+  const card = { domain: value('new-vehicle-domain'), mark: value('new-vehicle-brand'), model: value('new-vehicle-model'), yearOfVehicle: value('new-vehicle-year'), color: value('new-vehicle-color'), vehicleTypeId: value('new-vehicle-type'), chassis: null, motor: null };
+  if ([card.domain, card.mark, card.model, card.yearOfVehicle, card.color, card.vehicleTypeId].some(item => !item)) { status.textContent = 'Completá todos los campos obligatorios.'; return; }
+  submit.disabled = true; status.textContent = 'Creando...';
+  try {
+    const response = await fetch(`${HASH_CLOUD_URL}/crm/vehicles`, { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ carrierUserId: '2421', documents: [], identificationCard: card, characteristics: { haveAirConditioner: false, haveGas: false, haveDiesel: false, haveLuggage: false, haveMascotsPlace: false, kmsTraveled: 0 }, vehicleOwnerId: null, photo: null }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'No se pudo crear el vehículo.');
+    document.getElementById('new-vehicle-modal').setAttribute('hidden', '');
+    document.getElementById('crm-status').textContent = 'Vehículo creado correctamente.';
+    loadCrmData();
+  } catch (error) { status.textContent = error.message; } finally { submit.disabled = false; }
 }
 
 function renderTravelManagement(data, summary) {
@@ -377,6 +406,13 @@ async function loadCrmData() {
         size: data.size,
       });
       status.textContent = 'Clientes actualizados desde MAGIIS.';
+      return;
+    }
+    if (resource === 'vehicles') {
+      const liveParams = new URLSearchParams({ page: String(Math.floor(crmOffset / crmPageSize) + 1), size: String(crmPageSize), q: query.trim() });
+      const data = await apiCrm('vehicles/live?' + liveParams.toString());
+      renderVehicleManagement(data);
+      status.textContent = 'Vehículos actualizados desde MAGIIS.';
       return;
     }
     if (resource === 'drivers') {
@@ -1980,6 +2016,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('travel-management-date-from').addEventListener('change', reloadFromStart);
   document.getElementById('travel-management-date').addEventListener('change', reloadFromStart);
   document.getElementById('vehicle-management-search').addEventListener('input', reloadFromStart);
+  document.querySelector('.vehicle-new-button').addEventListener('click', openNewVehicleModal);
+  document.getElementById('new-vehicle-cancel').addEventListener('click', () => document.getElementById('new-vehicle-modal').setAttribute('hidden', ''));
+  document.getElementById('new-vehicle-submit').addEventListener('click', createManagedVehicle);
   const travelStates = [
     'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED',
     'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION',

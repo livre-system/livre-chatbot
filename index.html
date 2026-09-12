@@ -98,13 +98,12 @@
         </div>
         <div id="crm-cards" class="crm-cards"></div>
         <div id="driver-management-view" hidden aria-label="Gestión de choferes">
-          <div class="driver-management-heading"><span>home / Choferes / Gestión de Choferes</span></div>
           <div class="driver-management-actions"></div>
           <div id="driver-management-table" class="driver-management-table"></div>
         </div>
         <div id="vehicle-management-view" hidden aria-label="Gestión de vehículos">
           <div class="vehicle-page-heading"><span>home / Vehículos / Gestión de Vehículos</span><h2>🚕 Gestión de Vehículos</h2></div>
-          <div class="vehicle-management-toolbar"><input id="vehicle-management-search" type="search" placeholder="Buscar..." autocomplete="off"><label>Todos <span class="vehicle-switch"></span> Solo Activos</label><button type="button" class="vehicle-new-button">Nuevo Vehículo</button><button type="button" class="vehicle-pdf-button">▧ PDF</button></div>
+          <div class="vehicle-management-toolbar"><input id="vehicle-management-search" type="search" placeholder="Buscar..." autocomplete="off"><label>Todos <span class="vehicle-switch"></span> Solo Activos</label><button type="button" class="vehicle-new-button">Nuevo Vehículo</button></div>
           <div id="vehicle-management-table" class="vehicle-management-table"></div>
         </div>
         <div id="travel-management-view" hidden aria-label="Gestión de viajes">
@@ -156,6 +155,19 @@
     <div id="vehicle-photo-modal-box">
       <button type="button" id="vehicle-photo-close" aria-label="Cerrar">✕</button>
       <img id="vehicle-photo-large" alt="Foto del vehículo">
+    </div>
+  </div>
+  <div id="new-vehicle-modal" hidden role="dialog" aria-modal="true" aria-labelledby="new-vehicle-title">
+    <div id="new-vehicle-modal-box">
+      <h3 id="new-vehicle-title">Nuevo vehículo</h3>
+      <label>Dominio <input id="new-vehicle-domain" required maxlength="20" autocomplete="off"></label>
+      <label>Marca <input id="new-vehicle-brand" required maxlength="60" autocomplete="off"></label>
+      <label>Modelo <input id="new-vehicle-model" required maxlength="60" autocomplete="off"></label>
+      <label>Año <input id="new-vehicle-year" type="number" min="1900" max="2100" required></label>
+      <label>Color <input id="new-vehicle-color" required maxlength="40" autocomplete="off"></label>
+      <label>Tipo <select id="new-vehicle-type" required></select></label>
+      <p id="new-vehicle-status" aria-live="polite"></p>
+      <div id="new-vehicle-actions"><button type="button" id="new-vehicle-cancel">Cancelar</button><button type="button" id="new-vehicle-submit">Crear vehículo</button></div>
     </div>
   </div>
   <div id="sidebar-overlay"></div>

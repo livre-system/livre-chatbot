@@ -356,6 +356,8 @@ body {
   background: #eeeeee;
 }
 
+#new-vehicle-modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);display:grid;place-items:center}#new-vehicle-modal[hidden]{display:none}#new-vehicle-modal-box{width:min(460px,calc(100% - 32px));padding:24px;background:#151515;border:1px solid #444;border-radius:12px;display:grid;gap:12px}#new-vehicle-modal-box label{display:grid;gap:5px}#new-vehicle-modal-box input,#new-vehicle-modal-box select{padding:9px;background:#222;color:#fff;border:1px solid #555;border-radius:5px}#new-vehicle-actions{display:flex;justify-content:flex-end;gap:8px}#new-vehicle-status{min-height:20px}
+
 /* Overlay mobile */
 #sidebar-overlay {
   display: none;
