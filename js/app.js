@@ -47,7 +47,8 @@ const CRM_FIELD_ORDER = {
 const CRM_HIDDEN_FIELDS = {
   passengers: new Set([
     'code', 'passengerUserId', 'passengerUserIdForCarrier', 'passenger_user_id_for_carrier',
-    'dni', 'city', 'address', 'family', 'paxNote', 'countryCode', 'country_code',
+    'dni', 'city', 'address', 'family', 'paxNote', 'country', 'countryCode', 'country_code',
+    'province', 'defaultCarrierCode', 'default_carrier_code', 'isCellphone', 'is_cellphone',
     'rateDetail', 'rate_detail', 'notificationsQuantity', 'notifications_quantity',
   ]),
 };

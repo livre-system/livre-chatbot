@@ -2338,7 +2338,7 @@ body {
 .crm-table-footer select, .crm-table-footer button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 14px; color: var(--text-dim); background: var(--black); font-size: .75rem; }
 .crm-table-footer button { cursor: pointer; }
 .crm-table-footer button:disabled { cursor: default; opacity: .45; }
-@media (max-width: 640px) { .crm-cards { grid-template-columns: repeat(2, 1fr); } #crm-btn { padding: 7px 9px; font-size: .75rem; } }
+@media (max-width: 640px) { .crm-cards { grid-template-columns: repeat(2, 1fr); } #crm-btn { padding: 7px 9px; font-size: .75rem; } .crm-table-footer { justify-content: flex-start; } }
 #lock-screen[hidden],
 #app[hidden],
 #travel-form-view[hidden] { display: none !important; }
