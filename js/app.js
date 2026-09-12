@@ -40,7 +40,7 @@ const CRM_FIELD_LABELS = {
   airConditioning: 'Aire acondicionado', hasAirConditioning: 'Aire acondicionado',
 };
 const CRM_FIELD_ORDER = {
-  passengers: ['firstName', 'lastName', 'phone', 'email', 'rate', 'isPaxVip'],
+  passengers: ['firstName', 'lastName', 'phone', 'email'],
   drivers: ['driverUserId', 'driverId', 'lastName', 'surname', 'firstName', 'name', 'phone', 'email', 'state'],
   vehicles: ['vehicleId', 'id', 'brand', 'model', 'plate', 'domain', 'year', 'photo', 'vehicleType', 'enabled', 'vehicleOwner', 'characteristics', 'documents'],
 };
@@ -50,7 +50,10 @@ const CRM_HIDDEN_FIELDS = {
     'dni', 'city', 'address', 'family', 'paxNote', 'country', 'countryCode', 'country_code',
     'province', 'defaultCarrierCode', 'default_carrier_code', 'isCellphone', 'is_cellphone',
     'streetName', 'street_name', 'streetNumber', 'street_number', 'addresses', 'isContractor', 'is_contractor',
-    'rateDetail', 'rate_detail', 'notificationsQuantity', 'notifications_quantity',
+    'operability', 'isPassenger', 'is_passenger', 'acceptSimultaneousTrips', 'accept_simultaneous_trips',
+    'passengerImage', 'passenger_image', 'tokenToConfirm', 'token_to_confirm', 'rate', 'isPaxVip',
+    'passengerAccountId', 'passenger_account_id', 'rateDetail', 'rate_detail',
+    'notificationsQuantity', 'notifications_quantity',
   ]),
 };
 let crmVisible = false;
