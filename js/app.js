@@ -297,6 +297,71 @@ function showChat() {
   crmVisible = false;
 }
 
+let travelMap = null;
+let travelMapMarkers = [];
+let travelRoute = null;
+let geocodeTimers = {};
+
+function initTravelMap() {
+  if (travelMap || !window.L || !document.getElementById('travel-map')) return;
+  travelMap = L.map('travel-map').setView([-38.7183, -62.2663], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(travelMap);
+}
+
+function refreshTravelMap() {
+  const fields = [
+    ['travel-origin', 'Origen'],
+    ['travel-destination', 'Destino'],
+  ];
+  clearTimeout(geocodeTimers.map);
+  geocodeTimers.map = setTimeout(async () => {
+    initTravelMap();
+    if (!travelMap) return;
+    travelMapMarkers.forEach(marker => marker.remove());
+    travelMapMarkers = [];
+    travelRoute?.remove();
+    travelRoute = null;
+    const bounds = [];
+    const routePoints = [];
+    for (const [id, label] of fields) {
+      const value = document.getElementById(id)?.value.trim();
+      if (!value || value.length < 5) continue;
+      try {
+        const query = encodeURIComponent(`${value}, Bahía Blanca, Argentina`);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=ar&q=${query}`, { headers: { Accept: 'application/json' } });
+        const results = await response.json();
+        if (!results.length) continue;
+        const point = [Number(results[0].lat), Number(results[0].lon)];
+        const marker = L.marker(point).addTo(travelMap).bindPopup(`${label}: ${value}`);
+        travelMapMarkers.push(marker);
+        bounds.push(point);
+        routePoints.push([point[1], point[0]]);
+      } catch (_) { /* el viaje sigue usando la resolución de MAGIIS */ }
+    }
+    if (routePoints.length === 2) {
+      try {
+        const route = encodeURIComponent(routePoints.map(point => point.join(',')).join(';'));
+        const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${route}?overview=full&geometries=geojson`);
+        const data = await response.json();
+        if (data.routes?.[0]?.geometry) {
+          travelRoute = L.geoJSON(data.routes[0].geometry, { style: { color: '#55b9a9', weight: 5, opacity: 0.85 } }).addTo(travelMap);
+        }
+      } catch (_) { /* los marcadores siguen visibles aunque OSRM no responda */ }
+    }
+    if (bounds.length) travelMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
+  }, 650);
+}
+
+function toggleTravelSchedule() {
+  const enabled = document.getElementById('travel-programmed').checked;
+  document.getElementById('travel-schedule-fields').hidden = !enabled;
+  document.getElementById('travel-date').required = enabled;
+  document.getElementById('travel-time').required = enabled;
+}
+
 function showTravelForm() {
   const lockScreen = document.getElementById('lock-screen');
   const app = document.getElementById('app');
@@ -318,6 +383,8 @@ function showTravelForm() {
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
   crmVisible = false;
+  initTravelMap();
+  setTimeout(() => travelMap?.invalidateSize(), 0);
   form.elements.origin.focus();
 }
 
@@ -341,8 +408,15 @@ async function createTravelFromForm(event) {
   const status = document.getElementById('travel-form-status');
   const origin = form.elements.origin.value.trim();
   const destination = form.elements.destination.value.trim();
+  const programmed = form.elements.programmed.checked;
+  const date = form.elements.date.value;
+  const time = form.elements.time.value;
   if (!origin || !destination) return;
-  status.textContent = 'Creando viaje...';
+  if (programmed && (!date || !time)) {
+    status.textContent = 'Elegí fecha y hora para programar el viaje.';
+    return;
+  }
+  status.textContent = programmed ? 'Programando viaje...' : 'Creando viaje...';
   form.querySelector('button[type="submit"]').disabled = true;
   try {
     const response = await fetch(HASH_CLOUD_URL + '/elevenlabs/trip', {
@@ -351,6 +425,7 @@ async function createTravelFromForm(event) {
       body: JSON.stringify({
         origen: origin,
         destino: destination,
+        date_programmed: programmed ? `${date}T${time}:00` : null,
         conversation_id: 'panel_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now()),
       }),
     });
@@ -1655,6 +1730,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('crm-back').addEventListener('click', showChat);
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('travel-create-form').addEventListener('submit', createTravelFromForm);
+  document.getElementById('travel-programmed').addEventListener('change', toggleTravelSchedule);
+  document.getElementById('travel-origin').addEventListener('input', refreshTravelMap);
+  document.getElementById('travel-destination').addEventListener('input', refreshTravelMap);
   document.getElementById('vehicle-photo-close').addEventListener('click', closeVehiclePhoto);
   document.getElementById('vehicle-photo-modal').addEventListener('click', event => {
     if (event.target.id === 'vehicle-photo-modal') closeVehiclePhoto();
