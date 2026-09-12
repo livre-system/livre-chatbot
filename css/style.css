@@ -2253,18 +2253,10 @@ body {
 .vehicle-table-footer { display: flex; justify-content: space-between; padding: 9px; color: #667176; font-size: .67rem; }
 .vehicle-table-footer b { padding: 3px 8px; border: 1px solid #d4dbdc; border-radius: 12px; font-weight: 400; }
 
-.travel-management-top { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 0 0 12px; border-bottom: 1px solid #d9dddf; font-size: .72rem; }
-.travel-breadcrumb { color: #4da9a3; }
-.travel-management-top strong { color: #e85d36; }
-.travel-management-top label { color: #6f777d; }
-.travel-toggle { display: inline-grid; place-items: center; width: 21px; height: 14px; margin: 0 3px; border-radius: 10px; background: #55b9a9; color: #fff; font-size: .55rem; }
-.travel-toggle--off { background: #c7ced1; }
 .travel-management-filters { display: flex; align-items: end; gap: 10px; padding: 14px 0 10px; font-size: .67rem; }
 .travel-management-filters input { min-height: 30px; padding: 6px 10px; border: 1px solid #d5dadd; border-radius: 14px; color: #657078; background: #fff; }
 .travel-management-filters label { display: grid; gap: 3px; }
 .travel-management-filters > input { width: 145px; }
-.travel-management-filters button { margin-left: auto; padding: 7px 13px; border: 1px solid #e1e5e7; border-radius: 14px; background: #f6f7f7; color: #657078; font-size: .67rem; }
-.vip-badge { padding: 4px 6px; border-radius: 3px; background: #f2d21b; color: #111; font-size: .65rem; }
 .travel-status-tabs { display: flex; overflow-x: auto; border: 1px solid #dce2e3; background: #f4f7f7; }
 .travel-status-tabs button { flex: 0 0 auto; padding: 9px 12px; border: 0; border-right: 1px solid #e2e7e7; background: transparent; color: #869196; font-size: .67rem; cursor: pointer; }
 .travel-status-tabs button.active { color: #4da9a3; background: #fff; border-top: 2px solid #55b9a9; }
@@ -2284,7 +2276,7 @@ body {
 .distribution-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .distribution-chart { min-height: 300px; padding: 11px; border: 1px solid #dce2e3; border-radius: 3px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); text-align: center; color: #7b858a; font-size: .7rem; }
 .chart-grid { display: grid; place-items: center; height: 255px; margin-top: 10px; border: 1px solid #f0f2f2; color: #a6afb3; background: repeating-linear-gradient(to right, transparent 0, transparent 7%, #eef1f1 7.2%, transparent 7.4%), repeating-linear-gradient(to bottom, transparent 0, transparent 19%, #eef1f1 19.2%, transparent 19.4%); }
-@media (max-width: 800px) { .travel-management-top { align-items: flex-start; flex-direction: column; } .distribution-charts { grid-template-columns: 1fr; } }
+@media (max-width: 800px) { .distribution-charts { grid-template-columns: 1fr; } }
 
 #crm-dashboard { flex: 1; overflow: auto; padding: 28px clamp(18px, 4vw, 56px); background: var(--black); }
 .crm-dashboard-header, .crm-toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -2381,7 +2373,6 @@ body {
 /* Identidad LIVI aplicada a las vistas operativas copiadas */
 .driver-management-heading,
 .vehicle-page-heading,
-.travel-breadcrumb,
 .travel-page-heading span,
 .travel-page-heading h2,
 .operational-section h3,
@@ -2392,7 +2383,6 @@ body {
 .driver-new-button,
 .driver-table-footer b,
 .vehicle-new-button,
-.travel-toggle,
 .travel-account-row span,
 .travel-input-with-action button,
 .travel-location-field button,
@@ -2403,7 +2393,6 @@ body {
 
 .driver-pdf-button,
 .vehicle-pdf-button,
-.travel-management-filters button,
 .travel-account-row button,
 .travel-note-heading button,
 .operational-section,
@@ -2469,7 +2458,6 @@ body {
 
 .driver-pdf-button,
 .vehicle-pdf-button,
-.travel-management-top label,
 .travel-form label,
 .travel-form input,
 .travel-form select,
@@ -2482,7 +2470,6 @@ body {
 .operational-drivers small,
 .distribution-heading small { color: var(--text-dim); }
 
-.travel-management-top strong,
 .operational-kpi--primary { color: var(--lime); }
 .operational-kpi--primary { border-top-color: var(--lime); }
 
