@@ -403,6 +403,7 @@ function closeVehiclePhoto() {
 }
 
 let travelQuote = null;
+const PANEL_WHATSAPP_USER = '5492915650870';
 
 async function createTravelFromForm(event) {
   event.preventDefault();
@@ -424,6 +425,7 @@ async function createTravelFromForm(event) {
   const payload = {
     origen: origin,
     destino: destination,
+    whatsapp_user: PANEL_WHATSAPP_USER,
     date_programmed: programmed ? `${date}T${time}:00` : null,
     conversation_id: travelQuote?.conversation_id || ('panel_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now())),
   };
