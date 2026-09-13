@@ -2887,3 +2887,54 @@ input, select, textarea { background-color:var(--graphite); color:var(--text); b
 .crm-table-wrap th, .travel-history-table th { background:var(--graphite-soft); color:var(--lime); }
 .travel-history-table, .crm-table-wrap, .travel-history-table table { background:var(--graphite); color:var(--text); }
 .travel-history-table td, .travel-history-table th, .crm-table-wrap td, .crm-table-wrap th { border-color:var(--border); }
+
+/* Ajuste final de consistencia visual: Inter, contraste y controles completos. */
+html, body, button, input, select, textarea, table { font-family: var(--font-body); }
+html[data-theme="dark"] body,
+html[data-theme="dark"] #app,
+html[data-theme="dark"] main,
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .panel-view,
+html[data-theme="dark"] .section,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .settings-modal-content,
+html[data-theme="dark"] .crm-card,
+html[data-theme="dark"] .operational-section,
+html[data-theme="dark"] .crm-table-wrap,
+html[data-theme="dark"] .travel-history-table { background: var(--black); color: var(--text); }
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .topbar,
+html[data-theme="dark"] .crm-toolbar,
+html[data-theme="dark"] .history-toolbar,
+html[data-theme="dark"] .vehicle-toolbar,
+html[data-theme="dark"] .driver-management-actions { border-color: var(--border); }
+html[data-theme="dark"] .sidebar a,
+html[data-theme="dark"] .sidebar button,
+html[data-theme="dark"] .nav-item,
+html[data-theme="dark"] label,
+html[data-theme="dark"] .muted,
+html[data-theme="dark"] .empty-state { color: var(--text-dim); }
+html[data-theme="dark"] button:not(.livi-floating-toggle):not(#livi-floating-form button):not(.driver-primary-action):not(.crm-livi-context),
+html[data-theme="dark"] .vehicle-new-button,
+html[data-theme="dark"] .crm-refresh,
+html[data-theme="dark"] .history-refresh { background: var(--graphite-soft); color: var(--text); border: 1px solid var(--border); }
+html[data-theme="dark"] button:hover { border-color: var(--lime); }
+html[data-theme="dark"] table thead th { background: var(--graphite-soft); color: var(--text); font-weight: 700; }
+html[data-theme="dark"] table tbody tr:nth-child(even) { background: rgba(255,255,255,.025); }
+html[data-theme="dark"] table tbody tr:hover { background: rgba(232,0,61,.10); }
+html[data-theme="dark"] .livi-floating-toggle,
+html[data-theme="dark"] .livi-floating-panel header,
+html[data-theme="dark"] .driver-primary-action { background: var(--lime); color:#fff; }
+.livi-floating-panel { font-family: var(--font-body); width:min(500px, calc(100vw - 24px)); }
+.livi-floating-body { min-height:300px; max-height:min(560px, calc(100dvh - 230px)); font-size:var(--font-size-base); line-height:1.5; }
+.livi-floating-user, .livi-floating-wait, .livi-floating-answer { font-size:var(--font-size-base); }
+.livi-floating-panel header strong { font-size:1rem; }
+.livi-floating-panel header small { font-size:.8rem; }
+#livi-floating-input { font-size:var(--font-size-base); min-height:42px; }
+#livi-floating-form button { min-width:42px; min-height:42px; }
+@media (max-width: 700px) {
+  .livi-floating-panel { width:calc(100vw - 24px); }
+  .livi-floating-body { max-height:calc(100dvh - 270px); }
+}

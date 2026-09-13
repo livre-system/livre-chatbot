@@ -2127,18 +2127,42 @@ async function loadTravelHistory() {
   try { const result = await apiCrm('travel-history?' + params); renderTravelHistory(result.items || []); status.textContent = `Historial actualizado desde MAGIIS · ${result.total || result.items?.length || 0} registros`; }
   catch (error) { status.textContent = 'No se pudo cargar el historial desde MAGIIS.'; console.error(error); }
 }
+const TRAVEL_HISTORY_COLUMNS = [
+  ['Col1', 'ID viaje'], ['Col2', 'Código'], ['Col3', 'Fecha'], ['Col4', 'Hora'],
+  ['Col5', 'Chofer'], ['Col6', 'Pasajero'], ['Col7', 'Vehículo'], ['Col8', 'Servicio'],
+  ['Col9', 'Origen'], ['Col10', 'Destino'], ['Col11', 'Precio final'], ['Col12', 'Estado'],
+  ['Col13', 'Forma de pago'], ['Col14', 'Importe'], ['Col15', 'Presupuesto'],
+];
+
+function formatHistoryValue(value, key) {
+  if (value === null || value === undefined || value === '') return '—';
+  if (typeof value === 'object') return JSON.stringify(value);
+  if (/^Col(11|14|15)$/.test(key) && typeof value === 'number') {
+    return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+  }
+  return String(value);
+}
+
 function renderTravelHistory(items) {
   const root = document.getElementById('travel-history-table'); root.replaceChildren();
   if (!items.length) { root.innerHTML = '<p class="empty-state">No hay viajes para esos filtros.</p>'; return; }
-  const keys = [...new Set(items.flatMap(item => Object.keys(item || {})))].slice(0, 8);
-  const table = document.createElement('table'); table.innerHTML = `<thead><tr>${keys.map(key => `<th>${crmEscape(key.replaceAll('_', ' '))}</th>`).join('')}</tr></thead>`;
-  const tbody = document.createElement('tbody'); items.forEach(item => { const tr = document.createElement('tr'); keys.forEach(key => { const td = document.createElement('td'); const value = item[key]; td.textContent = typeof value === 'object' ? JSON.stringify(value) : (value ?? '—'); tr.appendChild(td); }); tbody.appendChild(tr); }); table.appendChild(tbody); root.appendChild(table);
+  const available = new Set(items.flatMap(item => Object.keys(item || {})));
+  const columns = TRAVEL_HISTORY_COLUMNS.filter(([key]) => available.has(key));
+  const table = document.createElement('table');
+  table.innerHTML = `<thead><tr>${columns.map(([, label]) => `<th>${crmEscape(label)}</th>`).join('')}</tr></thead>`;
+  const tbody = document.createElement('tbody');
+  items.forEach(item => {
+    const tr = document.createElement('tr');
+    columns.forEach(([key]) => { const td = document.createElement('td'); td.textContent = formatHistoryValue(item[key], key); tr.appendChild(td); });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody); root.appendChild(table);
 }
 function showTravelHistory() {
   document.getElementById('travel-form-view').hidden = true; document.getElementById('crm-dashboard').hidden = true; document.getElementById('travel-history-view').hidden = false; document.getElementById('message-list').hidden = true; document.getElementById('composer').hidden = true; crmVisible = false; loadTravelHistory();
 }
 function initThemeToggle() {
-  const button = document.getElementById('theme-toggle'); const saved = localStorage.getItem('livre_theme') || 'light'; document.documentElement.dataset.theme = saved; button.setAttribute('aria-pressed', String(saved === 'dark')); button.textContent = saved === 'dark' ? '☀️ Light' : '🌙 Dark'; button.addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('livre_theme', next); button.setAttribute('aria-pressed', String(next === 'dark')); button.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark'; });
+  const button = document.getElementById('theme-toggle'); const saved = localStorage.getItem('livre_theme') || 'dark'; document.documentElement.dataset.theme = saved; button.setAttribute('aria-pressed', String(saved === 'dark')); button.textContent = saved === 'dark' ? '☀️ Light' : '🌙 Dark'; button.addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('livre_theme', next); button.setAttribute('aria-pressed', String(next === 'dark')); button.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark'; });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
