@@ -63,6 +63,7 @@ let crmOffset = 0;
 let crmPageSize = 20;
 let travelPageSize = 20;
 let travelStateFilter = '';
+let vehicleTypesPromise;
 const driverFilters = { code: '', name: '', phone: '', email: '', vehicle: '' };
 const TRAVEL_DATE_FROM_STATES = new Set(['LOST', 'CANCELED', 'CANCELLED', 'DONE']);
 
@@ -284,7 +285,8 @@ function renderVehicleManagement(data) {
     const p = item.raw_payload || {};
     const photo = crmPhotoUrl(p.photo || p.image || p.images);
     const card = p.identificationCard || {};
-    const owner = p.ownerName || p.owner || p.proprietor || '—';
+    const owner = p.ownerTitularDescription || p.ownerName || p.owner || p.proprietor ||
+      p.vehicleOwner?.name || p.vehicleOwner?.fullName || p.vehicleOwner?.description || '—';
     const active = p.active ?? p.isActive ?? p.enabled;
     const activeClass = active === false ? 'vehicle-inactive' : 'vehicle-active';
     return `<tr><td>${crmEscape(item.magiis_id)}</td><td><span class="vehicle-domain-cell">${photo && /^https?:\/\//i.test(photo) ? `<img src="${crmEscape(photo)}" alt="Vehículo" loading="lazy">` : '<span class="vehicle-image-empty">—</span>'}${crmEscape(card.domain || p.domain || p.plate || p.licensePlate || '—')}</span></td><td>${crmEscape(card.mark || p.brand || p.make || '—')}</td><td>${crmEscape(card.model || p.model || '—')}</td><td>${crmEscape(card.transportType?.name || card.typeTraslated || p.type || p.vehicleType || 'Livre Taxi')}</td><td class="vehicle-owner">${crmEscape(owner)}</td><td><span class="vehicle-active-dot ${activeClass}">●</span></td><td><button type="button" class="vehicle-action" aria-label="Ver vehículo">◉</button><button type="button" class="vehicle-action" aria-label="Editar vehículo">✎</button></td></tr>`;
@@ -309,11 +311,13 @@ function openNewVehicleModal() {
   const modal = document.getElementById('new-vehicle-modal');
   const status = document.getElementById('new-vehicle-status');
   status.textContent = 'Cargando tipos...';
-  apiCrm('vehicles/types').then(data => {
+  // Abrir primero evita que la latencia de MAGIIS bloquee el popup.
+  modal.removeAttribute('hidden');
+  document.getElementById('new-vehicle-domain').focus();
+  vehicleTypesPromise = vehicleTypesPromise || apiCrm('vehicles/types');
+  vehicleTypesPromise.then(data => {
     document.getElementById('new-vehicle-type').innerHTML = (data.items || []).map(type => `<option value="${crmEscape(type.id)}">${crmEscape(type.name || type.description || type.id)}</option>`).join('');
     status.textContent = '';
-    modal.removeAttribute('hidden');
-    document.getElementById('new-vehicle-domain').focus();
   }).catch(() => { status.textContent = 'No se pudieron cargar los tipos de vehículo.'; modal.removeAttribute('hidden'); });
 }
 
@@ -2056,6 +2060,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   document.getElementById('crm-back').addEventListener('click', showChat);
+  document.querySelectorAll('.crm-livi-context').forEach(button => button.addEventListener('click', () => {
+    const resource = button.dataset.liviResource || document.getElementById('crm-resource').value;
+    const label = CRM_LABELS[resource] || 'datos de la operación';
+    showChat();
+    const input = document.getElementById('message-input');
+    input.value = `LIVI, organizá las consultas pendientes de ${label}. Separá urgentes, repetidas y sin resolver, y proponé el próximo paso para cada una.`;
+    input.focus();
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }));
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
   document.getElementById('sidebar-logout').addEventListener('click', logout);

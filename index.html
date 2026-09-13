@@ -98,16 +98,16 @@
         </div>
         <div id="crm-cards" class="crm-cards"></div>
         <div id="driver-management-view" hidden aria-label="Gestión de choferes">
-          <div class="driver-management-actions"></div>
+          <div class="driver-management-actions"><button type="button" class="crm-livi-context" data-livi-resource="drivers">Consultar a LIVI IA</button></div>
           <div id="driver-management-table" class="driver-management-table"></div>
         </div>
         <div id="vehicle-management-view" hidden aria-label="Gestión de vehículos">
           <div class="vehicle-page-heading"><h2>Vehículos</h2></div>
-          <div class="vehicle-management-toolbar"><input id="vehicle-management-search" type="search" placeholder="Buscar por dominio, marca o modelo..." autocomplete="off"><button type="button" class="vehicle-new-button">Nuevo Vehículo</button></div>
+          <div class="vehicle-management-toolbar"><input id="vehicle-management-search" type="search" placeholder="Buscar por dominio, marca o modelo..." autocomplete="off"><button type="button" class="vehicle-new-button">Nuevo Vehículo</button><button type="button" class="crm-livi-context" data-livi-resource="vehicles">Consultar a LIVI IA</button></div>
           <div id="vehicle-management-table" class="vehicle-management-table"></div>
         </div>
         <div id="travel-management-view" hidden aria-label="Gestión de viajes">
-          <div class="travel-management-filters"><input id="travel-management-search" type="search" placeholder="Buscar..." autocomplete="off"><label id="travel-date-from-filter" hidden>Fecha desde <input type="date" id="travel-management-date-from"></label><label>Fecha hasta <input type="date" id="travel-management-date"></label></div>
+          <div class="travel-management-filters"><input id="travel-management-search" type="search" placeholder="Buscar..." autocomplete="off"><label id="travel-date-from-filter" hidden>Fecha desde <input type="date" id="travel-management-date-from"></label><label>Fecha hasta <input type="date" id="travel-management-date"></label><button type="button" class="crm-livi-context" data-livi-resource="travels">Consultar a LIVI IA</button></div>
           <div class="travel-status-tabs" role="tablist"><button class="active" type="button">Asignar <small>1</small></button><button type="button">En curso <small>3</small></button><button type="button">Programados <small>0</small></button><button type="button">En Conflicto <small>0</small></button><button type="button">Perdidas <small>0</small></button><button type="button">Cancelados <small>7</small></button><button type="button">Finalizados <small>100</small></button></div>
           <div id="travel-management-table" class="travel-management-table"></div>
           <div class="travel-distribution"><div class="distribution-heading"><strong>Distribución de Viajes Programados</strong><small id="travel-management-sync">Última actualización: —</small></div><div class="distribution-charts"><div class="distribution-chart"><strong>Próximas 24 hs: Cantidad de viajes por hora</strong><div class="chart-grid"><span>Sin datos de distribución</span></div></div><div class="distribution-chart"><strong>Próximos 15 Días: Cantidad de viajes por día</strong><div class="chart-grid"><span>Sin datos de distribución</span></div></div></div></div>
@@ -129,6 +129,7 @@
         <div class="crm-toolbar">
           <label id="crm-resource-label" hidden>Recurso <select id="crm-resource"><option value="travels">Viajes</option><option value="passengers">Clientes</option><option value="drivers">Choferes</option><option value="vehicles">Vehículos</option></select></label>
           <input id="crm-search" type="search" placeholder="Buscar en los datos..." autocomplete="off">
+
           <button type="button" id="crm-back" hidden>Volver a LIVI IA</button>
         </div>
         <p id="crm-status" aria-live="polite"></p>
