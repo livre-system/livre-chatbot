@@ -3439,3 +3439,30 @@ html[data-theme="dark"] #livi-floating-form button {
   background: #e8003d !important;
   color: #fff !important;
 }
+
+/* LIVI IA: los mensajes tenían fondos/textos claros con !important heredados. */
+html[data-theme="dark"] #message-list,
+html[data-theme="dark"] .message-item,
+html[data-theme="dark"] .message-item--hash {
+  background: var(--surface-0) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] .message-item-text,
+html[data-theme="dark"] .message-item-date,
+html[data-theme="dark"] .message-list-empty,
+html[data-theme="dark"] .message-item--hash .message-item-text {
+  color: var(--text) !important;
+}
+html[data-theme="dark"] .message-item:hover {
+  background: var(--surface-2) !important;
+  border-color: var(--lime) !important;
+}
+html[data-theme="dark"] #main-header,
+html[data-theme="dark"] #composer,
+html[data-theme="dark"] #composer .input-wrapper,
+html[data-theme="dark"] #composer .input-wrapper::before {
+  background: var(--surface-0) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
