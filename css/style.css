@@ -2342,6 +2342,35 @@ body {
 .operational-map-placeholder { min-height: 210px; display: grid; place-items: center; border: 1px dashed #c6cdd3; border-radius: 3px; background: #f1f3f4; color: #8b949e; text-align: center; font-size: .82rem; }
 @media (max-width: 900px) { .operational-kpis { grid-template-columns: repeat(2, minmax(140px, 1fr)); } }
 @media (max-width: 640px) { .operational-kpis { grid-template-columns: 1fr 1fr; } .operational-kpi--wide { grid-column: span 2; } }
+
+/* Livre visual refresh */
+html[data-theme="dark"] { --black:#17191c; --graphite:#202428; --graphite-soft:#292e33; --border:#3a4249; --border-soft:#4a535c; --text:#f5f7f8; --text-dim:#c3cbd0; --text-faint:#8d989f; }
+html[data-theme="dark"] body, html[data-theme="dark"] .main-content { background:var(--black); color:var(--text); }
+.header-actions { display:flex; align-items:center; gap:8px; margin-left:auto; }
+.header-actions button, #theme-toggle { border:1px solid var(--border); border-radius:999px; background:var(--graphite); color:var(--text); padding:9px 13px; font-weight:600; cursor:pointer; }
+#theme-toggle { color:var(--lime); }
+#operational-view { --op-accent:#e8003d; }
+.operational-kpis { gap:14px; }
+.operational-kpi { min-height:112px; border-radius:14px; border:1px solid var(--border); background:var(--graphite); color:var(--text); }
+.operational-kpi span { font-size:.9rem; color:var(--text-dim); }
+.operational-kpi strong { font-size:2rem; color:var(--lime); }
+.operational-section { border-radius:14px; background:var(--graphite); color:var(--text); }
+.travel-history-table { overflow:auto; border:1px solid var(--border); border-radius:14px; background:var(--graphite); }
+.travel-history-table table { width:100%; min-width:900px; border-collapse:collapse; }
+.travel-history-table th,.travel-history-table td { padding:12px 14px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+.travel-history-table th { color:var(--lime); text-transform:capitalize; background:var(--graphite-soft); }
+.history-toolbar { display:flex; flex-wrap:wrap; align-items:end; gap:10px; padding:16px 0; }
+.history-toolbar label { display:grid; gap:5px; color:var(--text-dim); font-size:.8rem; }
+.history-toolbar input,.history-toolbar select { min-height:38px; border:1px solid var(--border); border-radius:10px; padding:8px 10px; background:var(--graphite); color:var(--text); }
+.history-toolbar button { min-height:38px; border:0; border-radius:10px; padding:8px 14px; background:var(--lime); color:#fff; font-weight:700; cursor:pointer; }
+.livi-floating-panel header { background:linear-gradient(135deg,#e8003d,#b50030); color:#fff; }
+.livi-brand { display:flex; align-items:center; gap:9px; }
+.livi-brand img { width:30px; height:30px; object-fit:contain; border-radius:8px; background:#fff; padding:3px; }
+.livi-floating-body { display:grid; gap:8px; }
+.livi-floating-wait { white-space:pre-wrap; padding:10px 12px; border-radius:12px 12px 12px 3px; background:#fff0f4; color:#5a1728; line-height:1.4; }
+.livi-floating-user { justify-self:end; max-width:90%; padding:9px 12px; border-radius:12px 12px 3px 12px; background:var(--lime); color:#fff; }
+.vehicle-image-field input { padding:10px; border:1px dashed var(--lime); border-radius:10px; }
+@media (max-width:800px) { .header-actions button { padding:8px 9px; font-size:.75rem; } .header-actions #neural-btn { display:none; } .history-toolbar > * { width:100%; } }
 .crm-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; background: var(--graphite); display: flex; flex-direction: column; gap: 5px; }
 .crm-card strong { color: var(--lime); font-size: 1.7rem; }
 .crm-card span { color: var(--text-dim); }

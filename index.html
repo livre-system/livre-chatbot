@@ -61,7 +61,11 @@
         </button>
         <h2 id="active-front-name" hidden>—</h2>
         <p id="active-front-description" hidden></p>
-        <button type="button" id="neural-btn" aria-label="Ver red neural">⬡ Red neural</button>
+        <div class="header-actions">
+          <button type="button" id="travel-history-btn">↺ Histórico de viajes</button>
+          <button type="button" id="theme-toggle" aria-pressed="false">☼ / ◐</button>
+          <button type="button" id="neural-btn" aria-label="Ver red neural">⬡ Red neural</button>
+        </div>
       </header>
 
       <section id="travel-form-view" class="panel-view" hidden aria-label="Crear un viaje">
@@ -136,6 +140,13 @@
         <div id="crm-table-wrap" class="crm-table-wrap"></div>
       </section>
 
+      <section id="travel-history-view" class="panel-view" hidden aria-label="Histórico de viajes">
+        <div class="travel-page-heading"><h2>Histórico de viajes</h2><p>Consultá el historial real de viajes de MAGIIS.</p></div>
+        <div class="history-toolbar"><label>Desde <input id="history-date-from" type="date"></label><label>Hasta <input id="history-date-to" type="date"></label><select id="history-state"><option value="">Todos los estados</option><option value="DONE">Finalizados</option><option value="CANCELED">Cancelados</option></select><input id="history-search" type="search" placeholder="Buscar viaje..."><button type="button" id="history-refresh">Actualizar</button></div>
+        <p id="history-status" aria-live="polite"></p>
+        <div id="travel-history-table" class="travel-history-table"></div>
+      </section>
+
   <div id="neural-modal" hidden role="dialog" aria-modal="true">
     <div id="neural-modal-box">
       <button type="button" id="neural-close">✕</button>
@@ -170,6 +181,7 @@
       <label>Chasis <input id="new-vehicle-chassis" maxlength="80" autocomplete="off"></label>
       <label>Motor <input id="new-vehicle-motor" maxlength="80" autocomplete="off"></label>
       <label>Tipo <select id="new-vehicle-type" required></select></label>
+      <label class="vehicle-image-field">Imagen del vehículo <input id="new-vehicle-image" type="file" accept="image/*"></label>
       <p id="new-vehicle-status" aria-live="polite"></p>
       <div id="new-vehicle-actions"><button type="button" id="new-vehicle-cancel">Cancelar</button><button type="button" id="new-vehicle-submit">Crear vehículo</button></div>
     </div>
@@ -177,7 +189,7 @@
   <div id="livi-floating" class="livi-floating" aria-live="polite">
     <button type="button" id="livi-floating-toggle" class="livi-floating-toggle" aria-expanded="false" aria-controls="livi-floating-panel">✨ <span>Habla con LIVI IA</span></button>
     <section id="livi-floating-panel" class="livi-floating-panel" hidden aria-label="Chat con LIVI IA">
-      <header><strong>✨ LIVI IA</strong><button type="button" id="livi-floating-close" aria-label="Cerrar">✕</button></header>
+      <header><span class="livi-brand"><img src="images/logo_livre.png" alt="LIVRE"><strong>LIVI IA</strong></span><button type="button" id="livi-floating-close" aria-label="Cerrar">✕</button></header>
       <div class="livi-floating-body"><p>Preguntame algo sobre la operación.</p></div>
       <form id="livi-floating-form"><input id="livi-floating-input" placeholder="Escribí tu consulta..." autocomplete="off"><button type="submit" aria-label="Enviar">➤</button></form>
     </section>
@@ -249,10 +261,7 @@
 
       <div class="settings-category">
         <span class="settings-category-title">Cuenta</span>
-        <div class="settings-row">
-          <span class="settings-row-label">¿Necesitás ayuda?</span>
-          <a id="settings-support-link" href="https://t.me/hashsupp_bot" target="_blank">Soporte</a>
-        </div>
+
         <div class="settings-row">
           <span class="settings-row-label">Salir de tu cuenta</span>
           <button type="button" id="settings-logout">Cerrar sesión</button>

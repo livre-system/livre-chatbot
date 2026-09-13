@@ -333,7 +333,9 @@ async function createManagedVehicle() {
   if ([card.domain, card.mark, card.model, card.yearOfVehicle, card.color, card.vehicleTypeId].some(item => !item)) { status.textContent = 'Completá todos los campos obligatorios.'; return; }
   submit.disabled = true; status.textContent = 'Creando...';
   try {
-    const response = await fetch(`${HASH_CLOUD_URL}/crm/vehicles`, { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ documents: [], identificationCard: card, characteristics: { haveAirConditioner: false, haveGas: false, haveDiesel: false, haveLuggage: false, haveMascotsPlace: false, kmsTraveled: 0 }, vehicleOwnerId: null, photo: null }) });
+    const image = document.getElementById('new-vehicle-image').files[0];
+    const photo = image ? await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(image); }) : null;
+    const response = await fetch(`${HASH_CLOUD_URL}/crm/vehicles`, { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ documents: [], identificationCard: card, characteristics: { haveAirConditioner: false, haveGas: false, haveDiesel: false, haveLuggage: false, haveMascotsPlace: false, kmsTraveled: 0 }, vehicleOwnerId: null, photo }) });
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || 'No se pudo crear el vehículo.');
     document.getElementById('new-vehicle-modal').setAttribute('hidden', '');
@@ -2043,6 +2045,32 @@ async function checkAuth() {
   await bootApp();
 }
 
+async function askLiviFloating(text) {
+  const res = await fetch(HASH_CLOUD_URL + '/chat/stream', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages: [{ role: 'user', content: text }], provider: activeProvider, chat_id: null, mode: activeMode }),
+  });
+  if (!res.ok) throw new Error('Error ' + res.status);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '', reply = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\\n'); buffer = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const chunk = line.slice(6);
+      if (chunk === '[DONE]') return reply;
+      if (chunk.startsWith('[CHAT_ID] ')) continue;
+      try { reply += JSON.parse(chunk).content || JSON.parse(chunk).text || ''; } catch { reply += chunk; }
+    }
+  }
+  return reply;
+}
+
 function initLiviFloating() {
   const toggle = document.getElementById('livi-floating-toggle');
   const panel = document.getElementById('livi-floating-panel');
@@ -2056,12 +2084,13 @@ function initLiviFloating() {
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const text = input.value.trim();
-    if (!text || isSending) return;
+    if (!text) return;
     body.insertAdjacentHTML('beforeend', `<div class="livi-floating-user">${crmEscape(text)}</div><div class="livi-floating-wait">LIVI está pensando...</div>`);
-    input.value = '';
-    await saveMessage(text);
+    input.value = ''; input.disabled = true;
     const wait = body.querySelector('.livi-floating-wait:last-child');
-    if (wait) wait.textContent = 'Consulta enviada al chat LIVI principal.';
+    try { wait.textContent = await askLiviFloating(text) || 'No recibí una respuesta. Probá de nuevo.'; }
+    catch (error) { wait.textContent = 'No pude responder ahora. Revisá la conexión e intentá de nuevo.'; console.error(error); }
+    finally { input.disabled = false; input.focus(); }
   });
 }
 
@@ -2073,8 +2102,30 @@ document.addEventListener('keydown', event => {
   if (liviPanel && !liviPanel.hidden) document.getElementById('livi-floating-close').click();
 });
 
+async function loadTravelHistory() {
+  const status = document.getElementById('history-status');
+  const params = new URLSearchParams({ page: '1', size: '50', date_from: document.getElementById('history-date-from').value, date_to: document.getElementById('history-date-to').value, state: document.getElementById('history-state').value, q: document.getElementById('history-search').value.trim() });
+  status.textContent = 'Cargando historial real...';
+  try { renderTravelHistory((await apiCrm('travel-history?' + params)).items || []); status.textContent = 'Historial actualizado desde MAGIIS.'; }
+  catch (error) { status.textContent = 'No se pudo cargar el historial.'; console.error(error); }
+}
+function renderTravelHistory(items) {
+  const root = document.getElementById('travel-history-table'); root.replaceChildren();
+  if (!items.length) { root.innerHTML = '<p class="empty-state">No hay viajes para esos filtros.</p>'; return; }
+  const keys = [...new Set(items.flatMap(item => Object.keys(item || {})))].slice(0, 8);
+  const table = document.createElement('table'); table.innerHTML = `<thead><tr>${keys.map(key => `<th>${crmEscape(key.replaceAll('_', ' '))}</th>`).join('')}</tr></thead>`;
+  const tbody = document.createElement('tbody'); items.forEach(item => { const tr = document.createElement('tr'); keys.forEach(key => { const td = document.createElement('td'); const value = item[key]; td.textContent = typeof value === 'object' ? JSON.stringify(value) : (value ?? '—'); tr.appendChild(td); }); tbody.appendChild(tr); }); table.appendChild(tbody); root.appendChild(table);
+}
+function showTravelHistory() {
+  document.getElementById('travel-form-view').hidden = true; document.getElementById('crm-dashboard').hidden = true; document.getElementById('travel-history-view').hidden = false; document.getElementById('message-list').hidden = true; document.getElementById('composer').hidden = true; crmVisible = false; loadTravelHistory();
+}
+function initThemeToggle() {
+  const button = document.getElementById('theme-toggle'); const saved = localStorage.getItem('livre_theme') || 'light'; document.documentElement.dataset.theme = saved; button.setAttribute('aria-pressed', String(saved === 'dark')); button.textContent = saved === 'dark' ? '☀️ Light' : '🌙 Dark'; button.addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('livre_theme', next); button.setAttribute('aria-pressed', String(next === 'dark')); button.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark'; });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initLiviFloating();
+  initThemeToggle();
   const savedFont = localStorage.getItem('hash_font_size') || '18';
   document.documentElement.style.setProperty('--font-size-base', savedFont + 'px');
   document.querySelectorAll('#main-navigation .main-nav-item').forEach(btn => {
@@ -2095,6 +2146,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   document.getElementById('crm-back').addEventListener('click', showChat);
+  document.getElementById('travel-history-btn').addEventListener('click', showTravelHistory);
+  document.getElementById('history-refresh').addEventListener('click', loadTravelHistory);
+  ['history-date-from', 'history-date-to', 'history-state'].forEach(id => document.getElementById(id).addEventListener('change', loadTravelHistory));
+  document.getElementById('history-search').addEventListener('keydown', event => { if (event.key === 'Enter') loadTravelHistory(); });
   document.querySelectorAll('.crm-livi-context').forEach(button => button.addEventListener('click', () => {
     const resource = button.dataset.liviResource || document.getElementById('crm-resource').value;
     const label = CRM_LABELS[resource] || 'datos de la operación';
