@@ -2606,6 +2606,66 @@ html[data-theme="dark"] body, html[data-theme="dark"] .main-content { background
   button, a { touch-action: manipulation; }
 }
 
+/* Formularios operativos: escritorio cómodo y móvil vertical. */
+#new-vehicle-modal-box,
+#new-driver-modal-box {
+  position: relative;
+  width: min(720px, calc(100vw - 40px));
+  max-height: min(88dvh, 820px);
+  overflow-y: auto;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--black);
+  color: var(--text);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, .42);
+}
+#new-vehicle-modal-box { width: min(520px, calc(100vw - 40px)); }
+#new-vehicle-modal-box h3,
+#new-driver-modal-box h3 { margin: 0 0 4px; color: var(--text); }
+#new-vehicle-modal-box label,
+#new-driver-modal-box label { color: var(--text-dim); }
+#new-vehicle-modal-box input,
+#new-vehicle-modal-box select,
+#new-driver-modal-box input,
+#new-driver-modal-box select {
+  width: 100%; min-height: 42px; box-sizing: border-box; margin-top: 5px;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--graphite); color: var(--text);
+}
+#new-vehicle-modal-box input[type="file"],
+#new-driver-modal-box input[type="file"] {
+  padding: 9px; border: 1px dashed var(--lime); cursor: pointer;
+}
+#new-vehicle-actions,
+.driver-form-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+#new-vehicle-actions button,
+.driver-form-actions button {
+  min-height: 42px; padding: 10px 18px; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--graphite-soft); color: var(--text); font-weight: 700; cursor: pointer;
+}
+#new-vehicle-submit,
+#new-driver-submit { background: var(--lime) !important; color: #fff !important; border-color: var(--lime) !important; }
+#new-vehicle-close,
+.driver-modal-close { position: absolute; top: 14px; right: 16px; border: 0; background: transparent; color: var(--text-dim); font-size: 20px; cursor: pointer; }
+#new-vehicle-close:hover,
+.driver-modal-close:hover { color: var(--lime); }
+html[data-theme="dark"] .main-nav-item,
+html[data-theme="dark"] #sidebar-settings,
+html[data-theme="dark"] #sidebar-logout,
+html[data-theme="dark"] .sidebar-account-actions button,
+html[data-theme="dark"] #settings-title { color: var(--text) !important; }
+html[data-theme="dark"] .main-nav-item:hover,
+html[data-theme="dark"] .main-nav-item--active { background: var(--graphite-soft); color: var(--lime) !important; }
+@media (max-width: 640px) {
+  #new-vehicle-modal-box,
+  #new-driver-modal-box { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); padding: 22px 16px; border-radius: 12px; }
+  #new-vehicle-actions,
+  .driver-form-actions { flex-direction: column-reverse; }
+  #new-vehicle-actions button,
+  .driver-form-actions button { width: 100%; }
+}
+
 /* =====================================================================
  * LIVRE / UI REFRESH
  * Fachada propia para las vistas operativas y el chat.
