@@ -3256,3 +3256,20 @@ html[data-theme="dark"] .travel-status-tabs button.active {
 .travel-history-summary strong { color: var(--lime); font-size: 1.15rem; }
 .travel-history-summary span { margin-top: 4px; color: var(--text-dim); font-size: .75rem; }
 @media (max-width: 760px) { .travel-history-summary { grid-template-columns: 1fr 1fr; } }
+#new-driver-modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(0,0,0,.7); }
+#new-driver-modal[hidden] { display: none; }
+#new-driver-modal-box { position: relative; width: min(780px, 100%); max-height: 92vh; overflow: auto; padding: 28px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface-1); color: var(--text); box-shadow: 0 20px 70px rgba(0,0,0,.45); }
+#new-driver-modal-box h3 { margin: 0 0 5px; font-size: 1.45rem; }
+.driver-modal-intro { margin: 0 0 20px; color: var(--text-dim); }
+.driver-modal-close { position: absolute; top: 15px; right: 16px; border: 0; background: transparent; color: var(--text-dim); font-size: 1.1rem; cursor: pointer; }
+#new-driver-form fieldset { margin: 0 0 15px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; }
+#new-driver-form legend { padding: 0 7px; color: var(--lime); font-weight: 700; }
+.driver-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 15px; }
+.driver-form-grid label { display: grid; gap: 6px; color: var(--text-dim); font-size: .82rem; }
+.driver-form-grid input, .driver-form-grid select { width: 100%; box-sizing: border-box; padding: 10px 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-0); color: var(--text); }
+.driver-form-grid input:focus, .driver-form-grid select:focus { outline: 2px solid var(--lime); outline-offset: 1px; }
+.driver-form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.driver-form-actions button { padding: 10px 17px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); cursor: pointer; }
+.driver-form-actions button[type="submit"] { border-color: var(--lime); background: var(--lime); color: #12200c; font-weight: 700; }
+#new-driver-status { min-height: 20px; color: var(--danger, #ff8c9d); }
+@media (max-width: 600px) { #new-driver-modal-box { padding: 22px 16px; } .driver-form-grid { grid-template-columns: 1fr; } }

@@ -187,6 +187,42 @@
       <div id="new-vehicle-actions"><button type="button" id="new-vehicle-cancel">Cancelar</button><button type="button" id="new-vehicle-submit">Crear vehículo</button></div>
     </div>
   </div>
+  <div id="new-driver-modal" hidden role="dialog" aria-modal="true" aria-labelledby="new-driver-title">
+    <div id="new-driver-modal-box">
+      <button type="button" id="new-driver-close" class="driver-modal-close" aria-label="Cerrar">✕</button>
+      <h3 id="new-driver-title">Nuevo chofer</h3>
+      <p class="driver-modal-intro">Completá los datos del chofer para registrarlo en MAGIIS.</p>
+      <form id="new-driver-form" novalidate>
+        <fieldset><legend>Datos personales</legend><div class="driver-form-grid">
+          <label>Nombre *<input id="new-driver-first-name" required maxlength="80" autocomplete="given-name"></label>
+          <label>Apellido *<input id="new-driver-last-name" required maxlength="80" autocomplete="family-name"></label>
+          <label>DNI *<input id="new-driver-dni" required inputmode="numeric" maxlength="12"></label>
+          <label>CUIL <input id="new-driver-cuil" inputmode="numeric" maxlength="13"></label>
+          <label>Fecha de nacimiento <input id="new-driver-born-date" type="date"></label>
+          <label>Género <select id="new-driver-genre"><option value="">Seleccionar</option><option value="MALE">Masculino</option><option value="FEMALE">Femenino</option><option value="OTHER">Otro</option></select></label>
+          <label class="driver-photo-field">Foto del chofer <input id="new-driver-image" type="file" accept="image/png,image/jpeg"></label>
+        </div></fieldset>
+        <fieldset><legend>Contacto y domicilio</legend><div class="driver-form-grid">
+          <label>Email *<input id="new-driver-email" type="email" required maxlength="160" autocomplete="email"></label>
+          <label>Teléfono *<input id="new-driver-phone" required inputmode="tel" maxlength="30" autocomplete="tel"></label>
+          <label>Ciudad *<input id="new-driver-city" required maxlength="80"></label>
+          <label>Provincia *<input id="new-driver-province" required maxlength="80" value="Buenos Aires"></label>
+          <label>País <input id="new-driver-country" maxlength="80" value="Argentina"></label>
+          <label>Código postal <input id="new-driver-postal-code" maxlength="12" inputmode="numeric"></label>
+          <label>Calle <input id="new-driver-street" maxlength="100"></label>
+          <label>Número <input id="new-driver-street-number" maxlength="12" inputmode="numeric"></label>
+        </div></fieldset>
+        <fieldset><legend>Configuración</legend><div class="driver-form-grid">
+          <label>Tipo de vivienda <select id="new-driver-home-type"><option value="HOUSE">Casa</option><option value="APARTMENT">Departamento</option><option value="OTHER">Otro</option></select></label>
+          <label>Piso <input id="new-driver-floor" maxlength="10"></label>
+          <label>Porcentaje de viaje <input id="new-driver-travel-percentage" type="number" min="0" max="100" value="15"></label>
+          <label>Porcentaje de costo <input id="new-driver-cost-percentage" type="number" min="0" max="100" value="0"></label>
+        </div></fieldset>
+        <p id="new-driver-status" aria-live="polite"></p>
+        <div class="driver-form-actions"><button type="button" id="new-driver-cancel">Cancelar</button><button type="submit" id="new-driver-submit">Crear chofer</button></div>
+      </form>
+    </div>
+  </div>
   <div id="livi-floating" class="livi-floating" aria-live="polite">
     <button type="button" id="livi-floating-toggle" class="livi-floating-toggle" aria-expanded="false" aria-controls="livi-floating-panel">🎧 <span>Habla con LIVI IA</span></button>
     <section id="livi-floating-panel" class="livi-floating-panel" hidden aria-label="Chat con LIVI IA">

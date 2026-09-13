@@ -310,6 +310,58 @@ function renderVehicleManagement(data) {
   });
 }
 
+function closeNewDriverModal() {
+  document.getElementById('new-driver-modal').setAttribute('hidden', '');
+}
+
+function openNewDriverModal() {
+  document.getElementById('new-driver-status').textContent = '';
+  document.getElementById('new-driver-modal').removeAttribute('hidden');
+  document.getElementById('new-driver-first-name').focus();
+}
+
+async function createManagedDriver(event) {
+  event?.preventDefault();
+  const form = document.getElementById('new-driver-form');
+  const status = document.getElementById('new-driver-status');
+  const submit = document.getElementById('new-driver-submit');
+  if (!form.reportValidity()) return;
+  const value = id => document.getElementById(id).value.trim();
+  const bornDate = value('new-driver-born-date');
+  const imageFile = document.getElementById('new-driver-image').files[0];
+  const driverImage = imageFile ? await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(imageFile); }) : null;
+  const payload = {
+    cuil: value('new-driver-cuil') || null,
+    dni: Number(value('new-driver-dni')),
+    driverImage,
+    bornDate: bornDate ? `${bornDate}T03:00:00.000Z` : null,
+    firstName: value('new-driver-first-name'), lastName: value('new-driver-last-name'),
+    genre: value('new-driver-genre') || null, age: null,
+    city: value('new-driver-city'), province: value('new-driver-province'), country: value('new-driver-country') || 'Argentina',
+    driverUserEmail: value('new-driver-email'), phoneNumber: value('new-driver-phone'),
+    streetName: value('new-driver-street'), streetNumber: value('new-driver-street-number'),
+    typeOfLivingPlace: value('new-driver-home-type'), floorNumber: value('new-driver-floor'), postalCode: value('new-driver-postal-code'),
+    languages: [{ name: 'carrier.drivers.new_edit.languages.spanish', languageLevel: 5 }],
+    driverSchedule: [2, 3, 4, 5, 6, 7, 1].map(dayNumber => ({ dayNumber, from: null, to: null })),
+    travelPercentage: value('new-driver-travel-percentage') || '15', costPercentage: Number(value('new-driver-cost-percentage') || 0),
+    paymentSettings: [
+      { applyFinancing: false, isEnabled: true, paymentMethod: 'CREDIT_CARD' },
+      { applyFinancing: false, isEnabled: true, paymentMethod: 'CHECKING_ACCOUNT' },
+      { applyFinancing: false, isEnabled: true, paymentMethod: 'CASH' },
+    ],
+    vehicles: [], documents: [],
+  };
+  submit.disabled = true; status.textContent = 'Creando chofer...';
+  try {
+    const response = await fetch(`${HASH_CLOUD_URL}/crm/drivers`, { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'No se pudo crear el chofer.');
+    closeNewDriverModal();
+    document.getElementById('crm-status').textContent = 'Chofer creado correctamente.';
+    loadCrmData();
+  } catch (error) { status.textContent = error.message; } finally { submit.disabled = false; }
+}
+
 function closeNewVehicleModal() {
   document.getElementById('new-vehicle-modal').setAttribute('hidden', '');
 }
@@ -2220,13 +2272,7 @@ document.addEventListener('DOMContentLoaded', () => {
     input.value = `Organizá las consultas pendientes de ${label}: separá urgentes, repetidas y sin resolver, y proponé el próximo paso.`;
     input.focus();
   }));
-  document.getElementById('driver-new-button').addEventListener('click', () => {
-    const panel = document.getElementById('livi-floating-panel');
-    panel.hidden = false;
-    document.getElementById('livi-floating-toggle').setAttribute('aria-expanded', 'true');
-    document.getElementById('livi-floating-input').value = 'Necesito dar de alta un chofer. ¿Qué datos y documentación faltan?';
-    document.getElementById('livi-floating-input').focus();
-  });
+  document.getElementById('driver-new-button').addEventListener('click', openNewDriverModal);
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
   document.getElementById('sidebar-logout').addEventListener('click', logout);
@@ -2259,6 +2305,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-vehicle-close').addEventListener('click', closeNewVehicleModal);
   document.getElementById('new-vehicle-modal').addEventListener('click', event => { if (event.target.id === 'new-vehicle-modal') closeNewVehicleModal(); });
   document.getElementById('new-vehicle-submit').addEventListener('click', createManagedVehicle);
+  document.getElementById('new-driver-form').addEventListener('submit', createManagedDriver);
+  document.getElementById('new-driver-cancel').addEventListener('click', closeNewDriverModal);
+  document.getElementById('new-driver-close').addEventListener('click', closeNewDriverModal);
+  document.getElementById('new-driver-modal').addEventListener('click', event => { if (event.target.id === 'new-driver-modal') closeNewDriverModal(); });
   const travelStates = [
     'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED',
     'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION',
