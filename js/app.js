@@ -321,10 +321,15 @@ function ownerPayloadFromForm() {
     cuitNumberTitular: value('new-owner-id-number') || null,
     contactEmail: value('new-owner-email') || null, contactPhone: value('new-owner-phone') || null,
     streetName: value('new-owner-street') || null, streetNumber: value('new-owner-street-number') || null,
-    city: value('new-owner-city') || null, province: value('new-owner-province') || null,
-    country: 'Argentina', notes: value('new-owner-notes') || null, vehicles: [],
-    cashCollector: true, isOwnerPlatformUser: false,
-    paymentSettings: [{ applyFinancing: true, paymentMethod: 'CHECKING_ACCOUNT' }],
+    typeOfLivingPlace: 'APARTMENT', postalCode: null, city: value('new-owner-city') || null,
+    numberFloor: '0', province: value('new-owner-province') || null,
+    country: 'Argentina', identification: 'DNI', notes: value('new-owner-notes') || null,
+    vehicles: [], documents: [], existsUser: null,
+    cashCollector: true, isOwnerPlatformUser: true,
+    paymentSettings: [
+      { applyFinancing: true, paymentMethod: 'CHECKING_ACCOUNT' },
+      { applyFinancing: true, paymentMethod: 'CREDIT_CARD' },
+    ],
   };
 }
 
