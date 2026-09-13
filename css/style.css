@@ -2938,3 +2938,95 @@ html[data-theme="dark"] .driver-primary-action { background: var(--lime); color:
   .livi-floating-panel { width:calc(100vw - 24px); }
   .livi-floating-body { max-height:calc(100dvh - 270px); }
 }
+
+/* Controles operativos: una sola jerarquía visual para Choferes y Vehículos. */
+.driver-management-actions > button,
+.vehicle-management-toolbar > button,
+.driver-table-footer button,
+.vehicle-table-footer button {
+  min-height: 38px;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font: 600 .82rem/1.2 "Inter", system-ui, sans-serif;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease), border-color 150ms var(--ease), color 150ms var(--ease), transform 150ms var(--ease);
+}
+
+.driver-primary-action,
+.vehicle-new-button {
+  color: #fff !important;
+  background: var(--lime) !important;
+  border-color: var(--lime) !important;
+}
+
+.driver-primary-action:hover,
+.vehicle-new-button:hover,
+#new-vehicle-submit:hover {
+  background: var(--lime-dim) !important;
+  border-color: var(--lime-dim) !important;
+  transform: translateY(-1px);
+}
+
+.crm-livi-context,
+.vehicle-pdf-button {
+  min-height: 38px;
+  padding: 9px 14px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-pill) !important;
+  color: var(--text) !important;
+  background: var(--graphite) !important;
+  font: 600 .82rem/1.2 "Inter", system-ui, sans-serif !important;
+  cursor: pointer;
+}
+
+.crm-livi-context:hover,
+.vehicle-pdf-button:hover {
+  color: var(--lime) !important;
+  border-color: var(--lime) !important;
+  background: var(--graphite-soft) !important;
+}
+
+.driver-action,
+.vehicle-action {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+  padding: 0;
+  border: 1px solid var(--border) !important;
+  border-radius: 50%;
+  color: var(--text) !important;
+  background: var(--graphite) !important;
+  font: 600 .78rem/1 "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.driver-action:hover,
+.vehicle-action:hover {
+  color: #fff !important;
+  border-color: var(--lime) !important;
+  background: var(--lime) !important;
+}
+
+.driver-table-footer button,
+.vehicle-table-footer button {
+  color: var(--text) !important;
+  background: var(--graphite) !important;
+}
+
+.driver-table-footer button:hover:not(:disabled),
+.vehicle-table-footer button:hover:not(:disabled) {
+  color: #fff !important;
+  border-color: var(--lime) !important;
+  background: var(--lime) !important;
+}
+
+.driver-table-footer button:disabled,
+.vehicle-table-footer button:disabled {
+  color: var(--text-faint) !important;
+  background: var(--graphite-soft) !important;
+  border-color: var(--border) !important;
+  opacity: .55;
+}
