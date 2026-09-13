@@ -839,6 +839,66 @@ let travelQuote = null;
 let travelQuoteOptions = [];
 const PANEL_WHATSAPP_USER = '5492915650870';
 
+function decodeGooglePolyline(encoded) {
+  const points = [];
+  let index = 0;
+  let latitude = 0;
+  let longitude = 0;
+  while (index < encoded.length) {
+    let result = 0;
+    let shift = 0;
+    let byte;
+    do {
+      byte = encoded.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20 && index < encoded.length);
+    latitude += (result & 1) ? ~(result >> 1) : (result >> 1);
+    result = 0;
+    shift = 0;
+    do {
+      byte = encoded.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20 && index < encoded.length);
+    longitude += (result & 1) ? ~(result >> 1) : (result >> 1);
+    points.push([latitude / 1e5, longitude / 1e5]);
+  }
+  return points;
+}
+
+function travelMapPoint(value) {
+  if (!value) return null;
+  const latitude = Number(value.latitude ?? value.lat ?? value[0]);
+  const longitude = Number(value.longitude ?? value.lng ?? value.lon ?? value[1]);
+  return Number.isFinite(latitude) && Number.isFinite(longitude) ? [latitude, longitude] : null;
+}
+
+function renderTravelMapFromQuote(option) {
+  const routeMap = typeof option?.routeMap === 'string' ? JSON.parse(option.routeMap) : option?.routeMap;
+  const route = routeMap?.routes?.[0];
+  const encoded = route?.overviewPolyline?.encodedPath || route?.overviewPolyline?.points;
+  if (!encoded || !window.L) return false;
+  const points = decodeGooglePolyline(encoded);
+  if (!points.length) return false;
+  initTravelMap();
+  if (!travelMap) return false;
+  travelMapMarkers.forEach(marker => marker.remove());
+  travelMapMarkers = [];
+  travelRoute?.remove();
+  travelRoute = L.polyline(points, { color: '#55b9a9', weight: 5, opacity: 0.9 }).addTo(travelMap);
+  const bounds = points.slice();
+  const origin = travelMapPoint(option.origin || route.origin);
+  const destination = travelMapPoint(option.destination || route.destination);
+  [[origin, 'Origen'], [destination, 'Destino']].forEach(([point, label]) => {
+    if (!point) return;
+    travelMapMarkers.push(L.marker(point).addTo(travelMap).bindPopup(label));
+    bounds.push(point);
+  });
+  if (bounds.length) travelMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
+  return true;
+}
+
 function renderTravelQuotes(options) {
   const quoteBox = document.getElementById('travel-quote');
   const available = (options || []).filter(option => ['1', '2'].includes(String(option.transportTypeId)) && String(option.serviceStatus || '').toUpperCase() === 'AVAILABLE');
@@ -912,6 +972,7 @@ async function createTravelFromForm(event) {
         time,
       };
       renderTravelQuotes(options);
+      try { renderTravelMapFromQuote(travelQuoteOptions[0]); } catch (_) { /* fallback visual de Nominatim/OSRM */ }
       status.textContent = options.length ? 'Elegí Livre Premium o Livre Ahorro y confirmá el viaje.' : result;
       submit.textContent = 'Confirmar y crear viaje';
       return;
