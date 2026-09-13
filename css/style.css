@@ -2804,3 +2804,27 @@ body, button, input, select, textarea { font-family: var(--ui-font); }
 #new-vehicle-modal-box { width: min(520px, 100%); max-height: min(680px, calc(100dvh - 40px)); overflow-y: auto; padding: 28px; gap: 16px; background: #fff; color: #172033; border: 0; border-radius: 16px; box-shadow: 0 22px 60px rgba(15,23,42,.28); }
 #new-vehicle-modal-box input, #new-vehicle-modal-box select { padding: 11px 12px; background: #f8fafc; color: #172033; border: 1px solid #cbd5e1; border-radius: 8px; font-size: .95rem; }
 #new-vehicle-modal-box label { gap: 7px; font-size: .86rem; font-weight: 600; }
+
+/* LIVI persistente y controles CRM */
+.livi-floating { position: fixed; right: 22px; bottom: 22px; z-index: 1200; font-family: inherit; }
+.livi-floating-toggle { border: 0; border-radius: 999px; padding: 12px 18px; background: #b4ff00; color: #101010; box-shadow: 0 8px 28px rgba(0,0,0,.28); font-weight: 800; cursor: pointer; }
+.livi-floating-toggle:hover { transform: translateY(-1px); box-shadow: 0 10px 32px rgba(0,0,0,.34); }
+.livi-floating-panel { position: absolute; right: 0; bottom: 58px; width: min(340px, calc(100vw - 32px)); overflow: hidden; border: 1px solid rgba(180,255,0,.35); border-radius: 16px; background: #17191d; color: #f6f7f8; box-shadow: 0 18px 55px rgba(0,0,0,.42); }
+.livi-floating-panel header { display:flex; align-items:center; justify-content:space-between; padding: 13px 15px; background: #20242a; }
+.livi-floating-panel header button { border:0; background:transparent; color:#fff; font-size:18px; cursor:pointer; }
+.livi-floating-body { max-height: 220px; overflow:auto; padding: 12px; font-size: 13px; }
+.livi-floating-body p { margin: 0 0 8px; color: #bfc5cd; }
+.livi-floating-user, .livi-floating-wait { width: fit-content; max-width: 90%; margin: 7px 0; padding: 8px 10px; border-radius: 10px; }
+.livi-floating-user { margin-left:auto; background:#b4ff00; color:#101010; }
+.livi-floating-wait { background:#292e35; color:#d8dde3; }
+#livi-floating-form { display:flex; gap:8px; padding:10px; border-top:1px solid #30353c; }
+#livi-floating-input { min-width:0; flex:1; border:1px solid #3b424b; border-radius:9px; padding:9px; background:#101216; color:#fff; }
+#livi-floating-form button { border:0; border-radius:9px; padding:0 13px; background:#b4ff00; cursor:pointer; }
+.driver-management-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin: 0 0 16px; }
+.driver-management-actions button { border:0; border-radius:10px; padding:11px 16px; font-weight:750; cursor:pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.driver-management-actions button:hover { transform:translateY(-1px); box-shadow:0 5px 16px rgba(0,0,0,.2); }
+.driver-primary-action { background:#b4ff00; color:#101010; }
+.driver-management-actions .crm-livi-context { background:#20242a; color:#f4f5f6; border:1px solid #454c55; }
+#new-vehicle-modal-box { position:relative; }
+#new-vehicle-close { position:absolute; top:10px; right:12px; border:0; background:transparent; color:inherit; font-size:20px; cursor:pointer; }
+@media (max-width: 700px) { .livi-floating { right:12px; bottom:12px; } .livi-floating-toggle span { display:none; } }

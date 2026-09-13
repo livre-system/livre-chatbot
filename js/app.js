@@ -307,6 +307,10 @@ function renderVehicleManagement(data) {
   });
 }
 
+function closeNewVehicleModal() {
+  document.getElementById('new-vehicle-modal').setAttribute('hidden', '');
+}
+
 function openNewVehicleModal() {
   const modal = document.getElementById('new-vehicle-modal');
   const status = document.getElementById('new-vehicle-status');
@@ -665,7 +669,7 @@ function renderTravelQuotes(options) {
     const id = String(option.transportTypeId || '');
     const label = id === '1' ? 'Livre Premium' : id === '2' ? 'Livre Ahorro' : `Livre ${id}`;
     const selected = index === 0 ? ' checked' : '';
-    return `<label class="travel-quote-option"><input type="radio" name="travel-service" value="${crmEscape(id)}"${selected}><span><strong>${label}</strong><small>${crmEscape(option.duration || 'Tiempo no informado')} · ${crmEscape(option.distance ? `${option.distance} km` : 'Distancia no informada')}</small></span><b>$ ${Number(option.pricePointToPoint || 0).toLocaleString('es-AR')}</b></label>`;
+    return `<label class="travel-quote-option"><input type="radio" name="travel-service" value="${crmEscape(id)}"${selected}><span><strong>${id === '1' ? '🚘' : id === '2' ? '🚗' : '🚙'} ${label}</strong><small>${crmEscape(option.duration || 'Tiempo no informado')} · ${crmEscape(option.distance ? `${option.distance} km` : 'Distancia no informada')}</small></span><b>$ ${Number(option.pricePointToPoint || 0).toLocaleString('es-AR')}</b></label>`;
   }).join('');
   quoteBox.hidden = !available.length;
   return available;
@@ -2039,7 +2043,38 @@ async function checkAuth() {
   await bootApp();
 }
 
+function initLiviFloating() {
+  const toggle = document.getElementById('livi-floating-toggle');
+  const panel = document.getElementById('livi-floating-panel');
+  const close = document.getElementById('livi-floating-close');
+  const form = document.getElementById('livi-floating-form');
+  const input = document.getElementById('livi-floating-input');
+  const body = document.querySelector('.livi-floating-body');
+  const setOpen = open => { panel.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); if (open) input.focus(); };
+  toggle.addEventListener('click', () => setOpen(panel.hidden));
+  close.addEventListener('click', () => setOpen(false));
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const text = input.value.trim();
+    if (!text || isSending) return;
+    body.insertAdjacentHTML('beforeend', `<div class="livi-floating-user">${crmEscape(text)}</div><div class="livi-floating-wait">LIVI está pensando...</div>`);
+    input.value = '';
+    await saveMessage(text);
+    const wait = body.querySelector('.livi-floating-wait:last-child');
+    if (wait) wait.textContent = 'Consulta enviada al chat LIVI principal.';
+  });
+}
+
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
+  const vehicleModal = document.getElementById('new-vehicle-modal');
+  if (vehicleModal && !vehicleModal.hidden) closeNewVehicleModal();
+  const liviPanel = document.getElementById('livi-floating-panel');
+  if (liviPanel && !liviPanel.hidden) document.getElementById('livi-floating-close').click();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
+  initLiviFloating();
   const savedFont = localStorage.getItem('hash_font_size') || '18';
   document.documentElement.style.setProperty('--font-size-base', savedFont + 'px');
   document.querySelectorAll('#main-navigation .main-nav-item').forEach(btn => {
@@ -2063,12 +2098,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.crm-livi-context').forEach(button => button.addEventListener('click', () => {
     const resource = button.dataset.liviResource || document.getElementById('crm-resource').value;
     const label = CRM_LABELS[resource] || 'datos de la operación';
-    showChat();
-    const input = document.getElementById('message-input');
-    input.value = `LIVI, organizá las consultas pendientes de ${label}. Separá urgentes, repetidas y sin resolver, y proponé el próximo paso para cada una.`;
+    const panel = document.getElementById('livi-floating-panel');
+    const toggle = document.getElementById('livi-floating-toggle');
+    const input = document.getElementById('livi-floating-input');
+    panel.hidden = false;
+    toggle.setAttribute('aria-expanded', 'true');
+    input.value = `Organizá las consultas pendientes de ${label}: separá urgentes, repetidas y sin resolver, y proponé el próximo paso.`;
     input.focus();
-    input.dispatchEvent(new Event('input', { bubbles: true }));
   }));
+  document.getElementById('driver-new-button').addEventListener('click', () => {
+    const panel = document.getElementById('livi-floating-panel');
+    panel.hidden = false;
+    document.getElementById('livi-floating-toggle').setAttribute('aria-expanded', 'true');
+    document.getElementById('livi-floating-input').value = 'Necesito dar de alta un chofer. ¿Qué datos y documentación faltan?';
+    document.getElementById('livi-floating-input').focus();
+  });
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
   document.getElementById('sidebar-logout').addEventListener('click', logout);
@@ -2097,7 +2141,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('travel-management-date').addEventListener('change', reloadFromStart);
   document.getElementById('vehicle-management-search').addEventListener('input', reloadFromStart);
   document.querySelector('.vehicle-new-button').addEventListener('click', openNewVehicleModal);
-  document.getElementById('new-vehicle-cancel').addEventListener('click', () => document.getElementById('new-vehicle-modal').setAttribute('hidden', ''));
+  document.getElementById('new-vehicle-cancel').addEventListener('click', closeNewVehicleModal);
+  document.getElementById('new-vehicle-close').addEventListener('click', closeNewVehicleModal);
+  document.getElementById('new-vehicle-modal').addEventListener('click', event => { if (event.target.id === 'new-vehicle-modal') closeNewVehicleModal(); });
   document.getElementById('new-vehicle-submit').addEventListener('click', createManagedVehicle);
   const travelStates = [
     'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED',
@@ -2120,6 +2166,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   syncTravelDateFromFilter();
   checkAuth();
+  setInterval(() => {
+    if (crmMode === 'control' && document.visibilityState === 'visible') loadCrmData();
+  }, 30000);
 });
 
 // ── Red Neural ────────────────────────────────────────────────────────────────

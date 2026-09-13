@@ -98,7 +98,7 @@
         </div>
         <div id="crm-cards" class="crm-cards"></div>
         <div id="driver-management-view" hidden aria-label="Gestión de choferes">
-          <div class="driver-management-actions"><button type="button" class="crm-livi-context" data-livi-resource="drivers">Consultar a LIVI IA</button></div>
+          <div class="driver-management-actions"><button type="button" class="driver-primary-action" id="driver-new-button">＋ Alta de chofer</button><button type="button" class="crm-livi-context" data-livi-resource="drivers">Consultar a LIVI IA</button></div>
           <div id="driver-management-table" class="driver-management-table"></div>
         </div>
         <div id="vehicle-management-view" hidden aria-label="Gestión de vehículos">
@@ -160,6 +160,7 @@
   </div>
   <div id="new-vehicle-modal" hidden role="dialog" aria-modal="true" aria-labelledby="new-vehicle-title">
     <div id="new-vehicle-modal-box">
+      <button type="button" id="new-vehicle-close" aria-label="Cerrar">✕</button>
       <h3 id="new-vehicle-title">Nuevo vehículo</h3>
       <label>Dominio <input id="new-vehicle-domain" required maxlength="20" autocomplete="off"></label>
       <label>Marca <input id="new-vehicle-brand" required maxlength="60" autocomplete="off"></label>
@@ -172,6 +173,14 @@
       <p id="new-vehicle-status" aria-live="polite"></p>
       <div id="new-vehicle-actions"><button type="button" id="new-vehicle-cancel">Cancelar</button><button type="button" id="new-vehicle-submit">Crear vehículo</button></div>
     </div>
+  </div>
+  <div id="livi-floating" class="livi-floating" aria-live="polite">
+    <button type="button" id="livi-floating-toggle" class="livi-floating-toggle" aria-expanded="false" aria-controls="livi-floating-panel">✨ <span>Habla con LIVI IA</span></button>
+    <section id="livi-floating-panel" class="livi-floating-panel" hidden aria-label="Chat con LIVI IA">
+      <header><strong>✨ LIVI IA</strong><button type="button" id="livi-floating-close" aria-label="Cerrar">✕</button></header>
+      <div class="livi-floating-body"><p>Preguntame algo sobre la operación.</p></div>
+      <form id="livi-floating-form"><input id="livi-floating-input" placeholder="Escribí tu consulta..." autocomplete="off"><button type="submit" aria-label="Enviar">➤</button></form>
+    </section>
   </div>
   <div id="sidebar-overlay"></div>
   <div id="new-front-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
