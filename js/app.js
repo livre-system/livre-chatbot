@@ -310,6 +310,71 @@ function renderVehicleManagement(data) {
   });
 }
 
+let ownerEditingId = null;
+
+function ownerPayloadFromForm() {
+  const value = id => document.getElementById(id).value.trim();
+  return {
+    carrierId: '', titularType: 'PARTICULAR',
+    titularDescription: `${value('new-owner-first-name')} ${value('new-owner-last-name')}`.trim(),
+    firstName: value('new-owner-first-name'), lastName: value('new-owner-last-name'),
+    cuitNumberTitular: value('new-owner-id-number') || null,
+    contactEmail: value('new-owner-email') || null, contactPhone: value('new-owner-phone') || null,
+    streetName: value('new-owner-street') || null, streetNumber: value('new-owner-street-number') || null,
+    city: value('new-owner-city') || null, province: value('new-owner-province') || null,
+    country: 'Argentina', notes: value('new-owner-notes') || null, vehicles: [],
+    cashCollector: true, isOwnerPlatformUser: false,
+    paymentSettings: [{ applyFinancing: true, paymentMethod: 'CHECKING_ACCOUNT' }],
+  };
+}
+
+async function loadVehicleOwners() {
+  const q = document.getElementById('owner-management-search')?.value.trim() || '';
+  const data = await apiCrm(`vehicle-owners?size=100&q=${encodeURIComponent(q)}`);
+  renderVehicleOwners(data);
+  const select = document.getElementById('new-driver-owner');
+  if (select) select.innerHTML = '<option value="">Sin propietario</option>' + (data.items || []).map(item => {
+    const p = item.raw_payload || {}; const label = p.titularDescription || [p.firstName, p.lastName].filter(Boolean).join(' ') || `Propietario ${item.magiis_id}`;
+    return `<option value="${crmEscape(item.magiis_id)}">${crmEscape(label)}</option>`;
+  }).join('');
+}
+
+function renderVehicleOwners(data) {
+  const root = document.getElementById('owner-management-table');
+  const rows = (data.items || []).map(item => { const p = item.raw_payload || {}; const name = p.titularDescription || [p.firstName, p.lastName].filter(Boolean).join(' ') || '—'; return `<tr><td>${crmEscape(item.magiis_id)}</td><td>${crmEscape(name)}</td><td>${crmEscape(p.cuitNumberTitular || p.idNumber || '—')}</td><td>${crmEscape(p.contactPhone || '—')}</td><td>${crmEscape(p.contactEmail || '—')}</td><td>${crmEscape(p.city || '—')}</td><td><button type="button" class="vehicle-action" data-owner-edit="${crmEscape(item.magiis_id)}">✎</button></td></tr>`; }).join('');
+  root.innerHTML = `<div class="vehicle-table-scroll"><table><thead><tr><th>Código</th><th>Nombre</th><th>DNI/CUIT</th><th>Teléfono</th><th>Email</th><th>Ciudad</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="7">No hay propietarios registrados.</td></tr>'}</tbody></table></div><div class="vehicle-table-footer"><span>Total: ${data.total || 0}</span></div>`;
+  root.querySelectorAll('[data-owner-edit]').forEach(button => button.addEventListener('click', () => openOwnerModal(button.dataset.ownerEdit)));
+}
+
+async function openOwnerModal(ownerId = null) {
+  ownerEditingId = ownerId;
+  document.getElementById('new-owner-form').reset();
+  document.getElementById('new-owner-status').textContent = '';
+  document.getElementById('new-owner-title').textContent = ownerId ? 'Editar propietario' : 'Nuevo propietario';
+  document.getElementById('new-owner-submit').textContent = ownerId ? 'Guardar cambios' : 'Crear propietario';
+  if (ownerId) {
+    const p = await apiCrm(`vehicle-owners/${encodeURIComponent(ownerId)}`);
+    const set = (id, value) => { document.getElementById(id).value = value || ''; };
+    set('new-owner-first-name', p.firstName); set('new-owner-last-name', p.lastName); set('new-owner-id-number', p.cuitNumberTitular || p.idNumber); set('new-owner-email', p.contactEmail); set('new-owner-phone', p.contactPhone); set('new-owner-city', p.city); set('new-owner-province', p.province); set('new-owner-street', p.streetName); set('new-owner-street-number', p.streetNumber); set('new-owner-notes', p.notes);
+  }
+  document.getElementById('new-owner-modal').removeAttribute('hidden');
+  document.getElementById('new-owner-first-name').focus();
+}
+
+function closeOwnerModal() { document.getElementById('new-owner-modal').setAttribute('hidden', ''); ownerEditingId = null; }
+
+async function saveVehicleOwner(event) {
+  event.preventDefault();
+  const status = document.getElementById('new-owner-status'); const submit = document.getElementById('new-owner-submit');
+  if (!event.currentTarget.reportValidity()) return;
+  submit.disabled = true; status.textContent = ownerEditingId ? 'Guardando...' : 'Creando...';
+  try {
+    const response = await fetch(`${HASH_CLOUD_URL}/crm/vehicle-owners${ownerEditingId ? `/${encodeURIComponent(ownerEditingId)}` : ''}`, { method: ownerEditingId ? 'PUT' : 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify(ownerPayloadFromForm()) });
+    const data = await response.json(); if (!response.ok) throw new Error(data.detail || 'No se pudo guardar el propietario.');
+    const wasEditing = Boolean(ownerEditingId); closeOwnerModal(); document.getElementById('crm-status').textContent = wasEditing ? 'Propietario actualizado correctamente.' : 'Propietario creado correctamente.'; loadVehicleOwners();
+  } catch (error) { status.textContent = error.message; } finally { submit.disabled = false; }
+}
+
 function closeNewDriverModal() {
   document.getElementById('new-driver-modal').setAttribute('hidden', '');
 }
@@ -317,6 +382,7 @@ function closeNewDriverModal() {
 function openNewDriverModal() {
   document.getElementById('new-driver-status').textContent = '';
   document.getElementById('new-driver-modal').removeAttribute('hidden');
+  loadVehicleOwners().catch(() => { document.getElementById('new-driver-status').textContent = 'No se pudieron cargar los propietarios.'; });
   document.getElementById('new-driver-first-name').focus();
 }
 
@@ -349,7 +415,7 @@ async function createManagedDriver(event) {
       { applyFinancing: false, isEnabled: true, paymentMethod: 'CHECKING_ACCOUNT' },
       { applyFinancing: false, isEnabled: true, paymentMethod: 'CASH' },
     ],
-    vehicles: [], documents: [],
+    vehicles: [], documents: [], vehicleOwnerId: Number(value('new-driver-owner')) || null,
   };
   submit.disabled = true; status.textContent = 'Creando chofer...';
   try {
@@ -589,6 +655,7 @@ function showCrm(resource) {
   document.getElementById('travel-management-view').hidden = crmMode !== 'resource' || resource !== 'travels';
   document.getElementById('driver-management-view').hidden = crmMode !== 'resource' || resource !== 'drivers';
   document.getElementById('vehicle-management-view').hidden = crmMode !== 'resource' || resource !== 'vehicles';
+  document.getElementById('owner-management-view').hidden = true;
   document.getElementById('operational-view').hidden = crmMode !== 'control';
   document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && (resource === 'travels' || resource === 'vehicles' || resource === 'drivers'));
   const genericTable = document.getElementById('crm-table-wrap');
@@ -602,6 +669,25 @@ function showCrm(resource) {
   document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = false;
   loadCrmData();
+}
+
+function showVehicleOwnerManagement() {
+  crmVisible = true;
+  document.getElementById('crm-title').textContent = 'Gestión de propietarios';
+  document.getElementById('crm-subtitle').textContent = 'Propietarios registrados y disponibles para asignar.';
+  document.getElementById('crm-cards').hidden = true;
+  document.getElementById('travel-management-view').hidden = true;
+  document.getElementById('driver-management-view').hidden = true;
+  document.getElementById('vehicle-management-view').hidden = true;
+  document.getElementById('owner-management-view').hidden = false;
+  document.getElementById('operational-view').hidden = true;
+  document.querySelector('.crm-toolbar').hidden = true;
+  document.getElementById('crm-table-wrap').hidden = true;
+  document.getElementById('message-list').hidden = true;
+  document.getElementById('composer').hidden = true;
+  document.getElementById('travel-form-view').hidden = true;
+  document.getElementById('crm-dashboard').hidden = false;
+  loadVehicleOwners().catch(error => { document.getElementById('crm-status').textContent = error.message; });
 }
 
 function hideCrm() {
@@ -2248,6 +2334,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showCrm('control');
       } else if (view === 'travels' || view === 'drivers' || view === 'vehicles' || view === 'passengers') {
         showCrm(view);
+      } else if (view === 'vehicle-owners') {
+        showVehicleOwnerManagement();
       } else if (view === 'crear-viaje') {
         showTravelForm();
       } else {
@@ -2273,6 +2361,12 @@ document.addEventListener('DOMContentLoaded', () => {
     input.focus();
   }));
   document.getElementById('driver-new-button').addEventListener('click', openNewDriverModal);
+  document.getElementById('owner-new-button').addEventListener('click', () => openOwnerModal());
+  document.getElementById('new-owner-form').addEventListener('submit', saveVehicleOwner);
+  document.getElementById('new-owner-cancel').addEventListener('click', closeOwnerModal);
+  document.getElementById('new-owner-close').addEventListener('click', closeOwnerModal);
+  document.getElementById('new-owner-modal').addEventListener('click', event => { if (event.target.id === 'new-owner-modal') closeOwnerModal(); });
+  document.getElementById('owner-management-search').addEventListener('input', () => { clearTimeout(crmSearchTimer); crmSearchTimer = setTimeout(loadVehicleOwners, 350); });
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
   document.getElementById('sidebar-logout').addEventListener('click', logout);

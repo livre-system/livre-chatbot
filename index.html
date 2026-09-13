@@ -46,6 +46,7 @@
         <button type="button" class="main-nav-item" data-view="travels">Gestión de viajes</button>
         <button type="button" class="main-nav-item" data-view="drivers">Choferes</button>
         <button type="button" class="main-nav-item" data-view="vehicles">Vehículos</button>
+        <button type="button" class="main-nav-item" data-view="vehicle-owners">Gestión de propietarios</button>
         <button type="button" class="main-nav-item" data-view="passengers">Clientes</button>
       </nav>
       <div class="sidebar-account-actions">
@@ -109,6 +110,11 @@
           <div class="vehicle-page-heading"><h2>Vehículos</h2></div>
           <div class="vehicle-management-toolbar"><input id="vehicle-management-search" type="search" placeholder="Buscar por dominio, marca o modelo..." autocomplete="off"><button type="button" class="vehicle-new-button">Nuevo Vehículo</button><button type="button" class="crm-livi-context" data-livi-resource="vehicles">Consultar a LIVI IA</button></div>
           <div id="vehicle-management-table" class="vehicle-management-table"></div>
+        </div>
+        <div id="owner-management-view" hidden aria-label="Gestión de propietarios">
+          <div class="vehicle-page-heading"><h2>Gestión de propietarios</h2><p>Propietarios ya cargados en la operación.</p></div>
+          <div class="vehicle-management-toolbar"><input id="owner-management-search" type="search" placeholder="Buscar por nombre, DNI o teléfono..." autocomplete="off"><button type="button" class="vehicle-new-button" id="owner-new-button">Nuevo propietario</button></div>
+          <div id="owner-management-table" class="vehicle-management-table"></div>
         </div>
         <div id="travel-management-view" hidden aria-label="Gestión de viajes">
           <div class="travel-management-filters"><input id="travel-management-search" type="search" placeholder="Buscar..." autocomplete="off"><label id="travel-date-from-filter" hidden>Fecha desde <input type="date" id="travel-management-date-from"></label><label>Fecha hasta <input type="date" id="travel-management-date"></label><button type="button" class="crm-livi-context" data-livi-resource="travels">Consultar a LIVI IA</button></div>
@@ -217,9 +223,32 @@
           <label>Piso <input id="new-driver-floor" maxlength="10"></label>
           <label>Porcentaje de viaje <input id="new-driver-travel-percentage" type="number" min="0" max="100" value="15"></label>
           <label>Porcentaje de costo <input id="new-driver-cost-percentage" type="number" min="0" max="100" value="0"></label>
+          <label>Propietario <select id="new-driver-owner"><option value="">Sin propietario</option></select></label>
         </div></fieldset>
         <p id="new-driver-status" aria-live="polite"></p>
         <div class="driver-form-actions"><button type="button" id="new-driver-cancel">Cancelar</button><button type="submit" id="new-driver-submit">Crear chofer</button></div>
+      </form>
+    </div>
+  </div>
+  <div id="new-owner-modal" hidden role="dialog" aria-modal="true" aria-labelledby="new-owner-title">
+    <div id="new-owner-modal-box">
+      <button type="button" id="new-owner-close" aria-label="Cerrar">✕</button>
+      <h3 id="new-owner-title">Nuevo propietario</h3>
+      <form id="new-owner-form">
+        <div class="owner-form-grid">
+          <label>Nombre *<input id="new-owner-first-name" required maxlength="80"></label>
+          <label>Apellido *<input id="new-owner-last-name" required maxlength="80"></label>
+          <label>DNI/CUIT <input id="new-owner-id-number" maxlength="30"></label>
+          <label>Email <input id="new-owner-email" type="email" maxlength="160"></label>
+          <label>Teléfono <input id="new-owner-phone" maxlength="40"></label>
+          <label>Ciudad <input id="new-owner-city" value="Bahía Blanca" maxlength="80"></label>
+          <label>Provincia <input id="new-owner-province" value="Buenos Aires" maxlength="80"></label>
+          <label>Dirección <input id="new-owner-street" maxlength="120"></label>
+          <label>Número <input id="new-owner-street-number" maxlength="12"></label>
+          <label>Notas <textarea id="new-owner-notes" maxlength="500"></textarea></label>
+        </div>
+        <p id="new-owner-status" aria-live="polite"></p>
+        <div class="owner-form-actions"><button type="button" id="new-owner-cancel">Cancelar</button><button type="submit" id="new-owner-submit">Crear propietario</button></div>
       </form>
     </div>
   </div>
