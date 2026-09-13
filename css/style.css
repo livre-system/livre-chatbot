@@ -3030,3 +3030,179 @@ html[data-theme="dark"] .driver-primary-action { background: var(--lime); color:
   border-color: var(--border) !important;
   opacity: .55;
 }
+
+/* Dark mode final: neutraliza superficies claras de bloques heredados. */
+html[data-theme="dark"] {
+  --surface-0: #111216;
+  --surface-1: #171a20;
+  --surface-2: #1f242c;
+  --surface-3: #282e38;
+  --dark-border: #39414d;
+  --dark-muted: #aeb7c3;
+}
+
+html[data-theme="dark"] #lock-screen,
+html[data-theme="dark"] #main-header,
+html[data-theme="dark"] #sidebar,
+html[data-theme="dark"] #main,
+html[data-theme="dark"] .panel-view,
+html[data-theme="dark"] .crm-dashboard,
+html[data-theme="dark"] .crm-table-wrap,
+html[data-theme="dark"] .travel-history-table,
+html[data-theme="dark"] .travel-form,
+html[data-theme="dark"] .travel-map-panel,
+html[data-theme="dark"] .travel-management-table,
+html[data-theme="dark"] .driver-management-table,
+html[data-theme="dark"] .vehicle-management-table,
+html[data-theme="dark"] .distribution-chart,
+html[data-theme="dark"] .operational-section,
+html[data-theme="dark"] .operational-kpi,
+html[data-theme="dark"] .operational-vehicle-summary article {
+  background: var(--surface-0) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] .driver-management-table thead,
+html[data-theme="dark"] .vehicle-management-table thead,
+html[data-theme="dark"] .travel-management-table thead,
+html[data-theme="dark"] .crm-table-wrap thead,
+html[data-theme="dark"] .driver-management-table th,
+html[data-theme="dark"] .vehicle-management-table th,
+html[data-theme="dark"] .travel-management-table th,
+html[data-theme="dark"] .crm-table-wrap th,
+html[data-theme="dark"] .travel-status-tabs,
+html[data-theme="dark"] .chart-grid {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] .driver-management-table tbody tr,
+html[data-theme="dark"] .vehicle-management-table tbody tr,
+html[data-theme="dark"] .travel-management-table tbody tr,
+html[data-theme="dark"] .crm-table-wrap tbody tr {
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] .driver-management-table tbody tr:nth-child(even),
+html[data-theme="dark"] .vehicle-management-table tbody tr:nth-child(even),
+html[data-theme="dark"] .travel-management-table tbody tr:nth-child(even),
+html[data-theme="dark"] .crm-table-wrap tbody tr:nth-child(even) {
+  background: var(--surface-2) !important;
+}
+
+html[data-theme="dark"] .driver-management-table tbody tr:hover,
+html[data-theme="dark"] .vehicle-management-table tbody tr:hover,
+html[data-theme="dark"] .travel-management-table tbody tr:hover,
+html[data-theme="dark"] .crm-table-wrap tbody tr:hover {
+  background: rgba(232, 0, 61, .16) !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] .crm-toolbar select,
+html[data-theme="dark"] #crm-search,
+html[data-theme="dark"] .vehicle-management-toolbar > input,
+html[data-theme="dark"] .travel-management-filters input,
+html[data-theme="dark"] .driver-management-table th input,
+html[data-theme="dark"] .travel-form input,
+html[data-theme="dark"] .travel-form select,
+html[data-theme="dark"] .travel-map-tabs,
+html[data-theme="dark"] .travel-map-tabs button {
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--dark-muted) !important;
+}
+
+html[data-theme="dark"] .crm-cards > *,
+html[data-theme="dark"] .crm-card,
+html[data-theme="dark"] .front-item,
+html[data-theme="dark"] .main-nav-item,
+html[data-theme="dark"] .crm-toolbar,
+html[data-theme="dark"] .history-toolbar,
+html[data-theme="dark"] .travel-create-layout,
+html[data-theme="dark"] .travel-distribution,
+html[data-theme="dark"] .travel-note,
+html[data-theme="dark"] .travel-quote-option {
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] .front-item--active,
+html[data-theme="dark"] .travel-state,
+html[data-theme="dark"] .travel-cancel-row,
+html[data-theme="dark"] .livi-floating-wait {
+  background: #3a1c27 !important;
+  color: #ffb7c8 !important;
+}
+
+html[data-theme="dark"] #new-vehicle-modal-box,
+html[data-theme="dark"] #new-front-modal-box,
+html[data-theme="dark"] #confirm-delete-box,
+html[data-theme="dark"] #rename-modal-box,
+html[data-theme="dark"] #vehicle-photo-modal-box,
+html[data-theme="dark"] #neural-modal-box,
+html[data-theme="dark"] .settings-modal-content {
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--dark-border) !important;
+}
+
+html[data-theme="dark"] #new-vehicle-modal-box input,
+html[data-theme="dark"] #new-vehicle-modal-box select,
+html[data-theme="dark"] #new-front-modal-box input,
+html[data-theme="dark"] #rename-input,
+html[data-theme="dark"] #message-input,
+html[data-theme="dark"] #livi-floating-input {
+  background: var(--surface-0) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] #composer,
+html[data-theme="dark"] #composer .input-wrapper,
+html[data-theme="dark"] #composer .input-wrapper::before {
+  background: var(--surface-0) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] .operational-map-placeholder,
+html[data-theme="dark"] .travel-map-panel small,
+html[data-theme="dark"] .empty-state,
+html[data-theme="dark"] .crm-empty {
+  background: var(--surface-2) !important;
+  color: var(--dark-muted) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] .livi-floating-panel,
+html[data-theme="dark"] .livi-floating-body {
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] .livi-brand img,
+html[data-theme="dark"] .travel-map-tabs button.active,
+html[data-theme="dark"] .travel-status-tabs button.active {
+  background: var(--surface-3) !important;
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .leaflet-control,
+html[data-theme="dark"] .leaflet-bar a,
+html[data-theme="dark"] .leaflet-control-attribution {
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
