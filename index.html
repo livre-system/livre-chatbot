@@ -46,7 +46,7 @@
         <button type="button" class="main-nav-item" data-view="travels">Gestión de viajes</button>
         <button type="button" class="main-nav-item" data-view="drivers">Choferes</button>
         <button type="button" class="main-nav-item" data-view="vehicles">Vehículos</button>
-        <button type="button" class="main-nav-item" data-view="vehicle-owners">Gestión de propietarios</button>
+        <button type="button" class="main-nav-item" data-view="vehicle-owners">Propietarios</button>
         <button type="button" class="main-nav-item" data-view="passengers">Clientes</button>
       </nav>
       <div class="sidebar-account-actions">
@@ -112,7 +112,7 @@
           <div id="vehicle-management-table" class="vehicle-management-table"></div>
         </div>
         <div id="owner-management-view" hidden aria-label="Gestión de propietarios">
-          <div class="vehicle-page-heading"><h2>Gestión de propietarios</h2><p>Propietarios ya cargados en la operación.</p></div>
+          <div class="vehicle-page-heading"><h2>Propietarios</h2><p>Propietarios ya cargados en la operación.</p></div>
           <div class="vehicle-management-toolbar"><input id="owner-management-search" type="search" placeholder="Buscar por nombre, DNI o teléfono..." autocomplete="off"><button type="button" class="vehicle-new-button" id="owner-new-button">Nuevo propietario</button></div>
           <div id="owner-management-table" class="vehicle-management-table"></div>
         </div>
@@ -209,7 +209,7 @@
           <label class="driver-photo-field">Foto del chofer <input id="new-driver-image" type="file" accept="image/png,image/jpeg"></label>
         </div></fieldset>
         <fieldset><legend>Contacto y domicilio</legend><div class="driver-form-grid">
-          <label>Email *<input id="new-driver-email" type="email" required maxlength="160" autocomplete="email"></label>
+          <label class="email-confirm-field">Email *<span><input id="new-driver-email" type="email" required maxlength="160" autocomplete="email"><button type="button" class="email-confirm-button" id="new-driver-email-confirm">Confirmar</button></span></label>
           <label>Teléfono *<input id="new-driver-phone" required inputmode="tel" maxlength="30" autocomplete="tel"></label>
           <label>Ciudad *<input id="new-driver-city" required maxlength="80"></label>
           <label>Provincia *<input id="new-driver-province" required maxlength="80" value="Buenos Aires"></label>
@@ -239,7 +239,7 @@
           <label>Nombre *<input id="new-owner-first-name" required maxlength="80"></label>
           <label>Apellido *<input id="new-owner-last-name" required maxlength="80"></label>
           <label>DNI/CUIT <input id="new-owner-id-number" maxlength="30"></label>
-          <label>Email <input id="new-owner-email" type="email" maxlength="160"></label>
+          <label class="email-confirm-field">Email *<span><input id="new-owner-email" type="email" required maxlength="160"><button type="button" class="email-confirm-button" id="new-owner-email-confirm">Confirmar</button></span></label>
           <label>Teléfono <input id="new-owner-phone" maxlength="40"></label>
           <label>Ciudad <input id="new-owner-city" value="Bahía Blanca" maxlength="80"></label>
           <label>Provincia <input id="new-owner-province" value="Buenos Aires" maxlength="80"></label>

@@ -3352,4 +3352,46 @@ html[data-theme="dark"] #settings-modal-box button { color: var(--text) !importa
 html[data-theme="dark"] #new-front-modal-box, html[data-theme="dark"] #confirm-delete-box, html[data-theme="dark"] #rename-modal-box, html[data-theme="dark"] #crypto-modal-box { background: var(--surface-1) !important; color: var(--text) !important; border-color: var(--border) !important; }
 html[data-theme="dark"] #new-front-modal-box input, html[data-theme="dark"] #rename-modal-box input, html[data-theme="dark"] #new-front-modal-box label { color: var(--text) !important; background: var(--surface-0) !important; border-color: var(--border) !important; }
 @media (max-width: 640px) { #new-owner-modal-box { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); padding: 22px 16px; } .owner-form-grid { grid-template-columns: 1fr; } .owner-form-grid label:last-child { grid-column: auto; } .owner-form-actions { flex-direction: column-reverse; } .owner-form-actions button { width: 100%; } }
+
+.email-confirm-field > span { display: flex; align-items: stretch; gap: 7px; }
+.email-confirm-field > span input { min-width: 0; flex: 1; }
+.email-confirm-button { flex: 0 0 auto; padding: 0 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); cursor: pointer; }
+.email-confirm-button:hover { border-color: var(--lime); color: var(--lime); }
+
+html[data-theme="dark"] .driver-management-table,
+html[data-theme="dark"] .vehicle-management-table,
+html[data-theme="dark"] .travel-management-table,
+html[data-theme="dark"] .travel-status-tabs,
+html[data-theme="dark"] .travel-status-tabs button.active,
+html[data-theme="dark"] #crm-livi-context,
+html[data-theme="dark"] .vehicle-pdf-button,
+html[data-theme="dark"] .travel-management-filters input,
+html[data-theme="dark"] .vehicle-management-toolbar > input {
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] .livi-floating-panel,
+html[data-theme="dark"] .livi-floating-panel *:not(input):not(textarea),
+html[data-theme="dark"] #livi-floating-form,
+html[data-theme="dark"] #livi-floating-form button {
+  color: var(--text) !important;
+}
+html[data-theme="dark"] .livi-floating-user,
+html[data-theme="dark"] .livi-floating-answer,
+html[data-theme="dark"] .livi-floating-wait {
+  background: var(--surface-2) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #new-driver-modal-box,
+html[data-theme="dark"] #new-owner-modal-box,
+html[data-theme="dark"] #new-driver-form fieldset,
+html[data-theme="dark"] .owner-form-grid input,
+html[data-theme="dark"] .owner-form-grid textarea {
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+@media (max-width: 600px) { .email-confirm-field > span { flex-direction: column; } .email-confirm-button { min-height: 38px; } }
+
 @media (max-width: 600px) { #new-driver-modal-box { padding: 22px 16px; } .driver-form-grid { grid-template-columns: 1fr; } }

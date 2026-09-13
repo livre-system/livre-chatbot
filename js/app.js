@@ -63,7 +63,7 @@ let crmMode = 'control';
 let crmOffset = 0;
 let crmPageSize = 20;
 let travelPageSize = 20;
-let travelStateFilter = '';
+let travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
 let vehicleTypesPromise;
 let crmLoadController;
 let crmLoadSequence = 0;
@@ -311,6 +311,20 @@ function renderVehicleManagement(data) {
 }
 
 let ownerEditingId = null;
+
+async function confirmManagedEmail(inputId, role, statusId, button) {
+  const email = document.getElementById(inputId).value.trim();
+  const status = document.getElementById(statusId);
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) { status.textContent = 'Ingresá un email válido antes de confirmar.'; return; }
+  button.disabled = true;
+  status.textContent = 'Confirmando email...';
+  try {
+    const response = await fetch(`${HASH_CLOUD_URL}/crm/confirm-email`, { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ email, role }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'MAGIIS no confirmó el email.');
+    status.textContent = 'Email confirmado en MAGIIS.';
+  } catch (error) { status.textContent = error.message; } finally { button.disabled = false; }
+}
 
 function ownerPayloadFromForm() {
   const value = id => document.getElementById(id).value.trim();
@@ -646,7 +660,7 @@ function showCrm(resource) {
   if (resource === 'control') resource = 'travels';
   crmOffset = 0;
   crmPageSize = 20;
-  travelStateFilter = '';
+  travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
   const titles = {
     travels: ['Gestión de viajes', 'Listado y estado de los viajes.'],
     drivers: ['Choferes', 'Listado de choferes registrados.'],
@@ -2371,6 +2385,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-owner-cancel').addEventListener('click', closeOwnerModal);
   document.getElementById('new-owner-close').addEventListener('click', closeOwnerModal);
   document.getElementById('new-owner-modal').addEventListener('click', event => { if (event.target.id === 'new-owner-modal') closeOwnerModal(); });
+  document.getElementById('new-owner-email-confirm').addEventListener('click', event => confirmManagedEmail('new-owner-email', 'VEHICLEOWNER', 'new-owner-status', event.currentTarget));
   document.getElementById('owner-management-search').addEventListener('input', () => { clearTimeout(crmSearchTimer); crmSearchTimer = setTimeout(loadVehicleOwners, 350); });
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
@@ -2386,7 +2401,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('crm-resource').addEventListener('change', () => {
     crmOffset = 0;
-    travelStateFilter = '';
+    travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
     loadCrmData();
   });
   const reloadFromStart = () => {
@@ -2408,6 +2423,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-driver-cancel').addEventListener('click', closeNewDriverModal);
   document.getElementById('new-driver-close').addEventListener('click', closeNewDriverModal);
   document.getElementById('new-driver-modal').addEventListener('click', event => { if (event.target.id === 'new-driver-modal') closeNewDriverModal(); });
+  document.getElementById('new-driver-email-confirm').addEventListener('click', event => confirmManagedEmail('new-driver-email', 'DRIVER', 'new-driver-status', event.currentTarget));
   const travelStates = [
     'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED',
     'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION',
