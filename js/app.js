@@ -2059,15 +2059,18 @@ async function askLiviFloating(text) {
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\\n'); buffer = lines.pop();
+    const lines = buffer.split('\n'); buffer = lines.pop();
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue;
-      const chunk = line.slice(6);
+      const chunk = line.slice(6).replace(/\\n/g, '\n');
       if (chunk === '[DONE]') return reply;
       if (chunk.startsWith('[CHAT_ID] ')) continue;
+      if (chunk.startsWith('[ERROR]')) throw new Error(chunk.slice(8));
       try { reply += JSON.parse(chunk).content || JSON.parse(chunk).text || ''; } catch { reply += chunk; }
     }
   }
+  const tail = buffer.startsWith('data: ') ? buffer.slice(6) : '';
+  if (tail && tail !== '[DONE]' && !tail.startsWith('[CHAT_ID] ') && !tail.startsWith('[ERROR]')) reply += tail.replace(/\\n/g, '\n');
   return reply;
 }
 
@@ -2085,12 +2088,18 @@ function initLiviFloating() {
     event.preventDefault();
     const text = input.value.trim();
     if (!text) return;
-    body.insertAdjacentHTML('beforeend', `<div class="livi-floating-user">${crmEscape(text)}</div><div class="livi-floating-wait">LIVI está pensando...</div>`);
+    body.insertAdjacentHTML('beforeend', `<div class="livi-floating-user">${crmEscape(text)}</div><div class="livi-floating-wait"><span class="livi-wait-icon">✨</span><span>LIVI está pensando...</span></div>`);
     input.value = ''; input.disabled = true;
+    body.scrollTop = body.scrollHeight;
     const wait = body.querySelector('.livi-floating-wait:last-child');
-    try { wait.textContent = await askLiviFloating(text) || 'No recibí una respuesta. Probá de nuevo.'; }
-    catch (error) { wait.textContent = 'No pude responder ahora. Revisá la conexión e intentá de nuevo.'; console.error(error); }
-    finally { input.disabled = false; input.focus(); }
+    const waitText = wait.querySelector('span:last-child');
+    try {
+      const reply = await askLiviFloating(text);
+      wait.classList.add('livi-floating-answer');
+      waitText.textContent = reply.trim() || 'No pude encontrar datos para esa consulta. Probá preguntarme por viajes, choferes o vehículos.';
+    }
+    catch (error) { wait.classList.add('livi-floating-error'); waitText.textContent = 'No pude responder ahora. Revisá la conexión e intentá de nuevo.'; console.error(error); }
+    finally { input.disabled = false; input.focus(); body.scrollTop = body.scrollHeight; }
   });
 }
 
@@ -2104,10 +2113,19 @@ document.addEventListener('keydown', event => {
 
 async function loadTravelHistory() {
   const status = document.getElementById('history-status');
-  const params = new URLSearchParams({ page: '1', size: '50', date_from: document.getElementById('history-date-from').value, date_to: document.getElementById('history-date-to').value, state: document.getElementById('history-state').value, q: document.getElementById('history-search').value.trim() });
-  status.textContent = 'Cargando historial real...';
-  try { renderTravelHistory((await apiCrm('travel-history?' + params)).items || []); status.textContent = 'Historial actualizado desde MAGIIS.'; }
-  catch (error) { status.textContent = 'No se pudo cargar el historial.'; console.error(error); }
+  const from = document.getElementById('history-date-from');
+  const to = document.getElementById('history-date-to');
+  if (!from.value || !to.value) {
+    const end = new Date();
+    const start = new Date(end); start.setDate(start.getDate() - 7);
+    const iso = date => date.toISOString().slice(0, 10);
+    if (!from.value) from.value = iso(start);
+    if (!to.value) to.value = iso(end);
+  }
+  const params = new URLSearchParams({ page: '1', size: '50', date_from: from.value, date_to: to.value, state: document.getElementById('history-state').value, q: document.getElementById('history-search').value.trim() });
+  status.textContent = 'Cargando historial real desde MAGIIS...';
+  try { const result = await apiCrm('travel-history?' + params); renderTravelHistory(result.items || []); status.textContent = `Historial actualizado desde MAGIIS · ${result.total || result.items?.length || 0} registros`; }
+  catch (error) { status.textContent = 'No se pudo cargar el historial desde MAGIIS.'; console.error(error); }
 }
 function renderTravelHistory(items) {
   const root = document.getElementById('travel-history-table'); root.replaceChildren();

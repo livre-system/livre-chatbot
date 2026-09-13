@@ -2857,3 +2857,33 @@ body, button, input, select, textarea { font-family: var(--ui-font); }
 #new-vehicle-modal-box { position:relative; }
 #new-vehicle-close { position:absolute; top:10px; right:12px; border:0; background:transparent; color:inherit; font-size:20px; cursor:pointer; }
 @media (max-width: 700px) { .livi-floating { right:12px; bottom:12px; } .livi-floating-toggle span { display:none; } }
+
+/* LIVI IA: identidad Livre y conversación que acompaña al último mensaje */
+.livi-floating-toggle { background:var(--lime); color:#fff; }
+.livi-floating-panel { width:min(430px,calc(100vw - 24px)); max-height:min(680px,calc(100dvh - 96px)); background:var(--black); color:var(--text); border:1px solid var(--lime); }
+.livi-floating-panel header { min-height:62px; padding:14px 16px; background:linear-gradient(135deg,var(--lime),var(--lime-dim)); }
+.livi-brand { display:grid; grid-template-columns:auto 1fr; column-gap:9px; align-items:center; }
+.livi-brand strong { font-size:1rem; line-height:1.1; }
+.livi-brand small { grid-column:2; opacity:.82; font-size:.72rem; }
+.livi-help-emoji { grid-row:1 / span 2; display:grid; place-items:center; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.18); font-size:1.2rem; }
+.livi-floating-body { min-height:260px; max-height:min(510px,calc(100dvh - 250px)); overflow-y:auto; overscroll-behavior:contain; scroll-behavior:smooth; padding:16px; background:var(--black); }
+.livi-floating-body p { color:var(--text-dim); }
+.livi-floating-user,.livi-floating-wait { display:flex; gap:8px; align-items:flex-start; max-width:88%; margin:8px 0; padding:11px 13px; line-height:1.45; border-radius:14px; }
+.livi-floating-user { margin-left:auto; background:var(--lime); color:#fff; }
+.livi-floating-wait { background:var(--graphite); color:var(--text); border:1px solid var(--border); }
+.livi-floating-answer { border-left:3px solid var(--lime); }
+.livi-floating-error { border-left:3px solid #d97706; }
+#livi-floating-form { background:var(--black); border-top:1px solid var(--border); padding:12px; }
+#livi-floating-input { background:var(--graphite); color:var(--text); border-color:var(--border); }
+#livi-floating-form button { background:var(--lime); color:#fff; }
+
+/* Todos los paneles heredan el mismo tema, no solo las tarjetas nuevas. */
+html[data-theme="dark"] { --black:#111216; --graphite:#1a1d23; --graphite-soft:#242831; --border:#353b46; --border-soft:#454c58; --text:#f5f7fa; --text-dim:#c1c7d0; --text-faint:#89919e; }
+html[data-theme="light"] { --black:#fff; --graphite:#f5f5f5; --graphite-soft:#efefef; --border:#e0e0e0; --border-soft:#d4d4d4; --text:#111; --text-dim:#555; --text-faint:#999; }
+body, #app, main, .panel, .panel-view, .modal, .settings-modal, .sidebar, .card, .section, .operational-section, .crm-table-wrap { background-color:var(--black); color:var(--text); }
+input, select, textarea, button { font-family:inherit; }
+input, select, textarea { background-color:var(--graphite); color:var(--text); border-color:var(--border); }
+.card, .panel, .panel-view, .modal-content, .settings-modal-content, .operational-kpi, .crm-card, .operational-section { border-color:var(--border); }
+.crm-table-wrap th, .travel-history-table th { background:var(--graphite-soft); color:var(--lime); }
+.travel-history-table, .crm-table-wrap, .travel-history-table table { background:var(--graphite); color:var(--text); }
+.travel-history-table td, .travel-history-table th, .crm-table-wrap td, .crm-table-wrap th { border-color:var(--border); }
