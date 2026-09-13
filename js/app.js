@@ -2154,12 +2154,7 @@ function initApp() {
   }
   if (overlay) overlay.addEventListener('click', closeSidebar);
 
-  // Abrir sidebar al entrar a la app (mobile y desktop)
   const sidebar = document.getElementById('sidebar');
-  if (window.innerWidth <= 640) {
-    sidebar.classList.add('sidebar--open');
-    if (overlay) overlay.classList.add('sidebar-overlay--visible');
-  }
 
   // Swipe: izquierda a derecha abre, derecha a izquierda cierra
   // Sin passive:true para poder bloquear el gesto de Safari/PWA

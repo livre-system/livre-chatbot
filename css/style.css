@@ -3466,3 +3466,66 @@ html[data-theme="dark"] #composer .input-wrapper::before {
   color: var(--text) !important;
   border-color: var(--dark-border) !important;
 }
+
+/* PWA móvil: navegación tipo drawer, vistas sin desborde y áreas seguras. */
+@media (max-width: 760px) {
+  html, body { width: 100%; min-width: 0; min-height: 100%; overflow-x: hidden; }
+  body { overscroll-behavior-x: none; }
+  #app { min-height: 100dvh; height: 100dvh; display: flex; overflow: hidden; }
+  #sidebar {
+    width: min(86vw, 320px) !important;
+    height: 100dvh;
+    padding: calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+    background: var(--surface-0) !important;
+    transform: translate3d(-105%, 0, 0);
+    box-shadow: 14px 0 36px rgba(0,0,0,.24);
+    z-index: 2000;
+  }
+  #sidebar.sidebar--open { transform: translate3d(0, 0, 0); }
+  #sidebar-overlay { z-index: 1900; background: rgba(0,0,0,.58); }
+  #main { width: 100%; height: 100dvh; min-height: 0; overflow: hidden; }
+  #main-header {
+    flex: 0 0 auto;
+    min-height: calc(58px + env(safe-area-inset-top));
+    padding: calc(8px + env(safe-area-inset-top)) 10px 8px;
+    gap: 4px;
+  }
+  #active-front-name { flex: 1; min-width: 0; max-width: none; }
+  .header-actions { gap: 5px; margin-left: auto; }
+  .header-actions button { min-height: 42px; padding: 8px 9px; }
+  #travel-history-btn { max-width: 42px; overflow: hidden; white-space: nowrap; font-size: 0; }
+  #travel-history-btn::first-letter { font-size: 1rem; }
+  #theme-toggle { width: 42px; overflow: hidden; white-space: nowrap; font-size: 0; }
+  #theme-toggle::first-letter { font-size: 1rem; }
+  #content, .panel-view { min-width: 0; overflow-x: hidden; }
+  .panel-view { padding: 18px 12px calc(28px + env(safe-area-inset-bottom)); }
+  .crm-dashboard { padding: 18px 12px calc(28px + env(safe-area-inset-bottom)); }
+  .crm-dashboard-header, .travel-page-heading { margin-bottom: 16px; }
+  .crm-dashboard-header h2, .travel-page-heading h2 { font-size: 1.25rem; }
+  .crm-toolbar, .history-toolbar, .travel-management-filters, .vehicle-management-toolbar { display: grid; grid-template-columns: 1fr; gap: 9px; }
+  .crm-toolbar > *, .history-toolbar > *, .travel-management-filters > *, .vehicle-management-toolbar > * { width: 100%; min-width: 0 !important; }
+  .crm-table-wrap, .driver-management-table, .vehicle-management-table, .travel-management-table, .travel-history-table { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .crm-table-wrap table, .driver-management-table table, .vehicle-management-table table, .travel-management-table table, .travel-history-table table { min-width: 680px; }
+  .travel-status-tabs { display: flex; overflow-x: auto; max-width: 100%; }
+  .travel-status-tabs button { flex: 0 0 auto; min-height: 42px; }
+  .travel-map-panel, #travel-map { min-height: 300px; height: min(52dvh, 390px); }
+  #message-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 16px 10px; }
+  .message-item { max-width: 94%; padding: 12px 13px; }
+  #composer { flex: 0 0 auto; padding: 9px 10px calc(9px + env(safe-area-inset-bottom)); }
+  #composer .input-wrapper { display: grid; grid-template-columns: minmax(0,1fr) 42px auto; gap: 5px; }
+  #message-input { width: 100%; min-width: 0; max-height: 120px; font-size: 16px !important; }
+  #voice-btn, #message-submit { min-width: 42px; min-height: 42px; padding: 8px 10px; }
+  .livi-floating { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); }
+  .livi-floating-panel { right: 0; width: calc(100vw - 24px); max-height: calc(100dvh - 92px); }
+  .livi-floating-body { max-height: calc(100dvh - 300px); }
+  .modal-box, #settings-modal-box, #crypto-modal-box, #new-front-modal-box, #new-driver-modal-box, #new-owner-modal-box { max-height: calc(100dvh - 24px); }
+}
+
+@media (max-width: 420px) {
+  #hamburger { width: 40px; height: 40px; }
+  .header-actions #neural-btn { display: none; }
+  .operational-kpis, .travel-history-summary { grid-template-columns: 1fr 1fr; }
+  .operational-kpi--wide { grid-column: span 2; }
+  .travel-quote-option { grid-template-columns: auto 1fr; }
+  .travel-quote-option b { grid-column: 2; }
+}
