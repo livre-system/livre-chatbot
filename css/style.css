@@ -3206,3 +3206,53 @@ html[data-theme="dark"] .leaflet-control-attribution {
   color: var(--text) !important;
   border-color: var(--dark-border) !important;
 }
+
+/* Correcciones que deben ganar a los bloques visuales legacy. */
+html[data-theme="dark"] #sidebar,
+html[data-theme="dark"] #sidebar .main-nav-item,
+html[data-theme="dark"] #sidebar .front-item,
+html[data-theme="dark"] #sidebar .sidebar-account-actions {
+  background: var(--surface-0) !important;
+  color: var(--text) !important;
+}
+html[data-theme="dark"] #sidebar .main-nav-item:hover,
+html[data-theme="dark"] #sidebar .front-item:hover,
+html[data-theme="dark"] #sidebar .main-nav-item--active,
+html[data-theme="dark"] #sidebar .front-item--active {
+  background: var(--surface-2) !important;
+  color: var(--lime) !important;
+}
+html[data-theme="dark"] #settings-modal-box,
+html[data-theme="dark"] #settings-modal-box .settings-category,
+html[data-theme="dark"] #settings-modal-box .settings-row,
+html[data-theme="dark"] #settings-modal-box #settings-actions {
+  background: var(--surface-1) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #settings-modal-box button,
+html[data-theme="dark"] #settings-modal-box input {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] .driver-management-table td,
+html[data-theme="dark"] .vehicle-management-table td,
+html[data-theme="dark"] .travel-management-table td,
+html[data-theme="dark"] .travel-management-table th {
+  color: var(--text) !important;
+}
+html[data-theme="dark"] .travel-management-table td,
+html[data-theme="dark"] .travel-management-table th {
+  background: transparent !important;
+}
+html[data-theme="dark"] .travel-status-tabs button.active {
+  background: var(--surface-3) !important;
+  color: var(--lime) !important;
+}
+.travel-history-summary { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)); gap: 12px; margin: 4px 0 16px; }
+.travel-history-summary article { padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--graphite); }
+.travel-history-summary strong, .travel-history-summary span { display: block; }
+.travel-history-summary strong { color: var(--lime); font-size: 1.15rem; }
+.travel-history-summary span { margin-top: 4px; color: var(--text-dim); font-size: .75rem; }
+@media (max-width: 760px) { .travel-history-summary { grid-template-columns: 1fr 1fr; } }

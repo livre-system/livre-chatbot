@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3R9z8qkq5p8t1p3f3gD3wXQ5v0xQ=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css?v=1786658008">
+  <link rel="stylesheet" href="css/style.css?v=1786659001">
 </head>
 <body>
 
@@ -142,8 +142,9 @@
 
       <section id="travel-history-view" class="panel-view" hidden aria-label="Histórico de viajes">
         <div class="travel-page-heading"><h2>Histórico de viajes</h2><p>Consultá el historial real de viajes de MAGIIS.</p></div>
-        <div class="history-toolbar"><label>Desde <input id="history-date-from" type="date"></label><label>Hasta <input id="history-date-to" type="date"></label><select id="history-state"><option value="">Todos los estados</option><option value="DONE">Finalizados</option><option value="CANCELED">Cancelados</option></select><input id="history-search" type="search" placeholder="Buscar viaje..."><button type="button" id="history-refresh">Actualizar</button></div>
+        <div class="history-toolbar"><label>Desde <input id="history-date-from" type="date"></label><label>Hasta <input id="history-date-to" type="date"></label><select id="history-state"><option value="">Todos los estados</option><option value="DONE">Finalizados</option><option value="CANCELLED">Cancelados</option></select><input id="history-search" type="search" placeholder="Buscar viaje..."><button type="button" id="history-refresh">Actualizar</button></div>
         <p id="history-status" aria-live="polite"></p>
+        <div id="travel-history-summary" class="travel-history-summary" aria-label="Resumen del histórico"></div>
         <div id="travel-history-table" class="travel-history-table"></div>
       </section>
 
@@ -316,7 +317,7 @@
   <script src="https://www.paypal.com/sdk/js?client-id=BAA_RwSSwEfH3wEm_UCqcLBLdWJkjJI8TyXlrXjjHKXWfrMZ6xqeiL7BbLFokKtxclmxqPyqsE1CnW9Kuo&components=hosted-buttons&disable-funding=venmo&currency=USD"></script>
   
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="js/app.js?v=1786658005"></script>
+  <script src="js/app.js?v=1786659001"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

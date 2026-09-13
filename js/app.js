@@ -5,10 +5,11 @@
 
 const HASH_CLOUD_URL = 'https://livre-cloud-production.up.railway.app';
 
-async function apiCrm(path) {
+async function apiCrm(path, options = {}) {
   const token = getToken();
   const res = await fetch(HASH_CLOUD_URL + '/crm/' + path, {
     headers: { 'Authorization': 'Bearer ' + token },
+    signal: options.signal,
   });
   if (!res.ok) throw new Error('Error ' + res.status);
   return await res.json();
@@ -64,6 +65,8 @@ let crmPageSize = 20;
 let travelPageSize = 20;
 let travelStateFilter = '';
 let vehicleTypesPromise;
+let crmLoadController;
+let crmLoadSequence = 0;
 const driverFilters = { code: '', name: '', phone: '', email: '', vehicle: '' };
 const TRAVEL_DATE_FROM_STATES = new Set(['LOST', 'CANCELED', 'CANCELLED', 'DONE']);
 
@@ -186,9 +189,9 @@ function renderCrmTable(data) {
 
 function renderOperationalDashboard(snapshot) {
   const summary = snapshot.status || {};
-  const dashboard = snapshot.drivers_by_vehicle || snapshot.drivers || {};
-  const items = Array.isArray(dashboard) ? dashboard : dashboard.content || dashboard.page?.content || [];
-  const drivers = { items, total: Array.isArray(dashboard) ? dashboard.length : dashboard.totalElements || items.length };
+  const dashboard = snapshot.driver_statuses || snapshot.drivers_by_vehicle || snapshot.drivers || {};
+  const items = Array.isArray(dashboard) ? dashboard : dashboard.items || dashboard.content || dashboard.page?.content || [];
+  const drivers = { items, total: Array.isArray(dashboard) ? dashboard.length : dashboard.total || dashboard.totalElements || items.length };
   const value = (key) => summary[key] ?? '—';
   const kpis = [
     ['Viajes realizados', value('travelsQuantity'), 'operational-kpi--primary'],
@@ -209,13 +212,13 @@ function renderOperationalDashboard(snapshot) {
     const raw = item.vehicleAvailable ?? item.vehicleStatus ?? item.vehicleState ?? item.driverState ?? item.operability;
     if (raw === undefined || raw === null || raw === '') return 'SIN ESTADO';
     if (typeof raw === 'boolean') return raw ? 'DISPONIBLE' : 'NO DISPONIBLE';
-    return /available|disponible|active|operat|libre/i.test(String(raw)) ? 'DISPONIBLE' : 'NO DISPONIBLE';
+    return /available|disponible|active|operat|libre/i.test(String(raw)) && !/fuera|deshabil|no disponible|unavailable|inactiv/i.test(String(raw)) ? 'DISPONIBLE' : 'NO DISPONIBLE';
   };
   const availableVehicles = drivers.items.filter(item => vehicleStatus(item) === 'DISPONIBLE').length;
   const unavailableVehicles = drivers.items.length - availableVehicles;
   const rows = (drivers.items || []).map(item => {
     const data = item;
-    const name = [data.firstName || data.name, data.lastName || data.surname].filter(Boolean).join(' ') || '—';
+    const name = data.driverName || [data.firstName || data.name, data.lastName || data.surname].filter(Boolean).join(' ') || '—';
     const vehicle = data.vehicle || data.vehicleDescription || '—';
     const state = vehicleStatus(data);
     return `<tr><td>${crmEscape(data.driverUserId)}</td><td>${crmEscape(name)}</td><td>${crmEscape(typeof vehicle === 'object' ? vehicle.domain || vehicle.model || '—' : vehicle)}</td><td><span class="vehicle-state vehicle-state--${state === 'DISPONIBLE' ? 'available' : 'unavailable'}">${state}</span></td><td>${crmEscape(data.currentTravelId || '—')}</td></tr>`;
@@ -404,6 +407,10 @@ async function cancelManagedTravel(button) {
 
 async function loadCrmData() {
   const status = document.getElementById('crm-status');
+  const loadSequence = ++crmLoadSequence;
+  crmLoadController?.abort();
+  crmLoadController = new AbortController();
+  const requestOptions = { signal: crmLoadController.signal };
   status.textContent = 'Cargando datos...';
   try {
     const resource = document.getElementById('crm-resource').value;
@@ -422,7 +429,8 @@ async function loadCrmData() {
       if (travelStateFilter) params.set('state', travelStateFilter);
     }
     if (crmMode === 'control') {
-      const snapshot = await apiOperational();
+      const snapshot = await apiCrm('operational', requestOptions);
+      if (loadSequence !== crmLoadSequence) return;
       renderOperationalDashboard(snapshot);
       status.textContent = 'Datos operativos actualizados.';
       return;
@@ -438,7 +446,7 @@ async function loadCrmData() {
       if (TRAVEL_DATE_FROM_STATES.has(travelStateFilter)) {
         liveParams.set('date_from', document.getElementById('travel-management-date-from').value);
       }
-      const data = await apiCrm('travels/live?' + liveParams.toString());
+      const data = await apiCrm('travels/live?' + liveParams.toString(), requestOptions);
       renderTravelManagement(data, {});
       const totals = data.totals || {};
       const counts = ['toAsignQuantity', 'inProgressQuantity', 'scheduledQuantity', 'inConflictQuantity', 'lostQuantity', 'cancelledQuantity', 'doneQuantity'];
@@ -454,7 +462,8 @@ async function loadCrmData() {
         size: String(crmPageSize),
         q: query.trim(),
       });
-      const data = await apiCrm('passengers?' + liveParams.toString());
+      const data = await apiCrm('passengers?' + liveParams.toString(), requestOptions);
+      if (loadSequence !== crmLoadSequence) return;
       renderCrmTable({
         resource: 'passengers',
         items: data.items.map(item => ({ magiis_id: item.id || item.passengerUserId || item.code, raw_payload: item })),
@@ -467,7 +476,8 @@ async function loadCrmData() {
     }
     if (resource === 'vehicles') {
       const liveParams = new URLSearchParams({ page: String(Math.floor(crmOffset / crmPageSize) + 1), size: String(crmPageSize), q: query.trim() });
-      const data = await apiCrm('vehicles/live?' + liveParams.toString());
+      const data = await apiCrm('vehicles/live?' + liveParams.toString(), requestOptions);
+      if (loadSequence !== crmLoadSequence) return;
       renderVehicleManagement(data);
       status.textContent = 'Vehículos actualizados desde MAGIIS.';
       return;
@@ -482,15 +492,17 @@ async function loadCrmData() {
         email: driverFilters.email.trim(),
         vehicle: driverFilters.vehicle.trim(),
       });
-      const data = await apiCrm('drivers/live?' + liveParams.toString());
+      const data = await apiCrm('drivers/live?' + liveParams.toString(), requestOptions);
+      if (loadSequence !== crmLoadSequence) return;
       renderDriverManagement(data);
       status.textContent = 'Choferes actualizados desde MAGIIS.';
       return;
     }
     const [summary, data] = await Promise.all([
-      apiCrm('summary'),
-      apiCrm(resource + '?' + params.toString()),
+      apiCrm('summary', requestOptions),
+      apiCrm(resource + '?' + params.toString(), requestOptions),
     ]);
+    if (loadSequence !== crmLoadSequence) return;
     if (resource === 'drivers') renderDriverManagement(data);
     else if (resource === 'vehicles') renderVehicleManagement(data);
     else {
@@ -499,6 +511,7 @@ async function loadCrmData() {
     }
     status.textContent = summary.last_sync ? `Última sincronización: ${new Date(summary.last_sync.finished_at || summary.last_sync.started_at).toLocaleString('es-AR')}` : '';
   } catch (error) {
+    if (error.name === 'AbortError' || loadSequence !== crmLoadSequence) return;
     status.textContent = 'No se pudieron cargar los datos del CRM.';
     console.error(error);
   }
@@ -2124,7 +2137,7 @@ async function loadTravelHistory() {
   }
   const params = new URLSearchParams({ page: '1', size: '50', date_from: from.value, date_to: to.value, state: document.getElementById('history-state').value, q: document.getElementById('history-search').value.trim() });
   status.textContent = 'Cargando historial real desde MAGIIS...';
-  try { const result = await apiCrm('travel-history?' + params); renderTravelHistory(result.items || []); status.textContent = `Historial actualizado desde MAGIIS · ${result.total || result.items?.length || 0} registros`; }
+  try { const result = await apiCrm('travel-history?' + params); renderTravelHistory(result.items || [], result.summary); status.textContent = `Historial actualizado desde MAGIIS · ${result.total || result.items?.length || 0} registros`; }
   catch (error) { status.textContent = 'No se pudo cargar el historial desde MAGIIS.'; console.error(error); }
 }
 const TRAVEL_HISTORY_COLUMNS = [
@@ -2137,14 +2150,18 @@ const TRAVEL_HISTORY_COLUMNS = [
 function formatHistoryValue(value, key) {
   if (value === null || value === undefined || value === '') return '—';
   if (typeof value === 'object') return JSON.stringify(value);
-  if (/^Col(11|14|15)$/.test(key) && typeof value === 'number') {
-    return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+  if (/^Col(11|14|15)$/.test(key)) {
+    const number = typeof value === 'number' ? value : Number(String(value).replace(/[$ARS\s.]/g, '').replace(',', '.'));
+    if (Number.isFinite(number)) return `ARS ${new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number)}`;
   }
   return String(value);
 }
 
-function renderTravelHistory(items) {
+function renderTravelHistory(items, summary = {}) {
   const root = document.getElementById('travel-history-table'); root.replaceChildren();
+  const summaryRoot = document.getElementById('travel-history-summary');
+  const ars = value => `ARS ${new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0)}`;
+  summaryRoot.innerHTML = `<article><strong>${summary.trips ?? items.length}</strong><span>Viajes</span></article><article><strong>${ars(summary.final_amount_ars)}</strong><span>Importe final</span></article><article><strong>${ars(summary.amount_ars)}</strong><span>Importe total</span></article><article><strong>${ars(summary.budget_ars)}</strong><span>Presupuesto</span></article>`;
   if (!items.length) { root.innerHTML = '<p class="empty-state">No hay viajes para esos filtros.</p>'; return; }
   const available = new Set(items.flatMap(item => Object.keys(item || {})));
   const columns = TRAVEL_HISTORY_COLUMNS.filter(([key]) => available.has(key));
