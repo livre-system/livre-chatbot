@@ -3333,7 +3333,7 @@ html[data-theme="dark"] .travel-status-tabs button.active {
 .driver-form-actions button[type="submit"] { border-color: var(--lime); background: var(--lime); color: #12200c; font-weight: 700; }
 #new-driver-status { min-height: 20px; color: var(--danger, #ff8c9d); }
 
-/* Gestión de propietarios y superficies oscuras de modales. */
+/* Propietarios y superficies oscuras de modales. */
 #new-owner-modal { position: fixed; inset: 0; z-index: 1001; display: grid; place-items: center; padding: 20px; background: rgba(0,0,0,.72); }
 #new-owner-modal[hidden] { display: none; }
 #new-owner-modal-box { position: relative; width: min(720px, calc(100vw - 40px)); max-height: min(88dvh, 820px); overflow-y: auto; padding: 28px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-1); color: var(--text); box-shadow: 0 22px 70px rgba(0,0,0,.42); }
@@ -3395,3 +3395,47 @@ html[data-theme="dark"] .owner-form-grid textarea {
 @media (max-width: 600px) { .email-confirm-field > span { flex-direction: column; } .email-confirm-button { min-height: 38px; } }
 
 @media (max-width: 600px) { #new-driver-modal-box { padding: 22px 16px; } .driver-form-grid { grid-template-columns: 1fr; } }
+
+/* Corrección final del tema oscuro: estas reglas quedan después de la capa
+   visual clara y evitan que LIVI IA herede superficies blancas. */
+html[data-theme="dark"] {
+  --surface-0: #111216;
+  --surface-1: #1a1d23;
+  --surface-2: #242831;
+  --dark-border: #353b46;
+}
+html[data-theme="dark"] .livi-floating-panel,
+html[data-theme="dark"] .livi-floating-body,
+html[data-theme="dark"] #livi-floating-form {
+  background: #111216 !important;
+  color: #f5f7fa !important;
+}
+html[data-theme="dark"] .livi-floating-panel header {
+  background: #1a1d23 !important;
+  color: #f5f7fa !important;
+}
+html[data-theme="dark"] .livi-floating-panel header button,
+html[data-theme="dark"] .livi-brand strong,
+html[data-theme="dark"] .livi-brand small,
+html[data-theme="dark"] .livi-floating-body p {
+  color: #f5f7fa !important;
+}
+html[data-theme="dark"] .livi-floating-user {
+  background: #e8003d !important;
+  color: #fff !important;
+}
+html[data-theme="dark"] .livi-floating-wait,
+html[data-theme="dark"] .livi-floating-answer {
+  background: #242831 !important;
+  color: #f5f7fa !important;
+  border-color: #454c58 !important;
+}
+html[data-theme="dark"] #livi-floating-input {
+  background: #1a1d23 !important;
+  color: #f5f7fa !important;
+  border-color: #454c58 !important;
+}
+html[data-theme="dark"] #livi-floating-form button {
+  background: #e8003d !important;
+  color: #fff !important;
+}

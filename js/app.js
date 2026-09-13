@@ -662,7 +662,7 @@ function showCrm(resource) {
   crmPageSize = 20;
   travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
   const titles = {
-    travels: ['Gestión de viajes', 'Listado y estado de los viajes.'],
+    travels: ['Viajes', 'Listado y estado de los viajes.'],
     drivers: ['Choferes', 'Listado de choferes registrados.'],
     vehicles: ['Vehículos', 'Listado de vehículos registrados.'],
     passengers: ['Clientes', 'Listado de clientes registrados.'],
@@ -670,6 +670,12 @@ function showCrm(resource) {
   const title = crmMode === 'control' ? ['Operaciones', 'Resumen actualizado de la operación.'] : (titles[resource] || ['Gestión de datos', 'Datos registrados.']);
   document.getElementById('crm-title').textContent = title[0];
   document.getElementById('crm-subtitle').textContent = title[1];
+  if (resource === 'travels') {
+    travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
+    document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
+      button.classList.toggle('active', index === 0);
+    });
+  }
   document.getElementById('crm-cards').hidden = true;
   document.getElementById('travel-management-view').hidden = crmMode !== 'resource' || resource !== 'travels';
   document.getElementById('driver-management-view').hidden = crmMode !== 'resource' || resource !== 'drivers';
@@ -692,7 +698,7 @@ function showCrm(resource) {
 
 function showVehicleOwnerManagement() {
   crmVisible = true;
-  document.getElementById('crm-title').textContent = 'Gestión de propietarios';
+  document.getElementById('crm-title').textContent = 'Propietarios';
   document.getElementById('crm-subtitle').textContent = 'Propietarios registrados y disponibles para asignar.';
   document.getElementById('crm-cards').hidden = true;
   document.getElementById('travel-management-view').hidden = true;
