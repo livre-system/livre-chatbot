@@ -734,26 +734,91 @@ let travelMap = null;
 let travelMapMarkers = [];
 let travelRoute = null;
 let geocodeTimers = {};
+let geocodeRequests = {};
 let travelMagiisLocations = null;
+let travelMapResizeObserver = null;
 
 function initTravelMap() {
-  if (travelMap || !window.L || !document.getElementById('travel-map')) return;
-  travelMap = L.map('travel-map').setView([-38.7183, -62.2663], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors',
-  }).addTo(travelMap);
+  const container = document.getElementById('travel-map');
+  if (!container || !window.L) return;
+  if (!travelMap) {
+    travelMap = L.map(container).setView([-38.7183, -62.2663], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(travelMap);
+  }
+  requestAnimationFrame(() => requestAnimationFrame(() => travelMap?.invalidateSize()));
+  if (!travelMapResizeObserver && window.ResizeObserver) {
+    travelMapResizeObserver = new ResizeObserver(() => travelMap?.invalidateSize());
+    travelMapResizeObserver.observe(container);
+  }
+}
+
+function clearTravelMapGraphics() {
+  travelMapMarkers.forEach(marker => marker.remove());
+  travelMapMarkers = [];
+  travelRoute?.remove();
+  travelRoute = null;
+}
+
+function renderTravelAddressPoints(points) {
+  if (!travelMap || !window.L) return;
+  clearTravelMapGraphics();
+  const validPoints = points.filter(Boolean);
+  validPoints.forEach((point, index) => {
+    const label = index === 0 ? 'Origen' : 'Destino';
+    travelMapMarkers.push(L.marker(point).addTo(travelMap).bindPopup(label));
+  });
+  if (validPoints.length === 2) {
+    travelRoute = L.polyline(validPoints, {
+      color: '#55b9a9', weight: 4, opacity: 0.75, dashArray: '8 8',
+    }).addTo(travelMap);
+  }
+  if (validPoints.length) travelMap.fitBounds(validPoints, { padding: [24, 24], maxZoom: 16 });
+}
+
+async function geocodeTravelAddress(field, value) {
+  const address = value.trim();
+  if (!address) return null;
+  const requestId = (geocodeRequests[field] || 0) + 1;
+  geocodeRequests[field] = requestId;
+  try {
+    const response = await fetch('https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
+      q: `${address}, Bahía Blanca, Buenos Aires, Argentina`,
+      format: 'jsonv2', limit: '1', countrycodes: 'ar',
+    }), { headers: { Accept: 'application/json' } });
+    if (!response.ok) return null;
+    const result = (await response.json())[0];
+    if (requestId !== geocodeRequests[field] || !result) return null;
+    return [Number(result.lat), Number(result.lon)];
+  } catch (_) {
+    return null;
+  }
 }
 
 function refreshTravelMap() {
   initTravelMap();
   if (!travelMap) return;
   travelMagiisLocations = null;
-  travelMapMarkers.forEach(marker => marker.remove());
-  travelMapMarkers = [];
-  travelRoute?.remove();
-  travelRoute = null;
+  clearTimeout(geocodeTimers.origin);
+  clearTimeout(geocodeTimers.destination);
+  clearTravelMapGraphics();
   travelMap.setView([-38.7183, -62.2663], 12);
+  const fields = [
+    ['origin', document.getElementById('travel-origin')?.value || ''],
+    ['destination', document.getElementById('travel-destination')?.value || ''],
+  ];
+  fields.forEach(([field, value]) => {
+    if (!value.trim()) return;
+    geocodeTimers[field] = setTimeout(async () => {
+      const point = await geocodeTravelAddress(field, value);
+      const otherField = field === 'origin' ? 'destination' : 'origin';
+      const otherValue = document.getElementById(`travel-${otherField}`)?.value || '';
+      const otherPoint = otherValue.trim() ? await geocodeTravelAddress(otherField, otherValue) : null;
+      if (point || otherPoint) renderTravelAddressPoints(field === 'origin' ? [point, otherPoint] : [otherPoint, point]);
+    }, 450);
+  });
 }
 
 function toggleTravelSchedule() {
@@ -943,7 +1008,7 @@ async function createTravelFromForm(event) {
       };
       travelMagiisLocations = data.locations || null;
       renderTravelQuotes(options);
-      try { renderTravelMapFromQuote(travelQuoteOptions[0]); } catch (_) { /* las coordenadas vienen de MAGIIS */ }
+      renderTravelMapFromQuote(travelQuoteOptions[0]);
       status.textContent = options.length ? 'Elegí Livre Premium o Livre Ahorro y confirmá el viaje.' : result;
       submit.textContent = 'Confirmar y crear viaje';
       return;
