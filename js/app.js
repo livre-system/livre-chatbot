@@ -240,11 +240,14 @@ function renderOperationalMap(items) {
   const node = document.getElementById('operational-map');
   if (!node || typeof L === 'undefined') return;
   if (operationalMap) operationalMap.remove();
-  operationalMap = L.map(node, { zoomControl: true }).setView([-38.7183, -62.2663], 12);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri' }).addTo(operationalMap);
+  operationalMap = L.map(node).setView([-38.7183, -62.2663], 12);
+  const baseLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors' }).addTo(operationalMap);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, pane: 'overlayPane' }).addTo(operationalMap);
+  baseLayer.on('tileerror', () => baseLayer.setUrl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'));
+  requestAnimationFrame(() => requestAnimationFrame(() => operationalMap?.invalidateSize()));
   const points = items.map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
-  points.forEach(({ item, lat, lng }) => L.circleMarker([lat, lng], { radius: 7, color: '#e8003d', fillColor: '#e8003d', fillOpacity: .85, weight: 2 }).bindPopup(`<strong>${crmEscape([item.firstName, item.lastName].filter(Boolean).join(' '))}</strong><br>${crmEscape(item.vehicle?.domain || 'Sin vehículo')}`).addTo(operationalMap));
-  if (points.length) operationalMap.fitBounds(L.latLngBounds(points.map(point => [point.lat, point.lng])), { padding: [20, 20] });
+  points.forEach(({ item, lat, lng }) => L.marker([lat, lng]).bindPopup(`<strong>${crmEscape([item.firstName, item.lastName].filter(Boolean).join(' '))}</strong><br>${crmEscape(item.vehicle?.domain || 'Sin vehículo')}<br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(operationalMap));
+  if (points.length) operationalMap.fitBounds(L.latLngBounds(points.map(point => [point.lat, point.lng])), { padding: [24, 24], maxZoom: 16 });
 }
 
 function renderDriverManagement(data) {
