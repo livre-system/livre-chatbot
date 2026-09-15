@@ -735,6 +735,7 @@ let travelMapMarkers = [];
 let travelRoute = null;
 let geocodeTimers = {};
 let geocodeRequests = {};
+let geocodePoints = {};
 let travelMagiisLocations = null;
 let travelMapResizeObserver = null;
 
@@ -803,6 +804,9 @@ function refreshTravelMap() {
   travelMagiisLocations = null;
   clearTimeout(geocodeTimers.origin);
   clearTimeout(geocodeTimers.destination);
+  geocodeTimers = {};
+  geocodeRequests = {};
+  geocodePoints = {};
   clearTravelMapGraphics();
   travelMap.setView([-38.7183, -62.2663], 12);
   const fields = [
@@ -813,10 +817,9 @@ function refreshTravelMap() {
     if (!value.trim()) return;
     geocodeTimers[field] = setTimeout(async () => {
       const point = await geocodeTravelAddress(field, value);
-      const otherField = field === 'origin' ? 'destination' : 'origin';
-      const otherValue = document.getElementById(`travel-${otherField}`)?.value || '';
-      const otherPoint = otherValue.trim() ? await geocodeTravelAddress(otherField, otherValue) : null;
-      if (point || otherPoint) renderTravelAddressPoints(field === 'origin' ? [point, otherPoint] : [otherPoint, point]);
+      if (point) geocodePoints[field] = point;
+      else delete geocodePoints[field];
+      renderTravelAddressPoints([geocodePoints.origin, geocodePoints.destination]);
     }, 450);
   });
 }
