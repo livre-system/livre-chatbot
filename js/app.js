@@ -187,45 +187,64 @@ function renderCrmTable(data) {
   });
 }
 
+let operationalSnapshot = null;
+let operationalMap = null;
+
 function renderOperationalDashboard(snapshot) {
+  operationalSnapshot = snapshot;
   const summary = snapshot.status || {};
-  const dashboard = snapshot.driver_statuses || snapshot.drivers_by_vehicle || snapshot.drivers || {};
+  const totals = snapshot.driver_totals || {};
+  const dashboard = snapshot.drivers || snapshot.drivers_by_vehicle || snapshot.driver_statuses || [];
   const items = Array.isArray(dashboard) ? dashboard : dashboard.items || dashboard.content || dashboard.page?.content || [];
-  const drivers = { items, total: Array.isArray(dashboard) ? dashboard.length : dashboard.total || dashboard.totalElements || items.length };
   const value = (key) => summary[key] ?? '—';
   const kpis = [
-    ['Viajes realizados', value('travelsQuantity'), 'operational-kpi--primary'],
+    ['Choferes totales', totals.totalDrivers ?? items.length, 'operational-kpi--primary'],
+    ['Disponibles', totals.totalDriversOnline ?? '—', ''],
+    ['Fuera de servicio', totals.totalDriversOffline ?? '—', ''],
+    ['En viaje', totals.totalDriversInTravel ?? '—', ''],
+    ['Viajes realizados', value('travelsQuantity'), ''],
     ['Kilómetros', value('kilometersTotal'), ''],
     ['Vehículos operando', value('workingVehiclesQuantity'), ''],
-    ['Viajes / vehículo', value('travelsPerVehicle'), ''],
-    ['Choferes operando', value('drivers'), ''],
-    ['Viajes / chofer', value('travelsPerDriver'), ''],
     ['Clientes del día', value('clientsIndividualsAmount'), ''],
-    ['Clientes totales', value('clientsTotalAmount'), ''],
-    ['Distribución por canal', value('webTotal'), 'operational-kpi--wide'],
   ];
   document.getElementById('operational-kpis').innerHTML = kpis.map(([label, amount, modifier]) =>
     `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong></article>`
   ).join('');
 
-  const vehicleStatus = item => {
-    const raw = item.vehicleAvailable ?? item.vehicleStatus ?? item.vehicleState ?? item.driverState ?? item.operability;
-    if (raw === undefined || raw === null || raw === '') return 'SIN ESTADO';
-    if (typeof raw === 'boolean') return raw ? 'DISPONIBLE' : 'NO DISPONIBLE';
-    return /available|disponible|active|operat|libre/i.test(String(raw)) && !/fuera|deshabil|no disponible|unavailable|inactiv/i.test(String(raw)) ? 'DISPONIBLE' : 'NO DISPONIBLE';
-  };
-  const availableVehicles = drivers.items.filter(item => vehicleStatus(item) === 'DISPONIBLE').length;
-  const unavailableVehicles = drivers.items.length - availableVehicles;
-  const rows = (drivers.items || []).map(item => {
-    const data = item;
-    const name = data.driverName || [data.firstName || data.name, data.lastName || data.surname].filter(Boolean).join(' ') || '—';
-    const vehicle = data.vehicle || data.vehicleDescription || '—';
-    const state = vehicleStatus(data);
-    return `<tr><td>${crmEscape(data.driverUserId)}</td><td>${crmEscape(name)}</td><td>${crmEscape(typeof vehicle === 'object' ? vehicle.domain || vehicle.model || '—' : vehicle)}</td><td><span class="vehicle-state vehicle-state--${state === 'DISPONIBLE' ? 'available' : 'unavailable'}">${state}</span></td><td>${crmEscape(data.currentTravelId || '—')}</td></tr>`;
+  const statusOf = item => String(item.driverState || item.vehicleState || item.operability || '').toUpperCase();
+  const stateLabel = item => ['F', 'FREE', 'AVAILABLE', 'DISPONIBLE'].includes(statusOf(item)) ? 'DISPONIBLE' : ['T', 'TRAVEL', 'EN_TRAVEL'].includes(statusOf(item)) ? 'EN VIAJE' : 'NO DISPONIBLE';
+  const search = (document.getElementById('operational-driver-search')?.value || '').toLowerCase();
+  const activeFilter = document.querySelector('#operational-status-filters button.active')?.dataset.filter || 'TODOS';
+  const filtered = items.filter(item => {
+    const vehicle = item.vehicle || {};
+    const text = [item.driverIdForCarrier, item.driverUserId, item.firstName, item.lastName, vehicle.domain, vehicle.model, vehicle.mark].join(' ').toLowerCase();
+    return (!search || text.includes(search)) && (activeFilter === 'TODOS' || stateLabel(item) === activeFilter);
+  });
+  const showDriverId = document.getElementById('operational-show-driver-id')?.checked;
+  const showVehicleId = document.getElementById('operational-show-vehicle-id')?.checked;
+  const rows = filtered.map(item => {
+    const vehicle = item.vehicle || {};
+    const name = [item.firstName, item.lastName].filter(Boolean).join(' ').trim() || '—';
+    const state = stateLabel(item);
+    const stateClass = state === 'DISPONIBLE' ? 'available' : state === 'EN VIAJE' ? 'travel' : 'unavailable';
+    return `<tr><td>${crmEscape(item.driverIdForCarrier ?? item.driverUserId ?? '—')}${showDriverId ? `<small class="operational-id">#${crmEscape(item.driverUserId)}</small>` : ''}</td><td><strong>${crmEscape(name)}</strong></td><td>${crmEscape(vehicle.domain || '—')}${showVehicleId ? `<small class="operational-id">#${crmEscape(vehicle.vehicleId || '—')}</small>` : ''}<small>${crmEscape(`${vehicle.mark || ''} ${vehicle.model || ''}`.trim())}</small></td><td>${crmEscape(vehicle.transportTypeName || '—')}</td><td><span class="vehicle-state vehicle-state--${stateClass}">${state}</span></td><td>${crmEscape(item.currentBase || '—')}</td><td>${crmEscape(item.queueFifoPosition || '—')}</td><td>${crmEscape(item.appVersion || '—')}</td><td><button type="button" class="driver-action" title="Ver detalle">i</button></td></tr>`;
   }).join('');
-  document.getElementById('operational-drivers').innerHTML = `<div class="operational-vehicle-summary"><article><strong>${availableVehicles}</strong><span>Vehículos disponibles</span></article><article><strong>${unavailableVehicles}</strong><span>Vehículos no disponibles</span></article></div>` + (rows
-    ? `<div class="operational-table-scroll"><table><thead><tr><th>ID</th><th>Chofer</th><th>Vehículo</th><th>Disponibilidad</th><th>Viaje actual</th></tr></thead><tbody>${rows}</tbody></table></div><small>Mostrando ${drivers.items.length} de ${drivers.total}</small>`
-    : '<p class="crm-empty">No hay choferes registrados.</p>');
+  document.getElementById('operational-drivers').innerHTML = `<div class="operational-table-scroll"><table><thead><tr><th>Código</th><th>Nombre</th><th>Vehículo</th><th>Tipo</th><th>Estado</th><th>Sucursal</th><th>Orden</th><th>App v.</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No hay choferes para este filtro.</td></tr>'}</tbody></table></div><small>Mostrando ${filtered.length} de ${items.length} choferes.</small>`;
+  const filters = [['TODOS', totals.totalDrivers ?? items.length], ['DISPONIBLE', totals.totalDriversOnline ?? items.filter(i => stateLabel(i) === 'DISPONIBLE').length], ['EN VIAJE', totals.totalDriversInTravel ?? items.filter(i => stateLabel(i) === 'EN VIAJE').length], ['NO DISPONIBLE', totals.totalDriversOffline ?? items.filter(i => stateLabel(i) === 'NO DISPONIBLE').length]];
+  const filterNode = document.getElementById('operational-status-filters');
+  if (!filterNode.dataset.ready) { filterNode.innerHTML = filters.map(([label, count]) => `<button type="button" data-filter="${label}" class="${label === activeFilter ? 'active' : ''}">${label}<b>${crmEscape(count)}</b></button>`).join(''); filterNode.dataset.ready = '1'; filterNode.querySelectorAll('button').forEach(button => button.addEventListener('click', () => { filterNode.querySelectorAll('button').forEach(b => b.classList.remove('active')); button.classList.add('active'); renderOperationalDashboard(operationalSnapshot); })); }
+  renderOperationalMap(items);
+}
+
+function renderOperationalMap(items) {
+  const node = document.getElementById('operational-map');
+  if (!node || typeof L === 'undefined') return;
+  if (operationalMap) operationalMap.remove();
+  operationalMap = L.map(node, { zoomControl: true }).setView([-38.7183, -62.2663], 12);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri' }).addTo(operationalMap);
+  const points = items.map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+  points.forEach(({ item, lat, lng }) => L.circleMarker([lat, lng], { radius: 7, color: '#e8003d', fillColor: '#e8003d', fillOpacity: .85, weight: 2 }).bindPopup(`<strong>${crmEscape([item.firstName, item.lastName].filter(Boolean).join(' '))}</strong><br>${crmEscape(item.vehicle?.domain || 'Sin vehículo')}`).addTo(operationalMap));
+  if (points.length) operationalMap.fitBounds(L.latLngBounds(points.map(point => [point.lat, point.lng])), { padding: [20, 20] });
 }
 
 function renderDriverManagement(data) {
@@ -2604,6 +2623,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('owner-management-search').addEventListener('input', () => { clearTimeout(crmSearchTimer); crmSearchTimer = setTimeout(loadVehicleOwners, 350); });
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
+  ['operational-driver-search', 'operational-show-driver-id', 'operational-show-vehicle-id'].forEach(id => {
+    const control = document.getElementById(id);
+    if (control) control.addEventListener(control.type === 'search' ? 'input' : 'change', () => { if (operationalSnapshot) renderOperationalDashboard(operationalSnapshot); });
+  });
   document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
   document.getElementById('sidebar-logout').addEventListener('click', logout);
   document.getElementById('travel-create-form').addEventListener('submit', createTravelFromForm);

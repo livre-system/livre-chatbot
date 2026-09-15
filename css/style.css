@@ -3567,3 +3567,31 @@ html[data-theme="dark"] #composer .input-wrapper::before {
   .travel-quote-option { grid-template-columns: auto 1fr; }
   .travel-quote-option b { grid-column: 2; }
 }
+
+/* Comisiones y control operacional: escala legible y lenguaje visual Livre */
+.agency-commissions-toolbar { display:grid; grid-template-columns:repeat(3,minmax(180px,1fr)) auto; gap:14px; align-items:end; padding:18px 0 20px; }
+.agency-commissions-toolbar label { display:grid; gap:7px; color:var(--text-dim); font-size:.75rem; font-weight:700; letter-spacing:.02em; }
+.agency-commissions-toolbar input, .agency-commissions-toolbar select { width:100%; min-height:46px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface,#fff); color:var(--text); font-size:.9rem; }
+#agency-commissions-apply { min-height:46px; white-space:nowrap; }
+#agency-commissions-totals { grid-template-columns:repeat(5,minmax(130px,1fr)); gap:14px; margin:4px 0 18px; }
+#agency-commissions-totals .crm-card { min-height:112px; padding:18px; border-radius:14px; border-top:3px solid var(--lime); }
+#agency-commissions-totals .crm-card strong { font-size:1.5rem; }
+#agency-commissions-totals .crm-card span { margin-top:8px; color:var(--text-dim); font-size:.78rem; }
+#agency-commissions-status { margin:8px 0 14px; font-size:.8rem; color:var(--text-dim); }
+#agency-commissions-table { overflow:hidden; }
+#agency-commissions-table th, #agency-commissions-table td { padding:14px 16px; }
+#agency-commissions-table th { font-size:.72rem; }
+.operational-feed-toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:0 0 12px; }
+.operational-feed-toolbar > input { flex:1 1 260px; min-height:42px; padding:10px 13px; border:1px solid var(--border); border-radius:10px; background:var(--surface,#fff); color:var(--text); }
+.operational-toggle, .operational-app-version { min-height:42px; display:inline-flex; align-items:center; gap:7px; padding:0 11px; border:1px solid var(--border); border-radius:10px; color:var(--text-dim); font-size:.75rem; }
+.operational-app-version { background:#eaffd9; color:#397a25; border-color:#c7eead; }
+.operational-status-filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+.operational-status-filters button { display:inline-flex; gap:8px; align-items:center; padding:9px 12px; border:1px solid var(--border); border-radius:999px; background:var(--surface,#fff); color:var(--text-dim); font-size:.72rem; }
+.operational-status-filters button.active { border-color:#a8d8a0; background:#effbe9; color:#277b2d; }
+.operational-status-filters b { font-weight:800; }
+.operational-drivers table { min-width:980px; }
+.operational-drivers td small, .operational-id { display:block; margin-top:4px; color:var(--text-dim); font-size:.7rem; }
+.vehicle-state--travel { color:#7c4d0b; background:#fff0c2; }
+.operational-map { height:360px; overflow:hidden; border:1px solid var(--border); border-radius:12px; }
+@media (max-width:800px) { .agency-commissions-toolbar { grid-template-columns:1fr 1fr; } #agency-commissions-apply { grid-column:span 2; } #agency-commissions-totals { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:520px) { .agency-commissions-toolbar { grid-template-columns:1fr; } #agency-commissions-apply { grid-column:auto; } #agency-commissions-totals { grid-template-columns:1fr 1fr; } }
