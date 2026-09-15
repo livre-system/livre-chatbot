@@ -654,6 +654,53 @@ async function loadCrmData() {
   }
 }
 
+async function loadAgencyCommissions() {
+  const status = document.getElementById('agency-commissions-status');
+  const from = document.getElementById('agency-commissions-from').value;
+  const to = document.getElementById('agency-commissions-to').value;
+  const owner = document.getElementById('agency-commissions-owner').value;
+  status.textContent = 'Consultando MAGIIS...';
+  try {
+    const params = new URLSearchParams({ date_from: from, date_to: to, owner_id: owner, size: '50' });
+    const data = await apiCrm('agency-commissions?' + params.toString());
+    const ownerSelect = document.getElementById('agency-commissions-owner');
+    const selected = ownerSelect.value;
+    ownerSelect.innerHTML = '<option value="">Todos</option>' + (data.owners || []).map(item =>
+      `<option value="${crmEscape(item.ownerId)}">${crmEscape(`${item.name || ''} ${item.lastName || ''}`.trim())}</option>`
+    ).join('');
+    ownerSelect.value = selected || data.owner_id || '';
+    const totals = data.totals || {};
+    document.getElementById('agency-commissions-totals').innerHTML = [
+      ['Viajes', totals.trips], ['Vehículos', totals.vehicles], ['Total liquidado', totals.total],
+      ['Comisión', totals.commission], ['Porcentaje', totals.commission_percent ? `${totals.commission_percent}%` : '0%'],
+    ].map(([label, value]) => `<article class="crm-card"><strong>${crmEscape(value)}</strong><span>${label}</span></article>`).join('');
+    const rows = (data.items || []).map(row => `<tr><td>${crmEscape(row.travel_id)}</td><td>${crmEscape(row.vehicle)}</td><td>${crmEscape(row.vehicle_model)}</td><td>${crmEscape(row.owner)}</td><td>${crmEscape(row.total)}</td><td>${crmEscape(row.commission)}</td><td>${crmEscape(row.commission_percent)}%</td></tr>`).join('');
+    document.getElementById('agency-commissions-table').innerHTML = rows ? `<div class="vehicle-table-scroll"><table><thead><tr><th>Viaje</th><th>Vehículo</th><th>Modelo</th><th>Propietario</th><th>Total</th><th>Comisión</th><th>%</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="crm-empty">No hay liquidaciones para el período seleccionado.</p>';
+    status.textContent = `${data.total || 0} liquidación(es) encontradas.`;
+  } catch (error) {
+    status.textContent = 'No se pudieron cargar las comisiones.';
+    console.error(error);
+  }
+}
+
+function showAgencyCommissions() {
+  crmVisible = true;
+  document.getElementById('crm-title').textContent = 'Comisiones de agencia';
+  document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde MAGIIS.';
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  document.getElementById('agency-commissions-view').hidden = false;
+  document.getElementById('message-list').hidden = true;
+  document.getElementById('composer').hidden = true;
+  document.getElementById('travel-form-view').hidden = true;
+  document.getElementById('crm-dashboard').hidden = false;
+  const today = new Date().toISOString().slice(0, 10);
+  const from = document.getElementById('agency-commissions-from');
+  const to = document.getElementById('agency-commissions-to');
+  if (!from.value) from.value = today;
+  if (!to.value) to.value = today;
+  loadAgencyCommissions();
+}
+
 function showCrm(resource) {
   crmVisible = true;
   crmMode = resource === 'control' ? 'control' : 'resource';
@@ -681,6 +728,7 @@ function showCrm(resource) {
   document.getElementById('driver-management-view').hidden = crmMode !== 'resource' || resource !== 'drivers';
   document.getElementById('vehicle-management-view').hidden = crmMode !== 'resource' || resource !== 'vehicles';
   document.getElementById('owner-management-view').hidden = true;
+  document.getElementById('agency-commissions-view').hidden = true;
   document.getElementById('operational-view').hidden = crmMode !== 'control';
   document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && (resource === 'travels' || resource === 'vehicles' || resource === 'drivers'));
   const genericTable = document.getElementById('crm-table-wrap');
@@ -705,6 +753,7 @@ function showVehicleOwnerManagement() {
   document.getElementById('driver-management-view').hidden = true;
   document.getElementById('vehicle-management-view').hidden = true;
   document.getElementById('owner-management-view').hidden = false;
+  document.getElementById('agency-commissions-view').hidden = true;
   document.getElementById('operational-view').hidden = true;
   document.querySelector('.crm-toolbar').hidden = true;
   document.getElementById('crm-table-wrap').hidden = true;
@@ -2486,6 +2535,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showCrm('control');
       } else if (view === 'travels' || view === 'drivers' || view === 'vehicles' || view === 'passengers') {
         showCrm(view);
+      } else if (view === 'agency-commissions') {
+        showAgencyCommissions();
       } else if (view === 'vehicle-owners') {
         showVehicleOwnerManagement();
       } else if (view === 'crear-viaje') {
@@ -2523,6 +2574,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-owner-email-confirm').addEventListener('click', event => confirmManagedEmail('new-owner-email', 'VEHICLEOWNER', 'new-owner-status', event.currentTarget));
   document.getElementById('owner-management-search').addEventListener('input', () => { clearTimeout(crmSearchTimer); crmSearchTimer = setTimeout(loadVehicleOwners, 350); });
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
+  document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
   document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
   document.getElementById('sidebar-logout').addEventListener('click', logout);
   document.getElementById('travel-create-form').addEventListener('submit', createTravelFromForm);
