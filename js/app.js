@@ -756,14 +756,15 @@ function initTravelMap() {
   if (!container || !window.L) return;
   if (!travelMap) {
     travelMap = L.map(container).setView([-38.7183, -62.2663], 12);
-    travelTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    travelTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors',
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     }).addTo(travelMap);
     travelTileLayer.on('tileerror', () => {
       if (travelTileFallbackUsed || !travelMap) return;
       travelTileFallbackUsed = true;
-      travelTileLayer.setUrl('https://tile.openstreetmap.org/{z}/{x}/{y}.png');
+      travelTileLayer.setUrl('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
     });
   }
   requestAnimationFrame(() => requestAnimationFrame(() => travelMap?.invalidateSize()));
