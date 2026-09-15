@@ -738,16 +738,33 @@ let geocodeRequests = {};
 let geocodePoints = {};
 let travelMagiisLocations = null;
 let travelMapResizeObserver = null;
+let travelTileLayer = null;
+let travelTileFallbackUsed = false;
+
+function scheduleTravelMapInit() {
+  let attempts = 0;
+  const retry = () => {
+    initTravelMap();
+    if (travelMap || attempts++ >= 20) return;
+    setTimeout(retry, 100);
+  };
+  requestAnimationFrame(() => requestAnimationFrame(retry));
+}
 
 function initTravelMap() {
   const container = document.getElementById('travel-map');
   if (!container || !window.L) return;
   if (!travelMap) {
     travelMap = L.map(container).setView([-38.7183, -62.2663], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    travelTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(travelMap);
+    travelTileLayer.on('tileerror', () => {
+      if (travelTileFallbackUsed || !travelMap) return;
+      travelTileFallbackUsed = true;
+      travelTileLayer.setUrl('https://tile.openstreetmap.org/{z}/{x}/{y}.png');
+    });
   }
   requestAnimationFrame(() => requestAnimationFrame(() => travelMap?.invalidateSize()));
   if (!travelMapResizeObserver && window.ResizeObserver) {
@@ -852,8 +869,7 @@ function showTravelForm() {
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
   crmVisible = false;
-  initTravelMap();
-  setTimeout(() => travelMap?.invalidateSize(), 0);
+  scheduleTravelMapInit();
   form.elements.origin.focus();
 }
 
