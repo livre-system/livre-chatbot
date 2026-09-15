@@ -2343,6 +2343,14 @@ document.addEventListener('keydown', event => {
   if (liviPanel && !liviPanel.hidden) document.getElementById('livi-floating-close').click();
 });
 
+function updateTravelHistoryDateConstraints() {
+  const from = document.getElementById('history-date-from');
+  const to = document.getElementById('history-date-to');
+  from.max = to.value || '';
+  to.min = from.value || '';
+  return !from.value || !to.value || from.value <= to.value;
+}
+
 async function loadTravelHistory() {
   const status = document.getElementById('history-status');
   const from = document.getElementById('history-date-from');
@@ -2353,6 +2361,10 @@ async function loadTravelHistory() {
     const iso = date => date.toISOString().slice(0, 10);
     if (!from.value) from.value = iso(start);
     if (!to.value) to.value = iso(end);
+  }
+  if (!updateTravelHistoryDateConstraints()) {
+    status.textContent = 'La fecha Desde no puede ser posterior a la fecha Hasta.';
+    return;
   }
   const params = new URLSearchParams({ page: '1', size: '50', date_from: from.value, date_to: to.value, state: document.getElementById('history-state').value, q: document.getElementById('history-search').value.trim() });
   status.textContent = 'Cargando historial real desde MAGIIS...';
@@ -2427,8 +2439,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('crm-back').addEventListener('click', showChat);
   document.getElementById('travel-history-btn').addEventListener('click', showTravelHistory);
+  document.getElementById('history-apply').addEventListener('click', loadTravelHistory);
   document.getElementById('history-refresh').addEventListener('click', loadTravelHistory);
-  ['history-date-from', 'history-date-to', 'history-state'].forEach(id => document.getElementById(id).addEventListener('change', loadTravelHistory));
+  ['history-date-from', 'history-date-to'].forEach(id => document.getElementById(id).addEventListener('change', updateTravelHistoryDateConstraints));
+  document.getElementById('history-state').addEventListener('change', loadTravelHistory);
   document.getElementById('history-search').addEventListener('keydown', event => { if (event.key === 'Enter') loadTravelHistory(); });
   document.querySelectorAll('.crm-livi-context').forEach(button => button.addEventListener('click', () => {
     const resource = button.dataset.liviResource || document.getElementById('crm-resource').value;
