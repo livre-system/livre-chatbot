@@ -3383,8 +3383,46 @@ html[data-theme="dark"] .livi-floating-wait {
   background: var(--surface-2) !important;
   border-color: var(--dark-border) !important;
 }
-html[data-theme="dark"] #new-driver-modal-box,
-html[data-theme="dark"] #new-owner-modal-box,
+html[data-theme="light"] #new-driver-modal,
+html[data-theme="light"] #new-owner-modal,
+html[data-theme="light"] #new-client-modal { background: rgba(15, 23, 42, .42); }
+html[data-theme="light"] #new-driver-modal-box,
+html[data-theme="light"] #new-owner-modal-box,
+html[data-theme="light"] #new-client-modal-box { background: #fff; color: #172033; border-color: #dbe3ef; box-shadow: 0 24px 70px rgba(15, 23, 42, .24); }
+html[data-theme="light"] #new-driver-modal-box h3,
+html[data-theme="light"] #new-owner-modal-box h3,
+html[data-theme="light"] #new-client-modal-box h3 { color: #172033; }
+html[data-theme="light"] #new-driver-modal-box label,
+html[data-theme="light"] #new-owner-modal-box label,
+html[data-theme="light"] #new-client-modal-box label { color: #475569; }
+html[data-theme="light"] #new-driver-modal-box input,
+html[data-theme="light"] #new-driver-modal-box select,
+html[data-theme="light"] #new-driver-modal-box textarea,
+html[data-theme="light"] #new-owner-modal-box input,
+html[data-theme="light"] #new-owner-modal-box select,
+html[data-theme="light"] #new-owner-modal-box textarea,
+html[data-theme="light"] #new-client-modal-box input,
+html[data-theme="light"] #new-client-modal-box select,
+html[data-theme="light"] #new-client-modal-box textarea { background: #f8fafc; color: #172033; border-color: #cbd5e1; }
+#new-client-modal { position: fixed; inset: 0; z-index: 1002; display: grid; place-items: center; padding: 20px; background: rgba(15, 23, 42, .42); }
+#new-client-modal[hidden] { display: none; }
+#new-client-modal-box { position: relative; width: min(560px, 100%); padding: 28px; border: 1px solid #dbe3ef; border-radius: 16px; background: #fff; color: #172033; box-shadow: 0 24px 70px rgba(15, 23, 42, .24); }
+#new-client-modal-box h3 { margin: 0 0 18px; }
+#new-client-close { position: absolute; top: 14px; right: 16px; border: 0; background: transparent; color: #64748b; font-size: 1.2rem; cursor: pointer; }
+.client-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.client-form-grid label { display: grid; gap: 6px; color: #475569; font-size: .86rem; font-weight: 600; }
+.client-form-grid input { padding: 11px 12px; background: #f8fafc; color: #172033; border: 1px solid #cbd5e1; border-radius: 8px; }
+.client-form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.client-form-actions button { padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; }
+#new-client-submit { background: #2563eb; color: white; border-color: #2563eb; }
+@media (max-width: 640px) { .client-form-grid { grid-template-columns: 1fr; } .client-form-actions { flex-direction: column-reverse; } .client-form-actions button { width: 100%; } }
+html[data-theme="dark"] #new-client-modal { background: rgba(0, 0, 0, .7); }
+html[data-theme="dark"] #new-client-modal-box { background: var(--surface-1); color: var(--text); border-color: var(--border); }
+html[data-theme="dark"] #new-client-modal-box h3 { color: var(--text); }
+html[data-theme="dark"] #new-client-modal-box label { color: var(--text-dim); }
+html[data-theme="dark"] #new-client-modal-box input { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+html[data-theme="dark"] #new-client-close { color: var(--text-dim); }
+
 html[data-theme="dark"] #new-driver-form fieldset,
 html[data-theme="dark"] .owner-form-grid input,
 html[data-theme="dark"] .owner-form-grid textarea {

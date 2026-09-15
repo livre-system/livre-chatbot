@@ -394,6 +394,30 @@ async function saveVehicleOwner(event) {
   } catch (error) { status.textContent = error.message; } finally { submit.disabled = false; }
 }
 
+function closeNewClientModal() { document.getElementById('new-client-modal').setAttribute('hidden', ''); }
+
+function openNewClientModal() {
+  document.getElementById('new-client-form').reset();
+  document.getElementById('new-client-country').value = 'Argentina';
+  document.getElementById('new-client-status').textContent = '';
+  document.getElementById('new-client-modal').removeAttribute('hidden');
+  document.getElementById('new-client-first-name').focus();
+}
+
+async function createManagedClient(event) {
+  event.preventDefault();
+  const form = event.currentTarget; const status = document.getElementById('new-client-status'); const submit = document.getElementById('new-client-submit');
+  if (!form.reportValidity()) return;
+  const value = id => document.getElementById(id).value.trim();
+  const payload = { firstName: value('new-client-first-name'), lastName: value('new-client-last-name'), email: value('new-client-email') || null, phone: value('new-client-phone'), country: value('new-client-country') || 'Argentina' };
+  submit.disabled = true; status.textContent = 'Creando cliente...';
+  try {
+    const response = await fetch(`${HASH_CLOUD_URL}/crm/clients`, { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const data = await response.json(); if (!response.ok) throw new Error(data.detail || 'No se pudo crear el cliente.');
+    closeNewClientModal(); document.getElementById('crm-status').textContent = 'Cliente creado correctamente.'; loadCrmData();
+  } catch (error) { status.textContent = error.message; } finally { submit.disabled = false; }
+}
+
 function closeNewDriverModal() {
   document.getElementById('new-driver-modal').setAttribute('hidden', '');
 }
@@ -2568,6 +2592,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('driver-new-button').addEventListener('click', openNewDriverModal);
   document.getElementById('owner-new-button').addEventListener('click', () => openOwnerModal());
   document.getElementById('new-owner-form').addEventListener('submit', saveVehicleOwner);
+  document.getElementById('client-new-button').addEventListener('click', openNewClientModal);
+  document.getElementById('new-client-form').addEventListener('submit', createManagedClient);
+  document.getElementById('new-client-cancel').addEventListener('click', closeNewClientModal);
+  document.getElementById('new-client-close').addEventListener('click', closeNewClientModal);
+  document.getElementById('new-client-modal').addEventListener('click', event => { if (event.target.id === 'new-client-modal') closeNewClientModal(); });
   document.getElementById('new-owner-cancel').addEventListener('click', closeOwnerModal);
   document.getElementById('new-owner-close').addEventListener('click', closeOwnerModal);
   document.getElementById('new-owner-modal').addEventListener('click', event => { if (event.target.id === 'new-owner-modal') closeOwnerModal(); });
@@ -2589,6 +2618,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('crm-resource').addEventListener('change', () => {
     crmOffset = 0;
     travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
+    document.getElementById('client-new-button').hidden = document.getElementById('crm-resource').value !== 'passengers';
     loadCrmData();
   });
   const reloadFromStart = () => {
