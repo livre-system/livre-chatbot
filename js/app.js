@@ -2410,7 +2410,7 @@ function showTravelHistory() {
   document.getElementById('travel-form-view').hidden = true; document.getElementById('crm-dashboard').hidden = true; document.getElementById('travel-history-view').hidden = false; document.getElementById('message-list').hidden = true; document.getElementById('composer').hidden = true; crmVisible = false; loadTravelHistory();
 }
 function initThemeToggle() {
-  const button = document.getElementById('theme-toggle'); const saved = localStorage.getItem('livre_theme') || 'dark'; document.documentElement.dataset.theme = saved; button.setAttribute('aria-pressed', String(saved === 'dark')); button.textContent = saved === 'dark' ? '☀️ Light' : '🌙 Dark'; button.addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('livre_theme', next); button.setAttribute('aria-pressed', String(next === 'dark')); button.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark'; });
+  const button = document.getElementById('theme-toggle'); const saved = localStorage.getItem('livre_theme') || 'light'; document.documentElement.dataset.theme = saved; button.setAttribute('aria-pressed', String(saved === 'dark')); button.textContent = saved === 'dark' ? '☀️ Light' : '🌙 Dark'; button.addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('livre_theme', next); document.documentElement.dataset.theme = next; button.setAttribute('aria-pressed', String(next === 'dark')); button.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark'; });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
