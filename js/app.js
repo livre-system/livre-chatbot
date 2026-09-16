@@ -242,7 +242,7 @@ function renderOperationalMap(items, targetId = 'operational-map') {
   if (!node || typeof L === 'undefined') return;
   if (operationalMap) operationalMap.remove();
   operationalMap = L.map(node).setView([-38.7183, -62.2663], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(operationalMap);
+  L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(operationalMap);
   requestAnimationFrame(() => requestAnimationFrame(() => operationalMap?.invalidateSize()));
   const points = items.map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
   const vehicleIcon = L.divIcon({ className: 'operational-vehicle-marker', html: '<span aria-hidden="true">🚗</span>', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15] });
