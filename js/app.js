@@ -241,7 +241,7 @@ function renderOperationalMap(items) {
   if (!node || typeof L === 'undefined') return;
   if (operationalMap) operationalMap.remove();
   operationalMap = L.map(node).setView([-38.7183, -62.2663], 12);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '&copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors' }).addTo(operationalMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20, attribution: '&copy; OpenStreetMap contributors &copy; CARTO' }).addTo(operationalMap);
   requestAnimationFrame(() => requestAnimationFrame(() => operationalMap?.invalidateSize()));
   const points = items.map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
   const vehicleIcon = L.divIcon({ className: 'operational-vehicle-marker', html: '<span aria-hidden="true">🚗</span>', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15] });
