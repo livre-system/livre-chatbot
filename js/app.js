@@ -2690,7 +2690,7 @@ document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
   setInterval(() => {
     if (crmMode === 'control' && document.visibilityState === 'visible') loadCrmData();
-  }, 30000);
+  }, 15000);
 });
 
 // ── Red Neural ────────────────────────────────────────────────────────────────
