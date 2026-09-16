@@ -42,6 +42,7 @@
       </div>
       <nav id="main-navigation" aria-label="Navegación principal">
         <button type="button" class="main-nav-item main-nav-item--active" data-view="control">Operaciones</button>
+        <button type="button" class="main-nav-item" data-view="map-view">Visor de mapa</button>
         <button type="button" class="main-nav-item" data-view="livi">LIVI IA</button>
         <button type="button" class="main-nav-item" data-view="crear-viaje">Crear un viaje</button>
         <button type="button" class="main-nav-item" data-view="travels">Gestión de viajes</button>
@@ -156,6 +157,18 @@
             <div class="operational-section-header"><div><h3>Ubicación de vehículos</h3><p>Última ubicación recibida de cada chofer.</p></div></div>
             <div id="operational-map" class="operational-map" aria-label="Mapa de vehículos"></div>
           </section>
+        </div>
+        <div id="map-view" class="map-view" hidden aria-label="Visor de mapa">
+          <div class="map-view-toolbar">
+            <div>
+              <h3>Visor de mapa</h3>
+              <p>Ubicación actual de los vehículos informada por MAGIIS.</p>
+            </div>
+            <button type="button" id="map-view-refresh">Actualizar</button>
+          </div>
+          <div id="map-view-filters" class="operational-status-filters" role="tablist"></div>
+          <div id="map-view-map" class="map-view-map" aria-label="Mapa de vehículos"></div>
+          <p id="map-view-status" class="crm-status" aria-live="polite"></p>
         </div>
         <div class="crm-toolbar">
           <label id="crm-resource-label" hidden>Recurso <select id="crm-resource"><option value="travels">Viajes</option><option value="passengers">Clientes</option><option value="drivers">Choferes</option><option value="vehicles">Vehículos</option></select></label>

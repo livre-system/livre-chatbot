@@ -189,6 +189,7 @@ function renderCrmTable(data) {
 
 let operationalSnapshot = null;
 let operationalMap = null;
+let mapViewerTimer = null;
 
 function renderOperationalDashboard(snapshot) {
   operationalSnapshot = snapshot;
@@ -236,8 +237,8 @@ function renderOperationalDashboard(snapshot) {
   renderOperationalMap(items);
 }
 
-function renderOperationalMap(items) {
-  const node = document.getElementById('operational-map');
+function renderOperationalMap(items, targetId = 'operational-map') {
+  const node = document.getElementById(targetId);
   if (!node || typeof L === 'undefined') return;
   if (operationalMap) operationalMap.remove();
   operationalMap = L.map(node).setView([-38.7183, -62.2663], 12);
@@ -255,6 +256,41 @@ function renderOperationalMap(items) {
   points.forEach(({ item, lat, lng }) => L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape([item.firstName, item.lastName].filter(Boolean).join(' '))}</strong><br>${crmEscape(item.vehicle?.domain || 'Sin vehículo')}<br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(markerGroup));
   markerGroup.addTo(operationalMap);
   if (points.length) operationalMap.fitBounds(L.latLngBounds(points.map(point => [point.lat, point.lng])), { padding: [24, 24], maxZoom: 16 });
+}
+
+async function loadMapViewer() {
+  const status = document.getElementById('map-view-status');
+  if (!status) return;
+  status.textContent = 'Cargando ubicaciones...';
+  try {
+    const snapshot = await apiCrm('operational');
+    const items = snapshot.drivers || snapshot.drivers_by_vehicle || snapshot.driver_statuses || [];
+    const list = Array.isArray(items) ? items : items.items || items.content || items.page?.content || [];
+    const totals = snapshot.driver_totals || {};
+    const filters = [['TODOS', totals.totalDrivers ?? list.length], ['DISPONIBLES', totals.totalDriversOnline ?? '—'], ['EN VIAJE', totals.totalDriversInTravel ?? '—'], ['NO DISPONIBLES', totals.totalDriversOffline ?? '—']];
+    const filterNode = document.getElementById('map-view-filters');
+    filterNode.innerHTML = filters.map(([label, count], index) => `<button type="button" class="${index === 0 ? 'active' : ''}">${label}<b>${crmEscape(count)}</b></button>`).join('');
+    renderOperationalMap(list, 'map-view-map');
+    status.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-AR')}. ${list.length} vehículo(s) informados.`;
+  } catch (error) {
+    status.textContent = 'No se pudieron cargar las ubicaciones.';
+    console.error(error);
+  }
+}
+
+function showMapViewer() {
+  crmVisible = true;
+  document.getElementById('crm-title').textContent = 'Visor de mapa';
+  document.getElementById('crm-subtitle').textContent = 'Ubicación en tiempo real de la operación.';
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  document.getElementById('map-view').hidden = false;
+  document.getElementById('message-list').hidden = true;
+  document.getElementById('composer').hidden = true;
+  document.getElementById('travel-form-view').hidden = true;
+  document.getElementById('crm-dashboard').hidden = false;
+  clearInterval(mapViewerTimer);
+  loadMapViewer();
+  mapViewerTimer = setInterval(loadMapViewer, 15000);
 }
 
 function renderDriverManagement(data) {
@@ -737,10 +773,11 @@ async function loadAgencyCommissions() {
 }
 
 function showAgencyCommissions() {
+  clearInterval(mapViewerTimer);
   crmVisible = true;
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
   document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde MAGIIS.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('agency-commissions-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -755,6 +792,7 @@ function showAgencyCommissions() {
 }
 
 function showCrm(resource) {
+  clearInterval(mapViewerTimer);
   crmVisible = true;
   crmMode = resource === 'control' ? 'control' : 'resource';
   if (resource === 'control') resource = 'travels';
@@ -783,6 +821,7 @@ function showCrm(resource) {
   document.getElementById('owner-management-view').hidden = true;
   document.getElementById('agency-commissions-view').hidden = true;
   document.getElementById('operational-view').hidden = crmMode !== 'control';
+  document.getElementById('map-view').hidden = true;
   document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && (resource === 'travels' || resource === 'vehicles' || resource === 'drivers'));
   const genericTable = document.getElementById('crm-table-wrap');
   const usesDedicatedView = crmMode === 'resource' && ['travels', 'drivers', 'vehicles'].includes(resource);
@@ -798,6 +837,7 @@ function showCrm(resource) {
 }
 
 function showVehicleOwnerManagement() {
+  clearInterval(mapViewerTimer);
   crmVisible = true;
   document.getElementById('crm-title').textContent = 'Propietarios';
   document.getElementById('crm-subtitle').textContent = 'Propietarios registrados y disponibles para asignar.';
@@ -825,6 +865,7 @@ function hideCrm() {
 }
 
 function showChat() {
+  clearInterval(mapViewerTimer);
   document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = true;
   document.getElementById('message-list').hidden = false;
@@ -2586,6 +2627,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const view = btn.dataset.view;
       if (view === 'control') {
         showCrm('control');
+      } else if (view === 'map-view') {
+        showMapViewer();
       } else if (view === 'travels' || view === 'drivers' || view === 'vehicles' || view === 'passengers') {
         showCrm(view);
       } else if (view === 'agency-commissions') {
@@ -2632,6 +2675,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-owner-email-confirm').addEventListener('click', event => confirmManagedEmail('new-owner-email', 'VEHICLEOWNER', 'new-owner-status', event.currentTarget));
   document.getElementById('owner-management-search').addEventListener('input', () => { clearTimeout(crmSearchTimer); crmSearchTimer = setTimeout(loadVehicleOwners, 350); });
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
+  document.getElementById('map-view-refresh').addEventListener('click', loadMapViewer);
   document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
   ['operational-driver-search', 'operational-show-driver-id', 'operational-show-vehicle-id'].forEach(id => {
     const control = document.getElementById(id);
