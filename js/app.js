@@ -190,6 +190,14 @@ function renderCrmTable(data) {
 let operationalSnapshot = null;
 let operationalMap = null;
 let mapViewerTimer = null;
+let mapViewerFilter = 'TODOS';
+
+function operationalStateLabel(item) {
+  const status = String(item.driverState || item.vehicleState || item.operability || '').toUpperCase();
+  if (['F', 'FREE', 'AVAILABLE', 'DISPONIBLE'].includes(status)) return 'DISPONIBLE';
+  if (['T', 'TRAVEL', 'EN_TRAVEL'].includes(status)) return 'EN VIAJE';
+  return 'NO DISPONIBLE';
+}
 
 function renderOperationalDashboard(snapshot) {
   operationalSnapshot = snapshot;
@@ -212,8 +220,7 @@ function renderOperationalDashboard(snapshot) {
     `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong></article>`
   ).join('');
 
-  const statusOf = item => String(item.driverState || item.vehicleState || item.operability || '').toUpperCase();
-  const stateLabel = item => ['F', 'FREE', 'AVAILABLE', 'DISPONIBLE'].includes(statusOf(item)) ? 'DISPONIBLE' : ['T', 'TRAVEL', 'EN_TRAVEL'].includes(statusOf(item)) ? 'EN VIAJE' : 'NO DISPONIBLE';
+  const stateLabel = operationalStateLabel;
   const search = (document.getElementById('operational-driver-search')?.value || '').toLowerCase();
   const activeFilter = document.querySelector('#operational-status-filters button.active')?.dataset.filter || 'TODOS';
   const filtered = items.filter(item => {
@@ -267,11 +274,25 @@ async function loadMapViewer() {
     const items = snapshot.drivers || snapshot.drivers_by_vehicle || snapshot.driver_statuses || [];
     const list = Array.isArray(items) ? items : items.items || items.content || items.page?.content || [];
     const totals = snapshot.driver_totals || {};
-    const filters = [['TODOS', totals.totalDrivers ?? list.length], ['DISPONIBLES', totals.totalDriversOnline ?? '—'], ['EN VIAJE', totals.totalDriversInTravel ?? '—'], ['NO DISPONIBLES', totals.totalDriversOffline ?? '—']];
+    const filters = [
+      ['TODOS', 'TODOS', totals.totalDrivers ?? list.length],
+      ['DISPONIBLE', 'DISPONIBLES', totals.totalDriversOnline ?? '—'],
+      ['EN VIAJE', 'EN VIAJE', totals.totalDriversInTravel ?? '—'],
+      ['NO DISPONIBLE', 'NO DISPONIBLES', totals.totalDriversOffline ?? '—'],
+    ];
     const filterNode = document.getElementById('map-view-filters');
-    filterNode.innerHTML = filters.map(([label, count], index) => `<button type="button" class="${index === 0 ? 'active' : ''}">${label}<b>${crmEscape(count)}</b></button>`).join('');
-    renderOperationalMap(list, 'map-view-map');
-    status.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-AR')}. ${list.length} vehículo(s) informados.`;
+    if (!filters.some(([value]) => value === mapViewerFilter)) mapViewerFilter = 'TODOS';
+    filterNode.innerHTML = filters.map(([value, label, count]) => `<button type="button" data-filter="${value}" class="${value === mapViewerFilter ? 'active' : ''}">${label}<b>${crmEscape(count)}</b></button>`).join('');
+    filterNode.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
+      mapViewerFilter = button.dataset.filter || 'TODOS';
+      filterNode.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button));
+      const filtered = list.filter(item => mapViewerFilter === 'TODOS' || operationalStateLabel(item) === mapViewerFilter);
+      renderOperationalMap(filtered, 'map-view-map');
+      status.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-AR')}. ${filtered.length} vehículo(s) informados.`;
+    }));
+    const filtered = list.filter(item => mapViewerFilter === 'TODOS' || operationalStateLabel(item) === mapViewerFilter);
+    renderOperationalMap(filtered, 'map-view-map');
+    status.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-AR')}. ${filtered.length} vehículo(s) informados.`;
   } catch (error) {
     status.textContent = 'No se pudieron cargar las ubicaciones.';
     console.error(error);
