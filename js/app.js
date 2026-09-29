@@ -68,14 +68,19 @@ let vehicleTypesPromise;
 let crmLoadController;
 let crmLoadSequence = 0;
 const driverFilters = { code: '', name: '', phone: '', email: '', vehicle: '' };
-const TRAVEL_DATE_FROM_STATES = new Set(['LOST', 'CANCELED', 'CANCELLED', 'DONE']);
 
 function syncTravelDateFromFilter() {
   const filter = document.getElementById('travel-date-from-filter');
   const input = document.getElementById('travel-management-date-from');
-  const enabled = TRAVEL_DATE_FROM_STATES.has(travelStateFilter);
-  filter.hidden = !enabled;
-  input.disabled = !enabled;
+  filter.hidden = false;
+  input.disabled = false;
+}
+
+function openDatePickerOnClick(input) {
+  if (!input || input.disabled) return;
+  input.addEventListener('click', () => {
+    if (typeof input.showPicker === 'function') input.showPicker();
+  });
 }
 
 function crmValue(value, key = '') {
@@ -112,7 +117,7 @@ function renderCrmCards(data) {
 }
 
 function crmColumns(resource, items) {
-  const available = new Set(items.flatMap(item => Object.keys(item.raw_payload || {})));
+  const available = new Set(items.flatMap(item => [...Object.keys(item.raw_payload || {}), ...Object.keys(item)]));
   if (resource === 'passengers') {
     const clientFields = [
       ['firstName'],
@@ -160,13 +165,18 @@ function renderCrmTable(data) {
   const resource = data.resource;
   const columns = crmColumns(resource, data.items);
   const rows = data.items.map(item => {
-    const payload = { ...(item.raw_payload || {}),
+    const payload = { ...item,
+      ...(item.raw_payload || {}),
       ...(item.state !== undefined ? { state: item.state } : {}),
+      ...(item.status !== undefined ? { state: item.status } : {}),
+      ...(item.created_at !== undefined ? { travelDate: item.created_at } : {}),
       ...(item.travel_date !== undefined ? { travelDate: item.travel_date } : {}),
+      ...(item.origen !== undefined ? { origin: item.origen } : {}),
+      ...(item.destino !== undefined ? { destination: item.destino } : {}),
       ...(item.passenger_magiis_id !== undefined ? { passengerId: item.passenger_magiis_id } : {}),
       ...(item.driver_magiis_id !== undefined ? { driverId: item.driver_magiis_id } : {}),
     };
-    return `<tr><td>${crmEscape(item.magiis_id, 'magiis_id')}</td>${columns.map(key => `<td title="${crmEscape(payload[key], key)}">${renderCrmCell(payload[key], key)}</td>`).join('')}</tr>`;
+    return `<tr><td>${crmEscape(item.magiis_id ?? item.id, 'magiis_id')}</td>${columns.map(key => `<td title="${crmEscape(payload[key], key)}">${renderCrmCell(payload[key], key)}</td>`).join('')}</tr>`;
   });
   const total = Number(data.total) || 0;
   const size = Number(data.size) || crmPageSize;
@@ -2728,6 +2738,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('travel-management-search').addEventListener('input', reloadFromStart);
   document.getElementById('travel-management-date-from').addEventListener('change', reloadFromStart);
   document.getElementById('travel-management-date').addEventListener('change', reloadFromStart);
+  openDatePickerOnClick(document.getElementById('travel-management-date-from'));
+  openDatePickerOnClick(document.getElementById('travel-management-date'));
   document.getElementById('vehicle-management-search').addEventListener('input', reloadFromStart);
   document.querySelector('.vehicle-new-button').addEventListener('click', openNewVehicleModal);
   document.getElementById('new-vehicle-cancel').addEventListener('click', closeNewVehicleModal);
