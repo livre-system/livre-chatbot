@@ -63,7 +63,7 @@ let crmMode = 'control';
 let crmOffset = 0;
 let crmPageSize = 20;
 let travelPageSize = 20;
-let travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
+let travelStateFilter = 'SEARCHING_DRIVER';
 let vehicleTypesPromise;
 let crmLoadController;
 let crmLoadSequence = 0;
@@ -615,12 +615,18 @@ function renderTravelManagement(data, summary) {
   const pick = (payload, keys) => { for (const key of keys) if (payload[key] !== undefined && payload[key] !== null && payload[key] !== '') return payload[key]; return '—'; };
   const cancellableStates = new Set(['SEARCHING_DRIVER', 'WITH_DRIVER_ASSIGNED', 'RESERVED', 'GOING_TO_CLIENT', 'GOING_TO_DESTINATION', 'CLOSING_TRAVEL', 'SCHEDULED', 'IN_CONFLICT']);
   const rows = data.items.map(item => {
-    const p = item.raw_payload || item;
+    const p = { ...item, ...(item.raw_payload || {}) };
+    if (p.origen !== undefined) p.origin = p.origen;
+    if (p.destino !== undefined) p.destination = p.destino;
+    if (p.created_at !== undefined) p.travelDate = p.created_at;
+    if (p.status === 'pending') p.state = 'SEARCHING_DRIVER';
+    if (p.status === 'confirmed') p.state = 'WITH_DRIVER_ASSIGNED';
+    if (p.status === 'cancelled') p.state = 'CANCELLED';
     const state = pick(p, ['state', 'status', 'travelStatus']);
     const driver = [p.driverFirstName, p.driverLastName].filter(Boolean).join(' ') || p.driverName || p.driver || '—';
     const passenger = [p.passengerFirstName, p.passengerLastName].filter(Boolean).join(' ') || p.passengerName || p.passenger || '—';
     const readableState = state.split('-').map(value => stateLabels[value] || value).join(' · ');
-    const travelId = p.travelId ?? item.magiis_id;
+    const travelId = p.travelId ?? p.magiis_id ?? item.id;
     const canCancel = state.split('-').some(value => cancellableStates.has(value));
     const action = canCancel ? `<button type="button" class="travel-cancel-row" data-travel-cancel="${crmEscape(travelId)}">Cancelar</button>` : '—';
     return `<tr><td>${crmEscape(travelId)}</td><td>${crmEscape(p.serviceType || p.type || p.travelType || '—')}</td><td>${crmEscape(p.travelDate || p.creationDate || p.scheduledAt)}</td><td>${crmEscape(driver)}</td><td>${crmEscape(passenger)}</td><td>${crmEscape(p.origin || p.from || '—')}</td><td>${crmEscape(p.destination || p.to || '—')}</td><td>${crmEscape(p.finalPrice ?? p.budget ?? p.price ?? p.amount)}</td><td>${crmEscape(p.vehicleMark && p.vehicleModel ? `${p.vehicleMark} ${p.vehicleModel}` : p.vehicleType || p.vehicle || '—')}</td><td><span class="travel-state">${crmEscape(readableState)}</span></td><td>${crmEscape(p.etafromBase)}</td><td>${crmEscape(p.distanceToPPUP)}</td><td>${crmEscape(p.travelDuration)}</td><td>${crmEscape(p.candidateCanceledQty)}</td><td>${action}</td></tr>`;
@@ -700,7 +706,7 @@ async function loadCrmData() {
         state: travelStateFilter,
         date_to: document.getElementById('travel-management-date').value,
       });
-      if (TRAVEL_DATE_FROM_STATES.has(travelStateFilter)) {
+      if (document.getElementById('travel-management-date-from').value) {
         liveParams.set('date_from', document.getElementById('travel-management-date-from').value);
       }
       const data = await apiCrm('travels/live?' + liveParams.toString(), requestOptions);
@@ -829,7 +835,7 @@ function showCrm(resource) {
   if (resource === 'control') resource = 'travels';
   crmOffset = 0;
   crmPageSize = 20;
-  travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
+  travelStateFilter = 'SEARCHING_DRIVER';
   const titles = {
     travels: ['Viajes', 'Listado y estado de los viajes.'],
     drivers: ['Choferes', 'Listado de choferes registrados.'],
@@ -840,7 +846,7 @@ function showCrm(resource) {
   document.getElementById('crm-title').textContent = title[0];
   document.getElementById('crm-subtitle').textContent = title[1];
   if (resource === 'travels') {
-    travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
+    travelStateFilter = 'SEARCHING_DRIVER';
     document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
       button.classList.toggle('active', index === 0);
     });
@@ -2725,7 +2731,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('crm-resource').addEventListener('change', () => {
     crmOffset = 0;
-    travelStateFilter = 'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED';
+    travelStateFilter = 'SEARCHING_DRIVER';
     document.getElementById('client-new-button').hidden = document.getElementById('crm-resource').value !== 'passengers';
     loadCrmData();
   });
