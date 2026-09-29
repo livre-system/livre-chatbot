@@ -104,7 +104,7 @@
           <div><h2 id="crm-title">Operaciones</h2><p id="crm-subtitle">Resumen actualizado de la operación.</p></div>
           <button type="button" id="crm-refresh">Actualizar</button>
         </div>
-        <div id="crm-cards" class="crm-cards"></div>
+        <div id="crm-cards" class="crm-cards"></div><section id="base-handie-view" aria-label="Canal Base / Handie" class="base-handie-view"><div class="vehicle-page-heading"><h2>Base / Handie</h2><p>Canal operativo separado del chat del pasajero.</p></div><div id="base-handie-messages" class="base-handie-messages"></div><form id="base-handie-form"><input id="base-handie-input" maxlength="1000" placeholder="Mensaje para el conductor"><button type="submit" class="vehicle-new-button">Transmitir</button></form><p id="base-handie-status" class="crm-status" aria-live="polite"></p></section>
         <div id="driver-management-view" hidden aria-label="Gestión de choferes">
           <div class="driver-management-actions"><button type="button" class="driver-primary-action" id="driver-new-button">＋ Alta de chofer</button><button type="button" class="crm-livi-context" data-livi-resource="drivers">Consultar a LIVI IA</button></div>
           <div id="driver-management-table" class="driver-management-table"></div>
@@ -435,7 +435,9 @@
   
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-  <script src="js/app.js?v=1786659004"></script>
+  <style>.base-handie-view{margin-top:24px;padding:18px;border:1px solid #e4e6eb;border-radius:14px}.base-handie-messages{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow:auto;margin:12px 0}.base-handie-message{padding:10px;border-radius:10px;background:#f3f4f6}.base-handie-message.driver{background:#fff0f4}.base-handie-view form{display:flex;gap:8px}.base-handie-view input{flex:1;padding:11px;border:1px solid #d9dbe0;border-radius:8px}</style><script>
+(function(){const box=document.getElementById('base-handie-messages'),form=document.getElementById('base-handie-form'),input=document.getElementById('base-handie-input'),status=document.getElementById('base-handie-status');if(!box||!form)return;const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));async function load(){try{const r=await fetch(HASH_CLOUD_URL+'/mobility/base/messages',{headers:{Authorization:'Bearer '+getToken()},cache:'no-store'});if(!r.ok)throw Error();const items=await r.json();box.innerHTML=items.map(m=>`<div class="base-handie-message ${m.sender_role==='driver'?'driver':''}"><b>${m.sender_role==='driver'?'Conductor':'Base'}</b><br>${esc(m.body)}<small>${m.origen||''} → ${m.destino||''}</small></div>`).join('')}catch(e){status.textContent='No se pudo cargar el canal Base.'}}form.onsubmit=async e=>{e.preventDefault();const body=input.value.trim();if(!body)return;try{const r=await fetch(HASH_CLOUD_URL+'/mobility/base/messages',{method:'POST',headers:{Authorization:'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({body})});if(!r.ok)throw Error();input.value='';status.textContent='Mensaje transmitido';load()}catch(e){status.textContent='No hay un handie abierto.'}};load();setInterval(load,5000)})();
+</script><script src="js/app.js?v=1786659004"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
