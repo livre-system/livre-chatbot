@@ -199,6 +199,8 @@ function renderCrmTable(data) {
 
 let operationalSnapshot = null;
 let operationalMap = null;
+let operationalMapContainerId = null;
+let operationalMarkerGroup = null;
 let mapViewerTimer = null;
 let mapViewerFilter = 'TODOS';
 
@@ -257,21 +259,25 @@ function renderOperationalDashboard(snapshot) {
 function renderOperationalMap(items, targetId = 'operational-map') {
   const node = document.getElementById(targetId);
   if (!node || typeof L === 'undefined') return;
-  if (operationalMap) operationalMap.remove();
-  operationalMap = L.map(node).setView([-38.7183, -62.2663], 12);
-  L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(operationalMap);
-  requestAnimationFrame(() => requestAnimationFrame(() => operationalMap?.invalidateSize()));
+  if (!operationalMap || operationalMapContainerId !== targetId) {
+    if (operationalMap) operationalMap.remove();
+    operationalMap = L.map(node).setView([-38.7183, -62.2663], 12);
+    operationalMapContainerId = targetId;
+    L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(operationalMap);
+    operationalMarkerGroup = typeof L.markerClusterGroup === 'function'
+      ? L.markerClusterGroup({
+        showCoverageOnHover: false,
+        maxClusterRadius: 45,
+        iconCreateFunction: cluster => L.divIcon({ className: 'operational-cluster-marker', html: `<span>${cluster.getChildCount()}</span>`, iconSize: [40, 40], iconAnchor: [20, 20] }),
+      })
+      : L.layerGroup();
+    operationalMarkerGroup.addTo(operationalMap);
+    requestAnimationFrame(() => requestAnimationFrame(() => operationalMap?.invalidateSize()));
+  }
+  operationalMarkerGroup.clearLayers();
   const points = items.map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
   const vehicleIcon = L.divIcon({ className: 'operational-vehicle-marker', html: '<span aria-hidden="true">🚗</span>', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15] });
-  const markerGroup = typeof L.markerClusterGroup === 'function'
-    ? L.markerClusterGroup({
-      showCoverageOnHover: false,
-      maxClusterRadius: 45,
-      iconCreateFunction: cluster => L.divIcon({ className: 'operational-cluster-marker', html: `<span>${cluster.getChildCount()}</span>`, iconSize: [40, 40], iconAnchor: [20, 20] }),
-    })
-    : L.layerGroup();
-  points.forEach(({ item, lat, lng }) => L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape([item.firstName, item.lastName].filter(Boolean).join(' '))}</strong><br>${crmEscape(item.vehicle?.domain || 'Sin vehículo')}<br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(markerGroup));
-  markerGroup.addTo(operationalMap);
+  points.forEach(({ item, lat, lng }) => L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape([item.firstName, item.lastName].filter(Boolean).join(' '))}</strong><br>${crmEscape(item.vehicle?.domain || 'Sin vehículo')}<br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(operationalMarkerGroup));
   if (points.length) operationalMap.fitBounds(L.latLngBounds(points.map(point => [point.lat, point.lng])), { padding: [24, 24], maxZoom: 16 });
 }
 
