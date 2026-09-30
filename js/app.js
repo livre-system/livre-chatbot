@@ -278,7 +278,6 @@ function renderOperationalMap(items, targetId = 'operational-map') {
   const points = items.map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
   const vehicleIcon = L.divIcon({ className: 'operational-vehicle-marker', html: '<span aria-hidden="true">🚗</span>', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15] });
   points.forEach(({ item, lat, lng }) => L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape([item.firstName, item.lastName].filter(Boolean).join(' '))}</strong><br>${crmEscape(item.vehicle?.domain || 'Sin vehículo')}<br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(operationalMarkerGroup));
-  if (points.length) operationalMap.fitBounds(L.latLngBounds(points.map(point => [point.lat, point.lng])), { padding: [24, 24], maxZoom: 16 });
 }
 
 async function loadMapViewer() {
