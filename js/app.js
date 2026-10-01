@@ -201,7 +201,6 @@ let operationalSnapshot = null;
 let operationalMap = null;
 let operationalMapContainerId = null;
 let operationalMarkerGroup = null;
-let mapViewerTimer = null;
 let mapViewerFilter = 'TODOS';
 
 function operationalStateLabel(item) {
@@ -303,11 +302,11 @@ async function loadMapViewer() {
       filterNode.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button));
       const filtered = list.filter(item => mapViewerFilter === 'TODOS' || operationalStateLabel(item) === mapViewerFilter);
       renderOperationalMap(filtered, 'map-view-map');
-      status.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-AR')}. ${filtered.length} vehículo(s) informados.`;
+      status.textContent = `Última actualización: ${new Date().toLocaleTimeString('es-AR')}. ${filtered.length} vehículo(s) informados.`;
     }));
     const filtered = list.filter(item => mapViewerFilter === 'TODOS' || operationalStateLabel(item) === mapViewerFilter);
     renderOperationalMap(filtered, 'map-view-map');
-    status.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-AR')}. ${filtered.length} vehículo(s) informados.`;
+    status.textContent = `Última actualización: ${new Date().toLocaleTimeString('es-AR')}. ${filtered.length} vehículo(s) informados.`;
   } catch (error) {
     status.textContent = 'No se pudieron cargar las ubicaciones.';
     console.error(error);
@@ -324,9 +323,7 @@ function showMapViewer() {
   document.getElementById('composer').hidden = true;
   document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = false;
-  clearInterval(mapViewerTimer);
   loadMapViewer();
-  mapViewerTimer = setInterval(loadMapViewer, 15000);
 }
 
 function renderDriverManagement(data) {
@@ -815,7 +812,6 @@ async function loadAgencyCommissions() {
 }
 
 function showAgencyCommissions() {
-  clearInterval(mapViewerTimer);
   crmVisible = true;
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
   document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde MAGIIS.';
@@ -834,7 +830,6 @@ function showAgencyCommissions() {
 }
 
 function showCrm(resource) {
-  clearInterval(mapViewerTimer);
   crmVisible = true;
   crmMode = resource === 'control' ? 'control' : 'resource';
   if (resource === 'control') resource = 'travels';
@@ -879,7 +874,6 @@ function showCrm(resource) {
 }
 
 function showVehicleOwnerManagement() {
-  clearInterval(mapViewerTimer);
   crmVisible = true;
   document.getElementById('crm-title').textContent = 'Propietarios';
   document.getElementById('crm-subtitle').textContent = 'Propietarios registrados y disponibles para asignar.';
@@ -907,7 +901,6 @@ function hideCrm() {
 }
 
 function showChat() {
-  clearInterval(mapViewerTimer);
   document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = true;
   document.getElementById('message-list').hidden = false;
