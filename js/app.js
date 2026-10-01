@@ -1145,15 +1145,11 @@ function renderTravelMapFromQuote(option) {
 function renderTravelQuotes(options) {
   const quoteBox = document.getElementById('travel-quote');
   const available = (options || []).filter(option => ['1', '2'].includes(String(option.transportTypeId)) && String(option.serviceStatus || '').toUpperCase() === 'AVAILABLE');
-  const byId = new Map(available.map(option => [String(option.transportTypeId), option]));
   const displayOptions = available.map((option, index) => {
     const id = String(option.transportTypeId || '');
-    const swappedId = id === '1' ? '2' : id === '2' ? '1' : id;
-    const pricedOption = byId.get(swappedId) || option;
     const premium = id === '1';
     return {
       option,
-      pricedOption,
       id,
       label: premium ? 'Livre Premium' : 'Livre Ahorro',
       icon: premium ? '🚘' : '🚗',
@@ -1161,8 +1157,8 @@ function renderTravelQuotes(options) {
       selected: index === 0 ? ' checked' : '',
     };
   });
-  travelQuoteOptions = displayOptions.map(item => item.pricedOption);
-  quoteBox.innerHTML = displayOptions.map(item => `<label class="travel-quote-option"><input type="radio" name="travel-service" value="${crmEscape(String(item.pricedOption.transportTypeId))}"${item.selected}><span><strong>${item.icon} ${item.label}</strong><small>${item.speed} · Pago en efectivo</small><small>${crmEscape(item.pricedOption.duration || 'Tiempo no informado')} · ${crmEscape(item.pricedOption.distance ? `${item.pricedOption.distance} km` : 'Distancia no informada')}</small><small>Créditos dentro de la app</small></span><b>$ ${Number(item.pricedOption.pricePointToPoint || 0).toLocaleString('es-AR')}</b></label>`).join('');
+  travelQuoteOptions = displayOptions.map(item => item.option);
+  quoteBox.innerHTML = displayOptions.map(item => `<label class="travel-quote-option"><input type="radio" name="travel-service" value="${crmEscape(String(item.option.transportTypeId))}"${item.selected}><span><strong>${item.icon} ${item.label}</strong><small>${item.speed} · Pago en efectivo</small><small>${crmEscape(item.option.duration || 'Tiempo no informado')} · ${crmEscape(item.option.distance ? `${item.option.distance} km` : 'Distancia no informada')}</small><small>Créditos dentro de la app</small></span><b>$ ${Number(item.option.pricePointToPoint || 0).toLocaleString('es-AR')}</b></label>`).join('');
   quoteBox.hidden = !available.length;
   return available;
 }
