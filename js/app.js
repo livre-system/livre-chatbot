@@ -205,9 +205,9 @@ let mapViewerTimer = null;
 let mapViewerFilter = 'TODOS';
 
 function operationalStateLabel(item) {
-  const status = String(item.driverState || item.vehicleState || item.operability || '').toUpperCase();
+  const status = String(item.operationalState || item.driverState || item.vehicleState || item.operability || '').toUpperCase();
   if (['F', 'FREE', 'AVAILABLE', 'DISPONIBLE'].includes(status)) return 'DISPONIBLE';
-  if (['T', 'TRAVEL', 'EN_TRAVEL'].includes(status)) return 'EN VIAJE';
+  if (['T', 'TRAVEL', 'EN_TRAVEL', 'EN VIAJE'].includes(status)) return 'EN VIAJE';
   return 'NO DISPONIBLE';
 }
 
@@ -277,7 +277,7 @@ function renderOperationalMap(items, targetId = 'operational-map') {
   operationalMarkerGroup.clearLayers();
   const points = items.map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
   const vehicleIcon = L.divIcon({ className: 'operational-vehicle-marker', html: '<span aria-hidden="true">🚗</span>', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15] });
-  points.forEach(({ item, lat, lng }) => L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape([item.firstName, item.lastName].filter(Boolean).join(' '))}</strong><br>${crmEscape(item.vehicle?.domain || 'Sin vehículo')}<br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(operationalMarkerGroup));
+  points.forEach(({ item, lat, lng }) => L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape(item.driverName || [item.firstName, item.lastName].filter(Boolean).join(' ') || 'Conductor')}</strong><br>${crmEscape(item.vehicle?.plate || item.vehicle?.domain || 'Sin vehículo')}<br><strong>${crmEscape(operationalStateLabel(item))}</strong><br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(operationalMarkerGroup));
 }
 
 async function loadMapViewer() {
