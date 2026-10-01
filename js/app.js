@@ -315,6 +315,7 @@ async function loadMapViewer() {
 
 function showMapViewer() {
   crmVisible = true;
+  crmMode = 'map';
   document.getElementById('crm-title').textContent = 'Visor de mapa';
   document.getElementById('crm-subtitle').textContent = 'Ubicación en tiempo real de la operación.';
   ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
