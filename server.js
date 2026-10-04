@@ -17,7 +17,7 @@ const csp = "default-src 'self'; script-src 'self' https://unpkg.com; style-src 
 
 function safePath(urlPath) {
   const decoded = decodeURIComponent(urlPath);
-  const relative = decoded === '/' ? 'preview.html' : decoded.replace(/^\/+/, '');
+  const relative = decoded === '/' ? 'index.html' : decoded.replace(/^\/+/, '');
   const file = path.resolve(root, relative);
   return file === root || file.startsWith(root + path.sep) ? file : null;
 }
