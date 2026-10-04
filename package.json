@@ -1,0 +1,13 @@
+{
+  "name": "livre-chatbot",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Livre CRM static frontend",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/status.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
