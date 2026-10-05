@@ -116,6 +116,16 @@ function renderCrmCards(data) {
   ).join('');
 }
 
+function normalizeCrmPassenger(item) {
+  const rawPayload = item?.raw_payload;
+  if (!rawPayload || typeof rawPayload !== 'object' || Array.isArray(rawPayload)) return item;
+  return {
+    ...rawPayload,
+    magiis_id: item.magiis_id,
+    raw_payload: rawPayload,
+  };
+}
+
 function crmColumns(resource, items) {
   const available = new Set(items.flatMap(item => [...Object.keys(item.raw_payload || {}), ...Object.keys(item)]));
   if (resource === 'passengers') {
@@ -125,7 +135,11 @@ function crmColumns(resource, items) {
       ['passengerUserEmail', 'email'],
       ['phoneNumber', 'phone', 'cellphone'],
     ];
-    return clientFields.map(keys => keys.find(key => available.has(key))).filter(Boolean);
+    const preferred = clientFields.map(keys => keys.find(key => available.has(key))).filter(Boolean);
+    const hidden = CRM_HIDDEN_FIELDS.passengers || new Set();
+    return [...preferred, ...available]
+      .filter((key, index, all) => all.indexOf(key) === index && !hidden.has(key))
+      .slice(0, 12);
   }
   if (resource === 'travels') ['state', 'travelDate', 'passengerId', 'driverId'].forEach(key => available.add(key));
   const preferred = CRM_FIELD_ORDER[resource] || [];
@@ -784,12 +798,12 @@ async function loadCrmData() {
       if (loadSequence !== crmLoadSequence) return;
       renderCrmTable({
         resource: 'passengers',
-        items: data.items.map(item => ({ magiis_id: item.id || item.passengerUserId || item.code, raw_payload: item })),
+        items: data.items.map(normalizeCrmPassenger),
         total: data.total,
         page: data.page,
         size: data.size,
       });
-      status.textContent = 'Clientes actualizados desde MAGIIS.';
+      status.textContent = 'Clientes actualizados desde la base local.';
       return;
     }
     if (resource === 'vehicles') {
