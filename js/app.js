@@ -1247,6 +1247,8 @@ async function createTravelFromForm(event) {
     whatsapp_user: PANEL_WHATSAPP_USER,
     date_programmed: programmed ? `${date}T${time}:00` : null,
     service_type_id: document.querySelector('input[name="travel-service"]:checked')?.value || null,
+    fare: travelQuoteOptions.find(option => String(option.transportTypeId) === String(document.querySelector('input[name="travel-service"]:checked')?.value))?.pricePointToPoint || null,
+    quote_id: travelQuote?.quote_id || null,
     conversation_id: travelQuote?.conversation_id || ('panel_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now())),
   };
   const confirming = Boolean(travelQuote
@@ -1274,6 +1276,7 @@ async function createTravelFromForm(event) {
         throw new Error(result || 'No se pudo obtener la cotización.');
       }
       travelQuote = {
+        quote_id: data.quote_id,
         conversation_id: payload.conversation_id,
         origin,
         destination,
