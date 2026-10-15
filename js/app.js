@@ -1218,7 +1218,7 @@ function renderTravelQuotes(options) {
     };
   });
   travelQuoteOptions = displayOptions.map(item => item.option);
-  quoteBox.innerHTML = displayOptions.map(item => `<label class="travel-quote-option"><input type="radio" name="travel-service" value="${crmEscape(String(item.option.transportTypeId))}"${item.selected}><span><strong>${item.icon} ${item.label}</strong><small>${item.speed} · Pago en efectivo</small><small>${crmEscape(item.option.duration || 'Tiempo no informado')} · ${crmEscape(item.option.distance ? `${item.option.distance} km` : 'Distancia no informada')}</small><small>Créditos dentro de la app</small></span><b>$ ${Number(item.option.pricePointToPoint || 0).toLocaleString('es-AR')}</b></label>`).join('');
+  quoteBox.innerHTML = displayOptions.map(item => `<label class="travel-quote-option"><input type="radio" name="travel-service" value="${crmEscape(String(item.option.transportTypeId))}"${item.selected}><span><strong>${item.icon} ${item.label}</strong><small>${item.speed} · Pago en efectivo</small><small>${crmEscape(item.option.duration || 'Tiempo no informado')} · ${crmEscape(item.option.distance ? `${item.option.distance} km` : 'Distancia no informada')}</small><small>Créditos dentro de la app</small></span><b>$ ${Number(item.option.finalFare ?? item.option.pricePointToPoint ?? 0).toLocaleString('es-AR')}</b></label>`).join('');
   quoteBox.hidden = !available.length;
   return available;
 }
@@ -1247,6 +1247,7 @@ async function createTravelFromForm(event) {
     whatsapp_user: PANEL_WHATSAPP_USER,
     date_programmed: programmed ? `${date}T${time}:00` : null,
     service_type_id: document.querySelector('input[name="travel-service"]:checked')?.value || null,
+    quote_id: travelQuote?.quote_id || null,
     conversation_id: travelQuote?.conversation_id || ('panel_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now())),
   };
   const confirming = Boolean(travelQuote
@@ -1274,6 +1275,7 @@ async function createTravelFromForm(event) {
         throw new Error(result || 'No se pudo obtener la cotización.');
       }
       travelQuote = {
+        quote_id: data.quote_id,
         conversation_id: payload.conversation_id,
         origin,
         destination,
