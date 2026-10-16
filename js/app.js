@@ -63,7 +63,7 @@ let crmMode = 'control';
 let crmOffset = 0;
 let crmPageSize = 20;
 let travelPageSize = 20;
-let travelStateFilter = 'SEARCHING_DRIVER';
+let travelStateFilter = '';
 let vehicleTypesPromise;
 let crmLoadController;
 let crmLoadSequence = 0;
@@ -692,13 +692,14 @@ function renderTravelManagement(data, summary) {
     if (p.status === 'confirmed') p.state = 'WITH_DRIVER_ASSIGNED';
     if (p.status === 'cancelled') p.state = 'CANCELLED';
     const state = pick(p, ['state', 'status', 'travelStatus']);
-    const driver = [p.driverFirstName, p.driverLastName].filter(Boolean).join(' ') || p.driverName || p.driver || '—';
+    const driver = [p.driverFirstName, p.driverLastName].filter(Boolean).join(' ') || p.driverName || p.driver || p.tracking_driver_name || (p.assigned_driver_user_id ? `ID ${p.assigned_driver_user_id}` : '—');
     const passenger = [p.passengerFirstName, p.passengerLastName].filter(Boolean).join(' ') || p.passengerName || p.passenger || '—';
     const readableState = state.split('-').map(value => stateLabels[value] || value).join(' · ');
     const travelId = p.travelId ?? p.magiis_id ?? item.id;
     const canCancel = state.split('-').some(value => cancellableStates.has(value));
     const action = canCancel ? `<button type="button" class="travel-cancel-row" data-travel-cancel="${crmEscape(travelId)}">Cancelar</button>` : '—';
-    return `<tr><td>${crmEscape(travelId)}</td><td>${crmEscape(p.serviceType || p.type || p.travelType || '—')}</td><td>${crmEscape(p.travelDate || p.creationDate || p.scheduledAt)}</td><td>${crmEscape(driver)}</td><td>${crmEscape(passenger)}</td><td>${crmEscape(p.origin || p.from || '—')}</td><td>${crmEscape(p.destination || p.to || '—')}</td><td>${crmEscape(p.finalPrice ?? p.budget ?? p.price ?? p.amount)}</td><td>${crmEscape(p.vehicleMark && p.vehicleModel ? `${p.vehicleMark} ${p.vehicleModel}` : p.vehicleType || p.vehicle || '—')}</td><td><span class="travel-state">${crmEscape(readableState)}</span></td><td>${crmEscape(p.etafromBase)}</td><td>${crmEscape(p.distanceToPPUP)}</td><td>${crmEscape(p.travelDuration)}</td><td>${crmEscape(p.candidateCanceledQty)}</td><td>${action}</td></tr>`;
+    const vehicle = p.vehicleMark && p.vehicleModel ? `${p.vehicleMark} ${p.vehicleModel}` : [p.tracking_vehicle_model, p.tracking_vehicle_color, p.tracking_plate].filter(Boolean).join(' · ') || p.vehicleType || p.vehicle || '—';
+    return `<tr><td>${crmEscape(travelId)}</td><td>${crmEscape(p.serviceType || p.type || p.travelType || '—')}</td><td>${crmEscape(p.travelDate || p.creationDate || p.scheduledAt)}</td><td>${crmEscape(driver)}</td><td>${crmEscape(passenger)}</td><td>${crmEscape(p.origin || p.from || '—')}</td><td>${crmEscape(p.destination || p.to || '—')}</td><td>${crmEscape(p.finalPrice ?? p.budget ?? p.price ?? p.amount)}</td><td>${crmEscape(vehicle)}</td><td><span class="travel-state">${crmEscape(readableState)}</span></td><td>${crmEscape(p.etafromBase)}</td><td>${crmEscape(p.distanceToPPUP)}</td><td>${crmEscape(p.travelDuration)}</td><td>${crmEscape(p.candidateCanceledQty)}</td><td>${action}</td></tr>`;
   }).join('');
   const size = Number(data.size) || travelPageSize;
   const page = Number(data.page) || 1;
@@ -902,7 +903,7 @@ function showCrm(resource) {
   if (resource === 'control') resource = 'travels';
   crmOffset = 0;
   crmPageSize = 20;
-  travelStateFilter = 'SEARCHING_DRIVER';
+  travelStateFilter = '';
   const titles = {
     travels: ['Viajes', 'Listado y estado de los viajes.'],
     drivers: ['Choferes', 'Listado de choferes registrados.'],
@@ -913,9 +914,9 @@ function showCrm(resource) {
   document.getElementById('crm-title').textContent = title[0];
   document.getElementById('crm-subtitle').textContent = title[1];
   if (resource === 'travels') {
-    travelStateFilter = 'SEARCHING_DRIVER';
+    travelStateFilter = '';
     document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
-      button.classList.toggle('active', index === 0);
+      button.classList.toggle('active', Boolean(travelStateFilter) && index === 0);
     });
   }
   document.getElementById('crm-cards').hidden = true;
@@ -2806,7 +2807,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('crm-resource').addEventListener('change', () => {
     crmOffset = 0;
-    travelStateFilter = 'SEARCHING_DRIVER';
+    travelStateFilter = '';
     document.getElementById('client-new-button').hidden = document.getElementById('crm-resource').value !== 'passengers';
     loadCrmData();
   });
@@ -2854,7 +2855,9 @@ document.addEventListener('DOMContentLoaded', () => {
   syncTravelDateFromFilter();
   checkAuth();
   setInterval(() => {
-    if (crmMode === 'control' && document.visibilityState === 'visible') loadCrmData();
+    const resource = document.getElementById('crm-resource')?.value;
+    const travelsVisible = crmVisible && crmMode === 'resource' && resource === 'travels';
+    if ((crmMode === 'control' || travelsVisible) && document.visibilityState === 'visible') loadCrmData();
   }, 15000);
 });
 
