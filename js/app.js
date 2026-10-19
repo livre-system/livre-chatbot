@@ -112,7 +112,7 @@ function crmEscape(value, key = '') {
 function renderCrmCards(data) {
   const cards = document.getElementById('crm-cards');
   cards.innerHTML = Object.entries(CRM_LABELS).map(([key, label]) =>
-    `<article class="crm-card"><strong>${data[key] ?? 0}</strong><span>${label}</span></article>`
+    `<article class="crm-card"><strong>${data[key] == null ? '—' : data[key]}</strong><span>${label}</span></article>`
   ).join('');
 }
 
