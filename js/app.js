@@ -403,8 +403,9 @@ function renderDriverManagement(data) {
     const name = p.driverName || [p.lastName, p.firstName].filter(Boolean).join(' ') || '—';
     const phone = p.phoneNumber || p.phone || '—';
     const email = p.driverUserEmail || p.mail || p.email || '—';
-    const vehicle = p.vehicleDescription || [p.vehicleBrand, p.vehicleModel, p.vehicleDomain].filter(Boolean).join(' ') || '—';
-    const active = p.operability;
+    const vehicleLabels = Array.isArray(item.vehicles) && item.vehicles.length ? item.vehicles.join(', ') : (item.vehicleDescription || item.vehicle?.plate || '—');
+    const vehicle = vehicleLabels;
+    const active = p.operability ?? item.active;
     const rating = p.rating;
     return `<tr><td>${crmEscape(id)}</td><td>${crmEscape(name)}</td><td><span class="driver-phone"><b>🇦🇷</b>${crmEscape(phone)}</span></td><td>${crmEscape(email)}</td><td class="driver-vehicle">${crmEscape(vehicle)}</td><td>${crmEscape(p.vehicleType || '—')}</td><td><span class="vehicle-active-dot ${String(active) === '0' || String(active).toLowerCase() === 'false' ? 'vehicle-inactive' : 'vehicle-active'}">●</span></td><td>${crmEscape(rating || '—')}</td><td><button type="button" class="driver-action" data-driver-detail="${crmEscape(id)}" aria-label="Ver chofer">◉</button><button type="button" class="driver-action" data-driver-edit="${crmEscape(id)}" aria-label="Editar chofer">✎</button></td></tr>`;
   }).join('');
@@ -478,6 +479,8 @@ function renderVehicleManagement(data) {
 }
 
 let ownerEditingId = null;
+let ownerPage = 1;
+const ownerPageSize = 50;
 
 async function confirmManagedEmail(inputId, role, statusId, button) {
   const email = document.getElementById(inputId).value.trim();
@@ -516,20 +519,33 @@ function ownerPayloadFromForm() {
 
 async function loadVehicleOwners() {
   const q = document.getElementById('owner-management-search')?.value.trim() || '';
-  const data = await apiCrm(`vehicle-owners?size=100&q=${encodeURIComponent(q)}`);
+  const data = await apiCrm(`vehicle-owners?page=${ownerPage}&size=${ownerPageSize}&q=${encodeURIComponent(q)}`);
   renderVehicleOwners(data);
   const select = document.getElementById('new-driver-owner');
-  if (select) select.innerHTML = '<option value="">Sin propietario</option>' + (data.items || []).map(item => {
-    const p = item.raw_payload || {}; const label = p.titularDescription || [p.firstName, p.lastName].filter(Boolean).join(' ') || `Propietario ${item.id}`;
-    return `<option value="${crmEscape(item.id)}">${crmEscape(label)}</option>`;
-  }).join('');
+  if (select) {
+    const totalPages = Math.max(1, Math.ceil((Number(data.total) || 0) / ownerPageSize));
+    const pages = totalPages > 1
+      ? await Promise.all(Array.from({ length: totalPages }, (_, index) => apiCrm(`vehicle-owners?page=${index + 1}&size=${ownerPageSize}&q=${encodeURIComponent(q)}`)))
+      : [data];
+    const owners = pages.flatMap(page => page.items || []);
+    select.innerHTML = '<option value="">Sin propietario</option>' + owners.map(item => {
+      const p = item.raw_payload || {}; const label = p.titularDescription || [p.firstName, p.lastName].filter(Boolean).join(' ') || `Propietario ${item.id}`;
+      return `<option value="${crmEscape(item.id)}">${crmEscape(label)}</option>`;
+    }).join('');
+  }
 }
 
 function renderVehicleOwners(data) {
   const root = document.getElementById('owner-management-table');
   const rows = (data.items || []).map(item => { const p = item.raw_payload || {}; const name = p.titularDescription || [p.firstName, p.lastName].filter(Boolean).join(' ') || '—'; return `<tr><td>${crmEscape(item.id)}</td><td>${crmEscape(name)}</td><td>${crmEscape(p.cuitNumberTitular || p.idNumber || '—')}</td><td>${crmEscape(p.contactPhone || '—')}</td><td>${crmEscape(p.contactEmail || '—')}</td><td>${crmEscape(p.city || '—')}</td><td><button type="button" class="vehicle-action" data-owner-edit="${crmEscape(item.id)}">✎</button></td></tr>`; }).join('');
-  root.innerHTML = `<div class="vehicle-table-scroll"><table><thead><tr><th>Código</th><th>Nombre</th><th>DNI/CUIT</th><th>Teléfono</th><th>Email</th><th>Ciudad</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="7">No hay propietarios registrados.</td></tr>'}</tbody></table></div><div class="vehicle-table-footer"><span>Total: ${data.total || 0}</span></div>`;
+  const total = Number(data.total) || 0;
+  const totalPages = Math.max(1, Math.ceil(total / ownerPageSize));
+  root.innerHTML = `<div class="vehicle-table-scroll"><table><thead><tr><th>Código</th><th>Nombre</th><th>DNI/CUIT</th><th>Teléfono</th><th>Email</th><th>Ciudad</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="7">No hay propietarios registrados.</td></tr>'}</tbody></table></div><div class="vehicle-table-footer"><span>Total: ${total}</span><span>Página ${ownerPage} de ${totalPages}</span><button type="button" data-owner-page="${ownerPage - 1}" ${ownerPage <= 1 ? 'disabled' : ''}>Anterior</button><button type="button" data-owner-page="${ownerPage + 1}" ${ownerPage >= totalPages ? 'disabled' : ''}>Siguiente</button></div>`;
   root.querySelectorAll('[data-owner-edit]').forEach(button => button.addEventListener('click', () => openOwnerModal(button.dataset.ownerEdit)));
+  root.querySelectorAll('[data-owner-page]').forEach(button => button.addEventListener('click', () => {
+    ownerPage = Number(button.dataset.ownerPage);
+    loadVehicleOwners();
+  }));
 }
 
 async function openOwnerModal(ownerId = null) {
@@ -2820,7 +2836,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-owner-close').addEventListener('click', closeOwnerModal);
   document.getElementById('new-owner-modal').addEventListener('click', event => { if (event.target.id === 'new-owner-modal') closeOwnerModal(); });
   document.getElementById('new-owner-email-confirm').addEventListener('click', event => confirmManagedEmail('new-owner-email', 'VEHICLEOWNER', 'new-owner-status', event.currentTarget));
-  document.getElementById('owner-management-search').addEventListener('input', () => { clearTimeout(crmSearchTimer); crmSearchTimer = setTimeout(loadVehicleOwners, 350); });
+  document.getElementById('owner-management-search').addEventListener('input', () => { ownerPage = 1; clearTimeout(crmSearchTimer); crmSearchTimer = setTimeout(loadVehicleOwners, 350); });
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('map-view-refresh').addEventListener('click', loadMapViewer);
   document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
