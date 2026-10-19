@@ -26,7 +26,7 @@ async function apiOperational() {
 
 const CRM_LABELS = { passengers: 'Clientes', drivers: 'Choferes', vehicles: 'Vehículos', travels: 'Viajes' };
 const CRM_FIELD_LABELS = {
-  id: 'ID', magiis_id: 'ID', passengerUserId: 'ID del cliente', driverUserId: 'ID del conductor', vehicleId: 'ID del vehículo', travelId: 'ID del viaje',
+  id: 'ID', id: 'ID', passengerUserId: 'ID del cliente', driverUserId: 'ID del conductor', vehicleId: 'ID del vehículo', travelId: 'ID del viaje',
   code: 'Código', dni: 'DNI', firstName: 'Nombre', name: 'Nombre', lastName: 'Apellido', surname: 'Apellido',
   phone: 'Teléfono', phoneNumber: 'Phone Number', cellphone: 'Celular', email: 'Correo electrónico', passengerUserEmail: 'Passenger User Email', city: 'Ciudad', address: 'Domicilio', country: 'País',
   rate: 'Tarifa', family: 'Familia', paxNote: 'Observaciones', isPaxVip: 'Cliente VIP',
@@ -121,7 +121,8 @@ function normalizeCrmPassenger(item) {
   if (!rawPayload || typeof rawPayload !== 'object' || Array.isArray(rawPayload)) return item;
   return {
     ...rawPayload,
-    magiis_id: item.magiis_id,
+    id: item.id ?? item.magiis_id,
+    magiis_id: item.magiis_id ?? item.id,
     raw_payload: rawPayload,
   };
 }
@@ -187,10 +188,10 @@ function renderCrmTable(data) {
       ...(item.travel_date !== undefined ? { travelDate: item.travel_date } : {}),
       ...(item.origen !== undefined ? { origin: item.origen } : {}),
       ...(item.destino !== undefined ? { destination: item.destino } : {}),
-      ...(item.passenger_magiis_id !== undefined ? { passengerId: item.passenger_magiis_id } : {}),
-      ...(item.driver_magiis_id !== undefined ? { driverId: item.driver_magiis_id } : {}),
+      ...(item.passenger_id !== undefined ? { passengerId: item.passenger_id } : {}),
+      ...(item.driver_id !== undefined ? { driverId: item.driver_id } : {}),
     };
-    return `<tr><td>${crmEscape(item.magiis_id ?? item.id, 'magiis_id')}</td>${columns.map(key => `<td title="${crmEscape(payload[key], key)}">${renderCrmCell(payload[key], key)}</td>`).join('')}</tr>`;
+    return `<tr><td>${crmEscape(item.id ?? item.id, 'id')}</td>${columns.map(key => `<td title="${crmEscape(payload[key], key)}">${renderCrmCell(payload[key], key)}</td>`).join('')}</tr>`;
   });
   const total = Number(data.total) || 0;
   const size = Number(data.size) || crmPageSize;
@@ -399,7 +400,7 @@ function renderDriverManagement(data) {
   const table = document.getElementById('driver-management-table');
   const rows = data.items.map(item => {
     const p = item.raw_payload || item;
-    const id = p.driverUserId ?? p.id ?? item.magiis_id;
+    const id = p.driverUserId ?? p.id ?? item.id;
     const name = p.driverName || [p.lastName, p.firstName].filter(Boolean).join(' ') || '—';
     const phone = p.phoneNumber || p.phone || '—';
     const email = p.driverUserEmail || p.mail || p.email || '—';
@@ -424,7 +425,7 @@ function renderDriverManagement(data) {
   });
   table.querySelectorAll('[data-driver-detail]').forEach(button => button.addEventListener('click', () => loadDriverDetail(button.dataset.driverDetail)));
   table.querySelectorAll('[data-driver-edit]').forEach(button => button.addEventListener('click', () => {
-    document.getElementById('crm-status').textContent = 'Editar chofer: MAGIIS no expone una petición de edición en el contrato capturado; no se envió ningún cambio.';
+    document.getElementById('crm-status').textContent = 'Editar chofer: Livre Cloud no expone una petición de edición en el contrato capturado; no se envió ningún cambio.';
   }));
   table.querySelectorAll('[data-driver-filter]').forEach(input => {
     const key = input.dataset.driverFilter;
@@ -459,7 +460,7 @@ function renderVehicleManagement(data) {
       p.vehicleOwner?.name || p.vehicleOwner?.fullName || p.vehicleOwner?.description || '—';
     const active = p.active ?? p.isActive ?? p.enabled;
     const activeClass = active === false ? 'vehicle-inactive' : 'vehicle-active';
-    return `<tr><td>${crmEscape(item.magiis_id)}</td><td><span class="vehicle-domain-cell">${photo && /^https?:\/\//i.test(photo) ? `<img src="${crmEscape(photo)}" alt="Vehículo" loading="lazy">` : '<span class="vehicle-image-empty">—</span>'}${crmEscape(card.domain || p.domain || p.plate || p.licensePlate || '—')}</span></td><td>${crmEscape(card.mark || p.brand || p.make || '—')}</td><td>${crmEscape(card.model || p.model || '—')}</td><td>${crmEscape(card.transportType?.name || card.typeTraslated || p.type || p.vehicleType || 'Livre Taxi')}</td><td class="vehicle-owner">${crmEscape(owner)}</td><td><span class="vehicle-active-dot ${activeClass}">●</span></td><td><button type="button" class="vehicle-action" aria-label="Ver vehículo">◉</button><button type="button" class="vehicle-action" aria-label="Editar vehículo">✎</button></td></tr>`;
+    return `<tr><td>${crmEscape(item.id)}</td><td><span class="vehicle-domain-cell">${photo && /^https?:\/\//i.test(photo) ? `<img src="${crmEscape(photo)}" alt="Vehículo" loading="lazy">` : '<span class="vehicle-image-empty">—</span>'}${crmEscape(card.domain || p.domain || p.plate || p.licensePlate || '—')}</span></td><td>${crmEscape(card.mark || p.brand || p.make || '—')}</td><td>${crmEscape(card.model || p.model || '—')}</td><td>${crmEscape(card.transportType?.name || card.typeTraslated || p.type || p.vehicleType || 'Livre Taxi')}</td><td class="vehicle-owner">${crmEscape(owner)}</td><td><span class="vehicle-active-dot ${activeClass}">●</span></td><td><button type="button" class="vehicle-action" aria-label="Ver vehículo">◉</button><button type="button" class="vehicle-action" aria-label="Editar vehículo">✎</button></td></tr>`;
   }).join('');
   const total = Number(data.total) || 0;
   const size = Number(data.size) || crmPageSize;
@@ -488,8 +489,8 @@ async function confirmManagedEmail(inputId, role, statusId, button) {
   try {
     const response = await fetch(`${HASH_CLOUD_URL}/crm/confirm-email`, { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ email, role }) });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || 'MAGIIS no confirmó el email.');
-    status.textContent = 'Email confirmado en MAGIIS.';
+    if (!response.ok) throw new Error(data.detail || 'Livre Cloud no confirmó el email.');
+    status.textContent = 'Email confirmado en Livre Cloud.';
   } catch (error) { status.textContent = error.message; } finally { button.disabled = false; }
 }
 
@@ -520,14 +521,14 @@ async function loadVehicleOwners() {
   renderVehicleOwners(data);
   const select = document.getElementById('new-driver-owner');
   if (select) select.innerHTML = '<option value="">Sin propietario</option>' + (data.items || []).map(item => {
-    const p = item.raw_payload || {}; const label = p.titularDescription || [p.firstName, p.lastName].filter(Boolean).join(' ') || `Propietario ${item.magiis_id}`;
-    return `<option value="${crmEscape(item.magiis_id)}">${crmEscape(label)}</option>`;
+    const p = item.raw_payload || {}; const label = p.titularDescription || [p.firstName, p.lastName].filter(Boolean).join(' ') || `Propietario ${item.id}`;
+    return `<option value="${crmEscape(item.id)}">${crmEscape(label)}</option>`;
   }).join('');
 }
 
 function renderVehicleOwners(data) {
   const root = document.getElementById('owner-management-table');
-  const rows = (data.items || []).map(item => { const p = item.raw_payload || {}; const name = p.titularDescription || [p.firstName, p.lastName].filter(Boolean).join(' ') || '—'; return `<tr><td>${crmEscape(item.magiis_id)}</td><td>${crmEscape(name)}</td><td>${crmEscape(p.cuitNumberTitular || p.idNumber || '—')}</td><td>${crmEscape(p.contactPhone || '—')}</td><td>${crmEscape(p.contactEmail || '—')}</td><td>${crmEscape(p.city || '—')}</td><td><button type="button" class="vehicle-action" data-owner-edit="${crmEscape(item.magiis_id)}">✎</button></td></tr>`; }).join('');
+  const rows = (data.items || []).map(item => { const p = item.raw_payload || {}; const name = p.titularDescription || [p.firstName, p.lastName].filter(Boolean).join(' ') || '—'; return `<tr><td>${crmEscape(item.id)}</td><td>${crmEscape(name)}</td><td>${crmEscape(p.cuitNumberTitular || p.idNumber || '—')}</td><td>${crmEscape(p.contactPhone || '—')}</td><td>${crmEscape(p.contactEmail || '—')}</td><td>${crmEscape(p.city || '—')}</td><td><button type="button" class="vehicle-action" data-owner-edit="${crmEscape(item.id)}">✎</button></td></tr>`; }).join('');
   root.innerHTML = `<div class="vehicle-table-scroll"><table><thead><tr><th>Código</th><th>Nombre</th><th>DNI/CUIT</th><th>Teléfono</th><th>Email</th><th>Ciudad</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="7">No hay propietarios registrados.</td></tr>'}</tbody></table></div><div class="vehicle-table-footer"><span>Total: ${data.total || 0}</span></div>`;
   root.querySelectorAll('[data-owner-edit]').forEach(button => button.addEventListener('click', () => openOwnerModal(button.dataset.ownerEdit)));
 }
@@ -646,7 +647,7 @@ function openNewVehicleModal() {
   const modal = document.getElementById('new-vehicle-modal');
   const status = document.getElementById('new-vehicle-status');
   status.textContent = 'Cargando tipos...';
-  // Abrir primero evita que la latencia de MAGIIS bloquee el popup.
+  // Abrir primero evita que la latencia de Livre Cloud bloquee el popup.
   modal.removeAttribute('hidden');
   document.getElementById('new-vehicle-domain').focus();
   vehicleTypesPromise = vehicleTypesPromise || apiCrm('vehicles/types');
@@ -697,7 +698,7 @@ function renderTravelManagement(data, summary) {
     const driver = [p.driverFirstName, p.driverLastName].filter(Boolean).join(' ') || p.driverName || p.driver || p.tracking_driver_name || (p.assigned_driver_user_id ? `ID ${p.assigned_driver_user_id}` : '—');
     const passenger = [p.passengerFirstName, p.passengerLastName].filter(Boolean).join(' ') || p.passengerName || p.passenger || '—';
     const readableState = state.split('-').map(value => stateLabels[value] || value).join(' · ');
-    const travelId = p.travelId ?? p.magiis_id ?? item.id;
+    const travelId = p.travelId ?? p.id ?? item.id;
     const canCancel = state.split('-').some(value => cancellableStates.has(value));
     const action = canCancel ? `<button type="button" class="travel-cancel-row" data-travel-cancel="${crmEscape(travelId)}">Cancelar</button>` : '—';
     const vehicle = p.vehicleMark && p.vehicleModel ? `${p.vehicleMark} ${p.vehicleModel}` : [p.tracking_vehicle_model, p.tracking_vehicle_color, p.tracking_plate].filter(Boolean).join(' · ') || p.vehicleType || p.vehicle || '—';
@@ -717,7 +718,7 @@ function renderTravelManagement(data, summary) {
     crmOffset = 0;
     loadCrmData();
   });
-  const sync = data.source === 'magiis' ? new Date().toLocaleString('es-AR') : summary.last_sync && (summary.last_sync.finished_at || summary.last_sync.started_at);
+  const sync = summary.last_sync && (summary.last_sync.finished_at || summary.last_sync.started_at);
   document.getElementById('travel-management-sync').textContent = sync ? `Última actualización: ${sync}` : 'Última actualización: —';
 }
 async function cancelManagedTravel(button) {
@@ -788,7 +789,7 @@ async function loadCrmData() {
       document.querySelectorAll('#travel-management-view .travel-status-tabs small').forEach((node, index) => {
         node.textContent = totals[counts[index]] ?? 0;
       });
-      status.textContent = 'Viajes actualizados desde MAGIIS.';
+      status.textContent = 'Viajes actualizados desde Livre Cloud.';
       return;
     }
     if (resource === 'passengers') {
@@ -814,7 +815,7 @@ async function loadCrmData() {
       const data = await apiCrm('vehicles/live?' + liveParams.toString(), requestOptions);
       if (loadSequence !== crmLoadSequence) return;
       renderVehicleManagement(data);
-      status.textContent = 'Vehículos actualizados desde MAGIIS.';
+      status.textContent = 'Vehículos actualizados desde Livre Cloud.';
       return;
     }
     if (resource === 'drivers') {
@@ -830,7 +831,7 @@ async function loadCrmData() {
       const data = await apiCrm('drivers/live?' + liveParams.toString(), requestOptions);
       if (loadSequence !== crmLoadSequence) return;
       renderDriverManagement(data);
-      status.textContent = 'Choferes actualizados desde MAGIIS.';
+      status.textContent = 'Choferes actualizados desde Livre Cloud.';
       return;
     }
     const [summary, data] = await Promise.all([
@@ -857,7 +858,7 @@ async function loadAgencyCommissions() {
   const from = document.getElementById('agency-commissions-from').value;
   const to = document.getElementById('agency-commissions-to').value;
   const owner = document.getElementById('agency-commissions-owner').value;
-  status.textContent = 'Consultando MAGIIS...';
+  status.textContent = 'Consultando Livre Cloud...';
   try {
     const params = new URLSearchParams({ date_from: from, date_to: to, owner_id: owner, size: '50' });
     const data = await apiCrm('agency-commissions?' + params.toString());
@@ -884,7 +885,7 @@ async function loadAgencyCommissions() {
 function showAgencyCommissions() {
   crmVisible = true;
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
-  document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde MAGIIS.';
+  document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde Livre Cloud.';
   ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('agency-commissions-view').hidden = false;
   document.getElementById('message-list').hidden = true;
@@ -984,7 +985,7 @@ let travelRoute = null;
 let geocodeTimers = {};
 let geocodeRequests = {};
 let geocodePoints = {};
-let travelMagiisLocations = null;
+let travelLocations = null;
 let travelMapResizeObserver = null;
 let travelTileLayer = null;
 let travelTileFallbackUsed = false;
@@ -1070,7 +1071,7 @@ async function geocodeTravelAddress(field, value) {
 function refreshTravelMap() {
   initTravelMap();
   if (!travelMap) return;
-  travelMagiisLocations = null;
+  travelLocations = null;
   clearTimeout(geocodeTimers.origin);
   clearTimeout(geocodeTimers.destination);
   geocodeTimers = {};
@@ -1194,8 +1195,8 @@ function renderTravelMapFromQuote(option) {
   travelRoute?.remove();
   if (points.length) travelRoute = L.polyline(points, { color: '#55b9a9', weight: 5, opacity: 0.9 }).addTo(travelMap);
   const bounds = points.slice();
-  const origin = travelMapPoint(option?.origin || route?.origin || travelMagiisLocations?.origin);
-  const destination = travelMapPoint(option?.destination || route?.destination || travelMagiisLocations?.destination);
+  const origin = travelMapPoint(option?.origin || route?.origin || travelLocations?.origin);
+  const destination = travelMapPoint(option?.destination || route?.destination || travelLocations?.destination);
   [[origin, 'Origen'], [destination, 'Destino']].forEach(([point, label]) => {
     if (!point) return;
     travelMapMarkers.push(L.marker(point).addTo(travelMap).bindPopup(label));
@@ -1289,7 +1290,7 @@ async function createTravelFromForm(event) {
         date,
         time,
       };
-      travelMagiisLocations = data.locations || null;
+      travelLocations = data.locations || null;
       renderTravelQuotes(options);
       renderTravelMapFromQuote(travelQuoteOptions[0]);
       status.textContent = options.length ? 'Elegí Livre Premium o Livre Ahorro y confirmá el viaje.' : result;
@@ -1298,8 +1299,8 @@ async function createTravelFromForm(event) {
     }
 
     status.textContent = result || 'Viaje creado correctamente.';
-    const sentToMagiis = /Viaje pedido correctamente|Viaje ya registrado/i.test(result);
-    cancelButton.hidden = !sentToMagiis;
+    const tripCreated = /Viaje pedido correctamente|Viaje ya registrado|Viaje creado correctamente/i.test(result);
+    cancelButton.hidden = !tripCreated;
     form.reset();
     quoteBox.hidden = true;
     quoteBox.textContent = '';
@@ -2686,9 +2687,9 @@ async function loadTravelHistory() {
     return;
   }
   const params = new URLSearchParams({ page: '1', size: '50', date_from: from.value, date_to: to.value, state: document.getElementById('history-state').value, q: document.getElementById('history-search').value.trim() });
-  status.textContent = 'Cargando historial real desde MAGIIS...';
-  try { const result = await apiCrm('travel-history?' + params); renderTravelHistory(result.items || [], result.summary); status.textContent = `Historial actualizado desde MAGIIS · ${result.total || result.items?.length || 0} registros`; }
-  catch (error) { status.textContent = 'No se pudo cargar el historial desde MAGIIS.'; console.error(error); }
+  status.textContent = 'Cargando historial real desde Livre Cloud...';
+  try { const result = await apiCrm('travel-history?' + params); renderTravelHistory(result.items || [], result.summary); status.textContent = `Historial actualizado desde Livre Cloud · ${result.total || result.items?.length || 0} registros`; }
+  catch (error) { status.textContent = 'No se pudo cargar el historial desde Livre Cloud.'; console.error(error); }
 }
 const TRAVEL_HISTORY_COLUMNS = [
   ['Col1', 'ID viaje'], ['Col2', 'Código'], ['Col3', 'Fecha'], ['Col4', 'Hora'],
