@@ -1253,6 +1253,8 @@ async function createTravelFromForm(event) {
     fare: travelQuoteOptions.find(option => String(option.transportTypeId) === String(document.querySelector('input[name="travel-service"]:checked')?.value))?.pricePointToPoint || null,
     quote_id: travelQuote?.quote_id || null,
     conversation_id: travelQuote?.conversation_id || ('panel_' + (crypto.randomUUID ? crypto.randomUUID() : Date.now())),
+    source: 'panel',
+    activity_type: 'real',
   };
   const confirming = Boolean(travelQuote
     && travelQuote.origin === origin
