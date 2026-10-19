@@ -121,8 +121,7 @@ function normalizeCrmPassenger(item) {
   if (!rawPayload || typeof rawPayload !== 'object' || Array.isArray(rawPayload)) return item;
   return {
     ...rawPayload,
-    id: item.id ?? item.magiis_id,
-    magiis_id: item.magiis_id ?? item.id,
+    id: item.id,
     raw_payload: rawPayload,
   };
 }
@@ -387,7 +386,7 @@ function showMapViewer() {
   crmMode = 'map';
   document.getElementById('crm-title').textContent = 'Visor de mapa';
   document.getElementById('crm-subtitle').textContent = 'Ubicación en tiempo real de la operación.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'conversations-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('map-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -853,6 +852,34 @@ async function loadCrmData() {
   }
 }
 
+async function loadConversations() {
+  const status = document.getElementById('conversations-status');
+  const table = document.getElementById('conversations-table');
+  status.textContent = 'Consultando Livre Cloud...';
+  try {
+    const data = await apiCrm('conversations?limit=100');
+    const rows = (data.items || []).map(row => `<tr><td>${crmEscape(row.name || row.key)}</td><td>${crmEscape(row.chat_id || '—')}</td><td>${crmEscape(row.rows_count)}</td><td>${crmEscape(row.updated_at || row.created_at || '—')}</td></tr>`).join('');
+    table.innerHTML = rows ? `<div class="vehicle-table-scroll"><table><thead><tr><th>Conversación</th><th>Chat</th><th>Mensajes</th><th>Última actualización</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="crm-empty">No hay conversaciones locales cargadas.</p>';
+    status.textContent = `${data.total || 0} conversación(es) locales.`;
+  } catch (error) {
+    status.textContent = 'No se pudieron cargar las conversaciones locales.';
+    console.error(error);
+  }
+}
+
+function showConversations() {
+  crmVisible = true;
+  document.getElementById('crm-title').textContent = 'Conversaciones';
+  document.getElementById('crm-subtitle').textContent = 'Transcripciones y chats almacenados en Livre Cloud.';
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  document.getElementById('conversations-view').hidden = false;
+  document.getElementById('message-list').hidden = true;
+  document.getElementById('composer').hidden = true;
+  document.getElementById('travel-form-view').hidden = true;
+  document.getElementById('crm-dashboard').hidden = false;
+  loadConversations();
+}
+
 async function loadAgencyCommissions() {
   const status = document.getElementById('agency-commissions-status');
   const from = document.getElementById('agency-commissions-from').value;
@@ -865,13 +892,13 @@ async function loadAgencyCommissions() {
     const ownerSelect = document.getElementById('agency-commissions-owner');
     const selected = ownerSelect.value;
     ownerSelect.innerHTML = '<option value="">Todos</option>' + (data.owners || []).map(item =>
-      `<option value="${crmEscape(item.ownerId)}">${crmEscape(`${item.name || ''} ${item.lastName || ''}`.trim())}</option>`
+      `<option value="${crmEscape(item.id)}">${crmEscape(item.name || '')}</option>`
     ).join('');
     ownerSelect.value = selected || data.owner_id || '';
     const totals = data.totals || {};
     document.getElementById('agency-commissions-totals').innerHTML = [
       ['Viajes', totals.trips], ['Vehículos', totals.vehicles], ['Total liquidado', totals.total],
-      ['Comisión', totals.commission], ['Porcentaje', totals.commission_percent ? `${totals.commission_percent}%` : '0%'],
+      ['Comisión', totals.commission], ['Porcentaje', totals.commission_percent == null ? '—' : `${totals.commission_percent}%`],
     ].map(([label, value]) => `<article class="crm-card"><strong>${crmEscape(value)}</strong><span>${label}</span></article>`).join('');
     const rows = (data.items || []).map(row => `<tr><td>${crmEscape(row.travel_id)}</td><td>${crmEscape(row.vehicle)}</td><td>${crmEscape(row.vehicle_model)}</td><td>${crmEscape(row.owner)}</td><td>${crmEscape(row.total)}</td><td>${crmEscape(row.commission)}</td><td>${crmEscape(row.commission_percent)}%</td></tr>`).join('');
     document.getElementById('agency-commissions-table').innerHTML = rows ? `<div class="vehicle-table-scroll"><table><thead><tr><th>Viaje</th><th>Vehículo</th><th>Modelo</th><th>Propietario</th><th>Total</th><th>Comisión</th><th>%</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="crm-empty">No hay liquidaciones para el período seleccionado.</p>';
@@ -886,7 +913,7 @@ function showAgencyCommissions() {
   crmVisible = true;
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
   document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde Livre Cloud.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('agency-commissions-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -2751,6 +2778,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showCrm(view);
       } else if (view === 'agency-commissions') {
         showAgencyCommissions();
+      } else if (view === 'conversations') {
+        showConversations();
       } else if (view === 'vehicle-owners') {
         showVehicleOwnerManagement();
       } else if (view === 'crear-viaje') {

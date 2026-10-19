@@ -44,7 +44,7 @@ const crmColumns = context.crmColumns;
 
 test('normalizes local passenger rows without losing raw client fields', () => {
   const row = normalizeCrmPassenger({
-    magiis_id: 12345,
+    id: 12345,
     raw_payload: {
       firstName: 'Ana',
       lastName: 'Pérez',
@@ -55,7 +55,7 @@ test('normalizes local passenger rows without losing raw client fields', () => {
     },
   });
 
-  assert.equal(row.magiis_id, 12345);
+  assert.equal(row.id, 12345);
   assert.equal(row.raw_payload.firstName, 'Ana');
   assert.equal(row.raw_payload.lastName, 'Pérez');
   assert.equal(row.raw_payload.phoneNumber, '+54 291 555-0101');
@@ -72,7 +72,7 @@ test('normalizes local passenger rows without losing raw client fields', () => {
 test('keeps the local list contract for a full page of clients', () => {
   const response = {
     items: Array.from({ length: 100 }, (_, index) => normalizeCrmPassenger({
-      magiis_id: index + 1,
+      id: index + 1,
       raw_payload: { firstName: `Cliente ${index + 1}` },
     })),
     total: 20492,

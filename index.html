@@ -51,6 +51,7 @@
         <button type="button" class="main-nav-item" data-view="vehicle-owners">Propietarios</button>
         <button type="button" class="main-nav-item" data-view="passengers">Clientes</button>
         <button type="button" class="main-nav-item" data-view="agency-commissions">Comisiones de agencia</button>
+        <button type="button" class="main-nav-item" data-view="conversations">Conversaciones</button>
       </nav>
       <div class="sidebar-account-actions">
         <button type="button" class="main-nav-item" id="sidebar-settings">Ajustes</button>
@@ -130,6 +131,11 @@
           <div id="agency-commissions-totals" class="crm-cards"></div>
           <div id="agency-commissions-status" class="crm-status" aria-live="polite"></div>
           <div id="agency-commissions-table" class="vehicle-management-table"></div>
+        </div>
+        <div id="conversations-view" hidden aria-label="Conversaciones">
+          <div class="vehicle-page-heading"><h2>Conversaciones</h2><p>Transcripciones y chats almacenados en Livre Cloud.</p></div>
+          <div id="conversations-status" class="crm-status" aria-live="polite"></div>
+          <div id="conversations-table" class="vehicle-management-table"></div>
         </div>
         <div id="travel-management-view" hidden aria-label="Viajes">
           <div class="travel-management-filters"><input id="travel-management-search" type="search" placeholder="Buscar..." autocomplete="off"><label id="travel-date-from-filter" hidden>Fecha desde <input type="date" id="travel-management-date-from"></label><label>Fecha hasta <input type="date" id="travel-management-date"></label><button type="button" class="crm-livi-context" data-livi-resource="travels">Consultar a LIVI IA</button></div>
