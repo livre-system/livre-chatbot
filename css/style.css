@@ -3588,6 +3588,50 @@ html[data-theme="dark"] .message-item:hover {
   background: var(--surface-2) !important;
   border-color: var(--lime) !important;
 }
+
+/* LIVI IA: misma geometría visual que la navegación principal. */
+#chat-history {
+  width: 220px;
+  flex-basis: 220px;
+  padding: 16px 10px;
+  background: var(--surface-0);
+}
+.chat-history-header { padding: 4px 6px 12px; }
+#chat-new-button {
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: var(--surface-2);
+  font-weight: 600;
+}
+#chat-new-button:hover { background: var(--surface-tint); }
+.chat-list-row {
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  transition: background-color 150ms var(--ease), border-color 150ms var(--ease);
+}
+.chat-list-row:hover { background: var(--graphite-soft); }
+.chat-list-row--active {
+  background: var(--surface-tint);
+  border-color: rgba(232, 0, 61, .18);
+}
+.chat-list-select { padding: 10px 9px; }
+.chat-list-row--active .chat-list-select { color: var(--lime); }
+.chat-list-actions { padding-right: 6px; }
+.chat-list-action {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+.chat-list-action:hover { background: var(--surface-tint); }
+html[data-theme="dark"] #chat-history { background: var(--black); }
+html[data-theme="dark"] .chat-list-row:hover { background: var(--graphite-soft); }
+html[data-theme="dark"] .chat-list-row--active {
+  background: rgba(232, 0, 61, .12);
+  border-color: rgba(232, 0, 61, .34);
+}
+html[data-theme="dark"] #chat-new-button { background: var(--graphite-soft); }
+
 html[data-theme="dark"] #main-header,
 html[data-theme="dark"] #composer,
 html[data-theme="dark"] #composer .input-wrapper,

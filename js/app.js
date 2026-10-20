@@ -1915,9 +1915,11 @@ async function deleteFront(frontId) {
     else localStorage.removeItem('hash_active_chat');
     messages = [];
   }
+  delete chatCache[frontId];
   renderFrontList();
   renderHeader();
   renderMessages();
+  if (activeChatId) await syncFront(activeChatId);
 }
 
 async function renameFront(frontId, newName) {
