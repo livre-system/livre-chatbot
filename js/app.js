@@ -1647,24 +1647,33 @@ async function askHash(messages, onChunk) {
   let fullReply = '';
   let buffer = '';
 
+  const processLine = (rawLine) => {
+    const line = rawLine.replace(/\r$/, '');
+    if (!line.startsWith('data: ')) return false;
+    const chunk = line.slice(6);
+    if (chunk === '[DONE]') return true;
+    if (chunk.startsWith('[CHAT_ID] ')) {
+      activeChatId = chunk.slice(10).trim();
+      localStorage.setItem('hash_active_chat', activeChatId);
+      return false;
+    }
+    if (chunk.startsWith('[ERROR]')) throw new Error(chunk.slice(8));
+    fullReply += chunk.replace(/\\n/g, '\n');
+    onChunk(fullReply);
+    return false;
+  };
+
   while (true) {
     const { done, value } = await reader.read();
-    if (done) break;
+    if (done) {
+      if (buffer) processLine(buffer);
+      break;
+    }
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split('\n');
     buffer = lines.pop();
     for (const line of lines) {
-      if (!line.startsWith('data: ')) continue;
-      const chunk = line.slice(6);
-      if (chunk === '[DONE]') return fullReply;
-      if (chunk.startsWith('[CHAT_ID] ')) {
-        activeChatId = chunk.slice(10).trim();
-        localStorage.setItem('hash_active_chat', activeChatId);
-        continue;
-      }
-      if (chunk.startsWith('[ERROR]')) throw new Error(chunk.slice(8));
-      fullReply += chunk.replace(/\\n/g, '\n');
-      onChunk(fullReply);
+      if (processLine(line)) return fullReply;
     }
   }
   return fullReply;
@@ -1868,14 +1877,22 @@ async function saveMessage(texto, attachedFile) {
         content: m.message,
       }));
 
-    const reply = await askHash(contextMessages, (partial) => {
-      messages[messages.length - 1].message = partial;
-      messages[messages.length - 1].loading = false;
+    const updateTempMessage = (partial, loading = false) => {
+      const index = messages.findIndex(m => m.id === tempMsg.id);
+      if (index < 0) return;
+      messages[index].message = partial;
+      messages[index].loading = loading;
       renderMessages();
+    };
+
+    const reply = await askHash(contextMessages, (partial) => {
+      updateTempMessage(partial, false);
     });
 
-    messages[messages.length - 1].message = reply;
-    messages[messages.length - 1].loading = false;
+    const tempIndex = messages.findIndex(m => m.id === tempMsg.id);
+    if (tempIndex < 0) return;
+    messages[tempIndex].message = reply;
+    messages[tempIndex].loading = false;
     // Si la respuesta es vacía (ej: límite alcanzado), quitamos la burbuja
     if (!reply) {
       messages = messages.filter(m => m.id !== tempMsg.id);
