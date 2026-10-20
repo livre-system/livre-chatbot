@@ -1078,6 +1078,7 @@ let travelLocations = null;
 let travelMapResizeObserver = null;
 let travelTileLayer = null;
 let travelTileFallbackUsed = false;
+let travelRouteRequest = 0;
 
 function scheduleTravelMapInit() {
   let attempts = 0;
@@ -1122,7 +1123,7 @@ function clearTravelMapGraphics() {
   travelRoute = null;
 }
 
-function renderTravelAddressPoints(points) {
+async function renderTravelAddressPoints(points) {
   if (!travelMap || !window.L) return;
   clearTravelMapGraphics();
   const validPoints = points.filter(Boolean);
@@ -1131,9 +1132,20 @@ function renderTravelAddressPoints(points) {
     travelMapMarkers.push(L.marker(point).addTo(travelMap).bindPopup(label));
   });
   if (validPoints.length === 2) {
-    travelRoute = L.polyline(validPoints, {
-      color: '#55b9a9', weight: 4, opacity: 0.75, dashArray: '8 8',
-    }).addTo(travelMap);
+    const requestId = ++travelRouteRequest;
+    const coordinates = validPoints.map(([latitude, longitude]) => `${longitude},${latitude}`).join(';');
+    try {
+      const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`, { headers: { Accept: 'application/json' } });
+      if (!response.ok) return;
+      const data = await response.json();
+      const geometry = data.routes?.[0]?.geometry?.coordinates;
+      if (requestId !== travelRouteRequest || !Array.isArray(geometry) || geometry.length < 2) return;
+      travelRoute = L.polyline(geometry.map(([longitude, latitude]) => [latitude, longitude]), {
+        color: '#55b9a9', weight: 5, opacity: 0.9,
+      }).addTo(travelMap);
+    } catch (_) {
+      // Keep the verified address markers visible if routing is unavailable.
+    }
   }
   if (validPoints.length) travelMap.fitBounds(validPoints, { padding: [24, 24], maxZoom: 16 });
 }
@@ -1161,6 +1173,7 @@ function refreshTravelMap() {
   initTravelMap();
   if (!travelMap) return;
   travelLocations = null;
+  travelRouteRequest += 1;
   clearTimeout(geocodeTimers.origin);
   clearTimeout(geocodeTimers.destination);
   geocodeTimers = {};
@@ -1269,6 +1282,7 @@ function travelMapPoint(value) {
 }
 
 function renderTravelMapFromQuote(option) {
+  travelRouteRequest += 1;
   let routeMap = option?.routeMap;
   if (typeof routeMap === 'string') {
     try { routeMap = JSON.parse(routeMap); } catch (_) { routeMap = null; }
@@ -1291,7 +1305,13 @@ function renderTravelMapFromQuote(option) {
     travelMapMarkers.push(L.marker(point).addTo(travelMap).bindPopup(label));
     bounds.push(point);
   });
-  if (bounds.length) travelMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
+  if (points.length) {
+    if (bounds.length) travelMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
+  } else if (origin && destination) {
+    renderTravelAddressPoints([origin, destination]);
+  } else if (bounds.length) {
+    travelMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
+  }
   return Boolean(points.length || bounds.length);
 }
 

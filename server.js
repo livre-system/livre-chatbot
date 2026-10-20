@@ -13,7 +13,7 @@ const mime = {
   '.svg': 'image/svg+xml',
   '.webmanifest': 'application/manifest+json; charset=utf-8',
 };
-const csp = "default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://livre-cloud-production.up.railway.app https://nominatim.openstreetmap.org; img-src 'self' data: https:; frame-ancestors 'none';";
+const csp = "default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://livre-cloud-production.up.railway.app https://nominatim.openstreetmap.org https://router.project-osrm.org; img-src 'self' data: https:; frame-ancestors 'none';";
 
 function safePath(urlPath) {
   const decoded = decodeURIComponent(urlPath);
