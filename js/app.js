@@ -735,7 +735,7 @@ function renderTravelManagement(data, summary) {
     if (p.origen !== undefined) p.origin = p.origen;
     if (p.destino !== undefined) p.destination = p.destino;
     if (p.created_at !== undefined) p.travelDate = p.created_at;
-    if (p.status === 'pending') p.state = 'SEARCHING_DRIVER';
+    if (p.status === 'pending' || p.status === 'searching') p.state = 'SEARCHING_DRIVER';
     if (p.status === 'confirmed') p.state = 'WITH_DRIVER_ASSIGNED';
     if (p.status === 'cancelled') p.state = 'CANCELLED';
     const state = pick(p, ['state', 'status', 'travelStatus']);
@@ -3025,7 +3025,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resource = document.getElementById('crm-resource')?.value;
     const travelsVisible = crmVisible && crmMode === 'resource' && resource === 'travels';
     if ((crmMode === 'control' || travelsVisible) && document.visibilityState === 'visible') loadCrmData();
-  }, 15000);
+  }, 5000);
 });
 
 // ── Red Neural ────────────────────────────────────────────────────────────────
