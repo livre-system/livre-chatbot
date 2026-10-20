@@ -10,6 +10,7 @@ async function apiCrm(path, options = {}) {
   const res = await fetch(HASH_CLOUD_URL + '/crm/' + path, {
     headers: { 'Authorization': 'Bearer ' + token },
     signal: options.signal,
+    cache: 'no-store',
   });
   if (!res.ok) throw new Error('Error ' + res.status);
   return await res.json();
@@ -68,6 +69,15 @@ let vehicleTypesPromise;
 let crmLoadController;
 let crmLoadSequence = 0;
 const driverFilters = { code: '', name: '', phone: '', email: '', vehicle: '' };
+const TRAVEL_STATE_FILTERS = [
+  'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED',
+  'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION',
+  'SCHEDULED-SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED',
+  'NO_AUTH-NO_PAY',
+  'LOST',
+  'CANCELLED',
+  'DONE',
+];
 
 function syncTravelDateFromFilter() {
   const filter = document.getElementById('travel-date-from-filter');
@@ -1004,9 +1014,10 @@ function showCrm(resource) {
   document.getElementById('crm-title').textContent = title[0];
   document.getElementById('crm-subtitle').textContent = title[1];
   if (resource === 'travels') {
-    travelStateFilter = '';
+    travelStateFilter = TRAVEL_STATE_FILTERS[0];
     document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
-      button.classList.toggle('active', Boolean(travelStateFilter) && index === 0);
+      button.classList.toggle('active', index === 0);
+      button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
     });
   }
   document.getElementById('crm-cards').hidden = true;
@@ -2941,8 +2952,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('crm-resource').addEventListener('change', () => {
     crmOffset = 0;
-    travelStateFilter = '';
-    document.getElementById('client-new-button').hidden = document.getElementById('crm-resource').value !== 'passengers';
+    const resource = document.getElementById('crm-resource').value;
+    travelStateFilter = resource === 'travels' ? TRAVEL_STATE_FILTERS[0] : '';
+    if (resource === 'travels') {
+      document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
+        button.classList.toggle('active', index === 0);
+        button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+      });
+    }
+    document.getElementById('client-new-button').hidden = resource !== 'passengers';
     loadCrmData();
   });
   const reloadFromStart = () => {
@@ -2967,24 +2985,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-driver-close').addEventListener('click', closeNewDriverModal);
   document.getElementById('new-driver-modal').addEventListener('click', event => { if (event.target.id === 'new-driver-modal') closeNewDriverModal(); });
   document.getElementById('new-driver-email-confirm').addEventListener('click', event => confirmManagedEmail('new-driver-email', 'DRIVER', 'new-driver-status', event.currentTarget));
-  const travelStates = [
-    'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED',
-    'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION',
-    'SCHEDULED-SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED',
-    'NO_AUTH-NO_PAY',
-    'LOST',
-    'CANCELLED',
-    'DONE',
-  ];
   document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
     button.addEventListener('click', () => {
-      travelStateFilter = travelStates[index] || '';
+      travelStateFilter = TRAVEL_STATE_FILTERS[index] || '';
       crmOffset = 0;
       syncTravelDateFromFilter();
-      document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach(item => item.classList.remove('active'));
-      button.classList.add('active');
+      document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach(item => {
+        item.classList.toggle('active', item === button);
+        item.setAttribute('aria-selected', item === button ? 'true' : 'false');
+      });
       loadCrmData();
     });
+  });
+  document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
+    button.setAttribute('role', 'tab');
+    button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
   });
   syncTravelDateFromFilter();
   checkAuth();
