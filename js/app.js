@@ -79,6 +79,20 @@ const TRAVEL_STATE_FILTERS = [
   'DONE',
 ];
 
+function currentLocalDate() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+}
+
+function resetTravelDateFilterToToday() {
+  const today = currentLocalDate();
+  const from = document.getElementById('travel-management-date-from');
+  const to = document.getElementById('travel-management-date');
+  from.value = today;
+  to.value = today;
+}
+
 function syncTravelDateFromFilter() {
   const filter = document.getElementById('travel-date-from-filter');
   const input = document.getElementById('travel-management-date-from');
@@ -1014,6 +1028,7 @@ function showCrm(resource) {
   document.getElementById('crm-title').textContent = title[0];
   document.getElementById('crm-subtitle').textContent = title[1];
   if (resource === 'travels') {
+    resetTravelDateFilterToToday();
     travelStateFilter = TRAVEL_STATE_FILTERS[0];
     document.getElementById('travel-management-table')?.replaceChildren();
     document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
