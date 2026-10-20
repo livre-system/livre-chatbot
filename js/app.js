@@ -3019,6 +3019,7 @@ document.addEventListener('DOMContentLoaded', () => {
     button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
   });
   syncTravelDateFromFilter();
+  resetTravelDateFilterToToday();
   checkAuth();
   setInterval(() => {
     const resource = document.getElementById('crm-resource')?.value;
