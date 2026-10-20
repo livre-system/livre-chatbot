@@ -8,7 +8,8 @@ const HASH_CLOUD_URL = 'https://livre-cloud-production.up.railway.app';
 async function apiCrm(path, options = {}) {
   const token = getToken();
   const res = await fetch(HASH_CLOUD_URL + '/crm/' + path, {
-    headers: { 'Authorization': 'Bearer ' + token },
+    ...options,
+    headers: { 'Authorization': 'Bearer ' + token, ...(options.headers || {}) },
     signal: options.signal,
     cache: 'no-store',
   });
@@ -963,13 +964,29 @@ async function loadAgencyCommissions() {
       ['Viajes', totals.trips], ['Vehículos', totals.vehicles], ['Total liquidado', totals.total],
       ['Comisión', totals.commission], ['Porcentaje', totals.commission_percent == null ? '—' : `${totals.commission_percent}%`],
     ].map(([label, value]) => `<article class="crm-card"><strong>${crmEscape(value)}</strong><span>${label}</span></article>`).join('');
-    const rows = (data.items || []).map(row => `<tr><td>${crmEscape(row.travel_id)}</td><td>${crmEscape(row.vehicle)}</td><td>${crmEscape(row.vehicle_model)}</td><td>${crmEscape(row.owner)}</td><td>${crmEscape(row.total)}</td><td>${crmEscape(row.commission)}</td><td>${crmEscape(row.commission_percent)}%</td></tr>`).join('');
-    document.getElementById('agency-commissions-table').innerHTML = rows ? `<div class="vehicle-table-scroll"><table><thead><tr><th>Viaje</th><th>Vehículo</th><th>Modelo</th><th>Propietario</th><th>Total</th><th>Comisión</th><th>%</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="crm-empty">No hay liquidaciones para el período seleccionado.</p>';
+    const rows = (data.items || []).map(row => `<tr><td>${crmEscape(row.travel_id)}</td><td>${crmEscape(row.vehicle)}</td><td>${crmEscape(row.vehicle_model)}</td><td>${crmEscape(row.owner)}</td><td>${crmEscape(row.total)}</td><td>${crmEscape(row.commission)}</td><td>${crmEscape(row.commission_percent)}%</td><td>${row.settled ? 'Liquidada' : 'Pendiente'}</td></tr>`).join('');
+    document.getElementById('agency-commissions-table').innerHTML = rows ? `<div class="vehicle-table-scroll"><table><thead><tr><th>Viaje</th><th>Vehículo</th><th>Modelo</th><th>Propietario</th><th>Total</th><th>Comisión</th><th>%</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="crm-empty">No hay viajes Premium completados para el período seleccionado.</p>';
     status.textContent = `${data.total || 0} liquidación(es) encontradas.`;
   } catch (error) {
     status.textContent = 'No se pudieron cargar las comisiones.';
     console.error(error);
   }
+}
+
+async function settleAgencyCommissions() {
+  const status = document.getElementById('agency-commissions-status');
+  const button = document.getElementById('agency-commissions-settle');
+  if (!window.confirm('¿Liquidar únicamente viajes Premium completados pendientes?')) return;
+  button.disabled = true;
+  status.textContent = 'Liquidando viajes Premium...';
+  try {
+    const data = await apiCrm('agency-commissions/settle', { method: 'POST' });
+    status.textContent = `${data.settled_count || 0} viaje(s) Premium liquidado(s).`;
+    await loadAgencyCommissions();
+  } catch (error) {
+    status.textContent = 'No se pudieron liquidar las comisiones.';
+    console.error(error);
+  } finally { button.disabled = false; }
 }
 
 function formatClosureMoney(value) {
@@ -2968,6 +2985,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('map-view-refresh').addEventListener('click', loadMapViewer);
   document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
+  document.getElementById('agency-commissions-settle').addEventListener('click', settleAgencyCommissions);
   document.getElementById('shift-closures-apply').addEventListener('click', loadDriverShiftClosures);
   ['operational-driver-search'].forEach(id => {
     const control = document.getElementById(id);
