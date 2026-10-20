@@ -70,12 +70,12 @@ let crmLoadController;
 let crmLoadSequence = 0;
 const driverFilters = { code: '', name: '', phone: '', email: '', vehicle: '' };
 const TRAVEL_STATE_FILTERS = [
-  'SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED-RESERVED',
+  'SEARCHING_DRIVER',
   'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION',
-  'SCHEDULED-SEARCHING_DRIVER-WITH_DRIVER_ASSIGNED',
-  'NO_AUTH-NO_PAY',
+  'SCHEDULED',
+  'IN_CONFLICT',
   'LOST',
-  'CANCELLED',
+  'CANCELED-CANCELLED',
   'DONE',
 ];
 
@@ -1015,6 +1015,7 @@ function showCrm(resource) {
   document.getElementById('crm-subtitle').textContent = title[1];
   if (resource === 'travels') {
     travelStateFilter = TRAVEL_STATE_FILTERS[0];
+    document.getElementById('travel-management-table')?.replaceChildren();
     document.querySelectorAll('#travel-management-view .travel-status-tabs button').forEach((button, index) => {
       button.classList.toggle('active', index === 0);
       button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
@@ -2959,6 +2960,7 @@ document.addEventListener('DOMContentLoaded', () => {
         button.classList.toggle('active', index === 0);
         button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
       });
+      document.getElementById('travel-management-table')?.replaceChildren();
     }
     document.getElementById('client-new-button').hidden = resource !== 'passengers';
     loadCrmData();
