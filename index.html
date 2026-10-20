@@ -51,6 +51,7 @@
         <button type="button" class="main-nav-item" data-view="vehicle-owners">Propietarios</button>
         <button type="button" class="main-nav-item" data-view="passengers">Clientes</button>
         <button type="button" class="main-nav-item" data-view="agency-commissions">Comisiones de agencia</button>
+        <button type="button" class="main-nav-item" data-view="driver-shift-closures">Historial y cierres</button>
         <button type="button" class="main-nav-item" data-view="conversations">Conversaciones</button>
       </nav>
       <div class="sidebar-account-actions">
@@ -131,6 +132,16 @@
           <div id="agency-commissions-totals" class="crm-cards"></div>
           <div id="agency-commissions-status" class="crm-status" aria-live="polite"></div>
           <div id="agency-commissions-table" class="vehicle-management-table"></div>
+        </div>
+        <div id="driver-shift-closures-view" hidden aria-label="Historial y cierres">
+          <div class="vehicle-page-heading"><h2>Historial y cierres</h2><p>Cierres de turno registrados en Livre Cloud.</p></div>
+          <div class="agency-commissions-toolbar">
+            <label>Desde <input type="date" id="shift-closures-from"></label>
+            <label>Hasta <input type="date" id="shift-closures-to"></label>
+            <button type="button" class="vehicle-new-button" id="shift-closures-apply">Consultar</button>
+          </div>
+          <div id="shift-closures-status" class="crm-status" aria-live="polite"></div>
+          <div id="shift-closures-table" class="vehicle-management-table"></div>
         </div>
         <div id="conversations-view" hidden aria-label="Conversaciones">
           <div class="vehicle-page-heading"><h2>Conversaciones</h2><p>Transcripciones y chats almacenados en Livre Cloud.</p></div>

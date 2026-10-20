@@ -11,7 +11,14 @@ test('CRM backend reads historical entities from local Livre tables', () => {
     assert.match(cloudRouter, new RegExp(`_local_page\\(cur, "${table}"`));
   }
   assert.match(cloudRouter, /FROM livre_crm_vehicles/);
-  assert.doesNotMatch(cloudRouter, /magiis.*(?:passengers|vehicle|driver)/i);
+  assert.doesNotMatch(cloudRouter, /(?:magiis_passengers|magiis_vehicles|magiis_drivers)/i);
+});
+
+test('CRM exposes the local driver shift closure history', () => {
+  assert.match(cloudRouter, /@router\.get\("\/driver-shift-closures"\)/);
+  assert.match(cloudRouter, /FROM livre_driver_shift_closures/);
+  assert.match(app, /showDriverShiftClosures\(\)/);
+  assert.match(app, /driver-shift-closures\?/);
 });
 
 test('driver endpoint exposes every local driver-vehicle link', () => {

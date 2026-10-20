@@ -386,7 +386,7 @@ function showMapViewer() {
   crmMode = 'map';
   document.getElementById('crm-title').textContent = 'Visor de mapa';
   document.getElementById('crm-subtitle').textContent = 'Ubicación en tiempo real de la operación.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'conversations-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('map-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -887,7 +887,7 @@ function showConversations() {
   crmVisible = true;
   document.getElementById('crm-title').textContent = 'Conversaciones';
   document.getElementById('crm-subtitle').textContent = 'Transcripciones y chats almacenados en Livre Cloud.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('conversations-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -925,11 +925,50 @@ async function loadAgencyCommissions() {
   }
 }
 
+function formatClosureMoney(value) {
+  if (value === null || value === undefined) return '—';
+  return `ARS ${new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0)}`;
+}
+
+async function loadDriverShiftClosures() {
+  const status = document.getElementById('shift-closures-status');
+  const from = document.getElementById('shift-closures-from').value;
+  const to = document.getElementById('shift-closures-to').value;
+  if (from && to && from > to) { status.textContent = 'La fecha Desde no puede ser posterior a la fecha Hasta.'; return; }
+  status.textContent = 'Consultando Livre Cloud...';
+  try {
+    const params = new URLSearchParams({ date_from: from, date_to: to, size: '50' });
+    const data = await apiCrm('driver-shift-closures?' + params.toString());
+    const columns = ['Fecha', 'Chofer', 'Vehículo', 'Viajes', 'Total facturado', 'Conductor', 'Comisión'];
+    const rows = (data.items || []).map(row => `<tr><td>${crmEscape(row.closure_date)}</td><td>${crmEscape(row.driver_name)}</td><td>${crmEscape((row.vehicle_labels || []).join(', '))}</td><td>${crmEscape(row.trip_count)}</td><td>${crmEscape(formatClosureMoney(row.total_revenue))}</td><td>${crmEscape(formatClosureMoney(row.driver_revenue))}</td><td>${crmEscape(formatClosureMoney(row.commission))}</td></tr>`).join('');
+    document.getElementById('shift-closures-table').innerHTML = rows ? `<div class="vehicle-table-scroll"><table><thead><tr>${columns.map(column => `<th>${crmEscape(column)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="crm-empty">No hay cierres para el período seleccionado.</p>';
+    status.textContent = `${data.total || 0} cierre(s) encontrados.`;
+  } catch (error) { status.textContent = 'No se pudieron cargar los cierres.'; console.error(error); }
+}
+
+function showDriverShiftClosures() {
+  crmVisible = true;
+  document.getElementById('crm-title').textContent = 'Historial y cierres';
+  document.getElementById('crm-subtitle').textContent = 'Cierres registrados en Livre Cloud.';
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  document.getElementById('driver-shift-closures-view').hidden = false;
+  document.getElementById('message-list').hidden = true;
+  document.getElementById('composer').hidden = true;
+  document.getElementById('travel-form-view').hidden = true;
+  document.getElementById('crm-dashboard').hidden = false;
+  const today = new Date().toISOString().slice(0, 10);
+  const from = document.getElementById('shift-closures-from');
+  const to = document.getElementById('shift-closures-to');
+  if (!from.value) from.value = today;
+  if (!to.value) to.value = today;
+  loadDriverShiftClosures();
+}
+
 function showAgencyCommissions() {
   crmVisible = true;
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
   document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde Livre Cloud.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('agency-commissions-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -971,6 +1010,7 @@ function showCrm(resource) {
   document.getElementById('vehicle-management-view').hidden = crmMode !== 'resource' || resource !== 'vehicles';
   document.getElementById('owner-management-view').hidden = true;
   document.getElementById('agency-commissions-view').hidden = true;
+  document.getElementById('driver-shift-closures-view').hidden = true;
   document.getElementById('operational-view').hidden = crmMode !== 'control';
   document.getElementById('map-view').hidden = true;
   document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && (resource === 'travels' || resource === 'vehicles' || resource === 'drivers'));
@@ -997,6 +1037,7 @@ function showVehicleOwnerManagement() {
   document.getElementById('vehicle-management-view').hidden = true;
   document.getElementById('owner-management-view').hidden = false;
   document.getElementById('agency-commissions-view').hidden = true;
+  document.getElementById('driver-shift-closures-view').hidden = true;
   document.getElementById('operational-view').hidden = true;
   document.querySelector('.crm-toolbar').hidden = true;
   document.getElementById('crm-table-wrap').hidden = true;
@@ -2794,6 +2835,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showCrm(view);
       } else if (view === 'agency-commissions') {
         showAgencyCommissions();
+      } else if (view === 'driver-shift-closures') {
+        showDriverShiftClosures();
       } else if (view === 'conversations') {
         showConversations();
       } else if (view === 'vehicle-owners') {
@@ -2840,6 +2883,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
   document.getElementById('map-view-refresh').addEventListener('click', loadMapViewer);
   document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
+  document.getElementById('shift-closures-apply').addEventListener('click', loadDriverShiftClosures);
   ['operational-driver-search', 'operational-show-driver-id', 'operational-show-vehicle-id'].forEach(id => {
     const control = document.getElementById(id);
     if (control) control.addEventListener(control.type === 'search' ? 'input' : 'change', () => { if (operationalSnapshot) renderOperationalDashboard(operationalSnapshot); });
