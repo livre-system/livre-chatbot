@@ -213,11 +213,18 @@
     </div>
   </div>
 
-      <section id="message-list" aria-live="polite"></section>
-
-      <footer id="composer">
-        <div class="input-wrapper"><textarea id="message-input" rows="1"></textarea><button type="button" id="voice-btn" aria-label="Hablar con Hash">🎤</button><button type="button" id="message-submit">Enviar</button></div>
-      </footer>
+      <div id="chat-workspace">
+        <aside id="chat-history" aria-label="Conversaciones de LIVI IA">
+          <div class="chat-history-header"><strong>Conversaciones</strong><button type="button" id="chat-new-button">＋ Nueva</button></div>
+          <div id="chat-list" role="list"></div>
+        </aside>
+        <div id="chat-panel">
+          <section id="message-list" aria-live="polite"></section>
+          <footer id="composer">
+            <div class="input-wrapper"><textarea id="message-input" rows="1"></textarea><button type="button" id="voice-btn" aria-label="Hablar con Hash">🎤</button><button type="button" id="message-submit">Enviar</button></div>
+          </footer>
+        </div>
+      </div>
     </main>
 
   </div>

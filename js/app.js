@@ -2067,7 +2067,46 @@ function closeSidebar() {
 }
 
 function renderFrontList() {
-  // La navegación principal reemplaza el historial de conversaciones.
+  const list = document.getElementById('chat-list');
+  if (!list) return;
+  list.replaceChildren();
+  if (!FRONTS.length) {
+    const empty = document.createElement('p');
+    empty.className = 'chat-list-empty';
+    empty.textContent = 'Todavía no hay conversaciones.';
+    list.appendChild(empty);
+    return;
+  }
+  FRONTS.forEach(front => {
+    const row = document.createElement('div');
+    row.className = 'chat-list-row' + (front.chat_id === activeChatId ? ' chat-list-row--active' : '');
+    row.setAttribute('role', 'listitem');
+    const select = document.createElement('button');
+    select.type = 'button';
+    select.className = 'chat-list-select';
+    select.textContent = front.name || 'Nueva conversación';
+    select.title = select.textContent;
+    select.onclick = async () => {
+      activeChatId = front.chat_id;
+      activeFrontId = activeChatId;
+      localStorage.setItem('hash_active_chat', activeChatId);
+      messages = [];
+      renderFrontList();
+      renderHeader();
+      await syncFront(activeChatId);
+    };
+    const actions = document.createElement('div');
+    actions.className = 'chat-list-actions';
+    const rename = document.createElement('button');
+    rename.type = 'button'; rename.className = 'chat-list-action'; rename.textContent = '✎'; rename.title = 'Renombrar';
+    rename.onclick = () => openRenameModal(front);
+    const remove = document.createElement('button');
+    remove.type = 'button'; remove.className = 'chat-list-action chat-list-action--danger'; remove.textContent = '×'; remove.title = 'Eliminar';
+    remove.onclick = () => confirmDeleteFront(front);
+    actions.append(rename, remove);
+    row.append(select, actions);
+    list.appendChild(row);
+  });
 }
 
 function renderHeader() {
@@ -2489,6 +2528,12 @@ function initApp() {
   if (syncBtn) syncBtn.addEventListener('click', () => syncFront(activeFrontId));
 
 
+
+  document.getElementById('chat-new-button').addEventListener('click', () => {
+    openNewChat();
+    document.querySelectorAll('#main-navigation .main-nav-item').forEach(item => item.classList.remove('main-nav-item--active'));
+    document.querySelector('#main-navigation [data-view="livi"]').classList.add('main-nav-item--active');
+  });
 
   document.getElementById('message-submit').addEventListener('click', async () => {
     const input = document.getElementById('message-input');
