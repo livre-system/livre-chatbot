@@ -21,6 +21,10 @@ test('CRM exposes the local driver shift closure history', () => {
   assert.match(app, /driver-shift-closures\?/);
 });
 
+test('CRM no muestra el canal Base / Handie en los items', () => {
+  assert.doesNotMatch(app, /base-handie|Base \/ Handie/i);
+});
+
 test('driver endpoint exposes every local driver-vehicle link', () => {
   assert.match(cloudRouter, /ARRAY_AGG\(DISTINCT vehicle_label/);
   assert.match(cloudRouter, /"vehicles": vehicles/);
