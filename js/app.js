@@ -341,9 +341,13 @@ function renderOperationalMap(items, targetId = 'operational-map') {
     requestAnimationFrame(() => requestAnimationFrame(() => operationalMap?.invalidateSize()));
   }
   operationalMarkerGroup.clearLayers();
-  const points = items.map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+  const points = items.filter(isLiveMapLocation).map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
   const vehicleIcon = L.divIcon({ className: 'operational-vehicle-marker', html: '<span aria-hidden="true">🚗</span>', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15] });
   points.forEach(({ item, lat, lng }) => L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape(item.driverName || [item.firstName, item.lastName].filter(Boolean).join(' ') || 'Conductor')}</strong><br>${crmEscape(item.vehicle?.plate || item.vehicle?.domain || 'Sin vehículo')}<br><strong>${crmEscape(operationalStateLabel(item))}</strong><br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(operationalMarkerGroup));
+}
+
+function isLiveMapLocation(item) {
+  return item?.sessionActive === true;
 }
 
 async function loadMapViewer() {
@@ -353,8 +357,16 @@ async function loadMapViewer() {
   try {
     const snapshot = await apiCrm('operational');
     const items = snapshot.drivers || snapshot.drivers_by_vehicle || snapshot.driver_statuses || [];
-    const list = Array.isArray(items) ? items : items.items || items.content || items.page?.content || [];
-    const totals = snapshot.driver_totals || {};
+    const rawList = Array.isArray(items) ? items : items.items || items.content || items.page?.content || [];
+    // El visor es operativo: no reutiliza posiciones de sesiones históricas.
+    const list = rawList.filter(isLiveMapLocation);
+    const totals = {
+      available: list.filter(item => operationalFilterMatches(item, 'DISPONIBLE')).length,
+      unavailable: list.filter(item => operationalFilterMatches(item, 'NO DISPONIBLE')).length,
+      out_of_service: list.filter(item => operationalFilterMatches(item, 'FUERA DE SERVICIO')).length,
+      totalDriversInTravel: list.filter(item => operationalFilterMatches(item, 'EN VIAJE')).length,
+      totalDrivers: list.length,
+    };
     const filters = [
       ['TODOS', 'TODOS', totals.totalDrivers ?? list.length],
       ['DISPONIBLE', 'DISPONIBLES', totals.available ?? '—'],

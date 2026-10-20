@@ -30,6 +30,13 @@ describe('CRM operational status contract', () => {
     assert.match(app, /assigned.*arriving.*in_progress/);
   });
 
+  it('does not render historical driver sessions in the map viewer', () => {
+    assert.match(app, /function isLiveMapLocation\(item\)/);
+    assert.match(app, /items\.filter\(isLiveMapLocation\)\.map/);
+    assert.match(app, /const list = rawList\.filter\(isLiveMapLocation\)/);
+    assert.match(app, /sessionActive === true/);
+  });
+
   it('exposes the CRM control and does not couple it to GPS or trip polling', () => {
     assert.match(index, /operational-status-filters/);
     assert.match(app, /class="operational-status-control"/);
