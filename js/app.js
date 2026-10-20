@@ -1388,7 +1388,7 @@ async function createTravelFromForm(event) {
     }
 
     status.textContent = result || 'Viaje creado correctamente.';
-    const tripCreated = /Viaje pedido correctamente|Viaje ya registrado|Viaje creado correctamente/i.test(result);
+    const tripCreated = /Viaje (pedido|registrado|ya registrado|creado correctamente)/i.test(result);
     cancelButton.hidden = !tripCreated;
     form.reset();
     quoteBox.hidden = true;
