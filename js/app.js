@@ -286,7 +286,7 @@ function renderOperationalDashboard(snapshot) {
     ['Choferes visibles', totalDrivers, 'operational-kpi--primary', 'Cuentas activas en esta vista'],
     ['Disponibles', availableDrivers, '', 'Listos para recibir viaje'],
     ['En viaje', inTravelDrivers, '', 'Viaje activo no terminal'],
-    ['GPS actualizado', liveGpsDrivers, '', 'Últimos 2 minutos'],
+    ['Sesión GPS activa', liveGpsDrivers, '', 'Choferes con sesión activa'],
   ];
   document.getElementById('operational-kpis').innerHTML = kpis.map(([label, amount, modifier, note]) =>
     `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong><small>${crmEscape(note)}</small></article>`
