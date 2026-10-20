@@ -2317,6 +2317,11 @@ body {
 .distribution-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .distribution-chart { min-height: 300px; padding: 11px; border: 1px solid #dce2e3; border-radius: 3px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); text-align: center; color: #7b858a; font-size: .7rem; }
 .chart-grid { display: grid; place-items: center; height: 255px; margin-top: 10px; border: 1px solid #f0f2f2; color: #a6afb3; background: repeating-linear-gradient(to right, transparent 0, transparent 7%, #eef1f1 7.2%, transparent 7.4%), repeating-linear-gradient(to bottom, transparent 0, transparent 19%, #eef1f1 19.2%, transparent 19.4%); }
+.distribution-bars { display: flex !important; align-items: end; justify-content: space-around; gap: 2px; padding: 12px 8px 0; overflow-x: auto; color: #7b858a; }
+.distribution-bar { display: flex; align-items: center; justify-content: end; position: relative; flex: 1 0 20px; height: 100%; min-width: 20px; flex-direction: column; gap: 3px; }
+.distribution-bar i { display: block; width: min(22px, 80%); min-height: 2px; border-radius: 3px 3px 0 0; background: #a6c83f; }
+.distribution-bar-value { min-height: 12px; font-size: .62rem; color: #56606b; }
+.distribution-bar small { white-space: nowrap; font-size: .55rem; transform: rotate(-45deg); transform-origin: top right; margin-top: 5px; }
 @media (max-width: 800px) { .distribution-charts { grid-template-columns: 1fr; } }
 
 #crm-dashboard { flex: 1; overflow: auto; padding: 28px clamp(18px, 4vw, 56px); background: var(--black); }

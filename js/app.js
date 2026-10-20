@@ -720,6 +720,23 @@ async function createManagedVehicle() {
   } catch (error) { status.textContent = error.message; } finally { submit.disabled = false; }
 }
 
+function renderTravelDistribution(distribution = {}) {
+  const render = (elementId, points, formatLabel) => {
+    const target = document.getElementById(elementId);
+    if (!target) return;
+    const values = Array.isArray(points) ? points : [];
+    const max = Math.max(1, ...values.map(point => Number(point.total) || 0));
+    target.classList.add('distribution-bars');
+    target.innerHTML = values.length ? values.map(point => {
+      const total = Number(point.total) || 0;
+      const label = formatLabel(point.label);
+      return `<div class="distribution-bar" title="${crmEscape(`${label}: ${total} viajes`)}"><span class="distribution-bar-value">${total}</span><i style="height:${Math.max(2, (total / max) * 100)}%"></i><small>${crmEscape(label)}</small></div>`;
+    }).join('') : '<span>Sin datos de distribución</span>';
+  };
+  render('travel-distribution-hourly', distribution.hourly, label => String(label || '').slice(11, 16));
+  render('travel-distribution-daily', distribution.daily, label => String(label || '').slice(5));
+}
+
 function renderTravelManagement(data, summary) {
   const table = document.getElementById('travel-management-table');
   const stateLabels = {
@@ -764,6 +781,7 @@ function renderTravelManagement(data, summary) {
   });
   const sync = summary.last_sync && (summary.last_sync.finished_at || summary.last_sync.started_at);
   document.getElementById('travel-management-sync').textContent = sync ? `Última actualización: ${sync}` : 'Última actualización: —';
+  renderTravelDistribution(data.distribution);
 }
 async function cancelManagedTravel(button) {
   const travelId = button.dataset.travelCancel;
