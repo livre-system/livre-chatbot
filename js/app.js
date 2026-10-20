@@ -216,6 +216,7 @@ let operationalMap = null;
 let operationalMapContainerId = null;
 let operationalMarkerGroup = null;
 let mapViewerFilter = 'TODOS';
+let operationalStatusFilter = 'EN VIAJE';
 
 function isDriverInTravel(item) {
   return ['assigned', 'arriving', 'in_progress'].includes(String(item.tripStatus || '').toLowerCase());
@@ -294,7 +295,7 @@ function renderOperationalDashboard(snapshot) {
 
   const stateLabel = operationalStateLabel;
   const search = (document.getElementById('operational-driver-search')?.value || '').toLowerCase();
-  const activeFilter = document.querySelector('#operational-status-filters button.active')?.dataset.filter || 'TODOS';
+  const activeFilter = document.querySelector('#operational-status-filters button.active')?.dataset.filter || operationalStatusFilter;
   const filtered = items.filter(item => {
     const vehicle = item.vehicle || {};
     const text = [item.driverIdForCarrier, item.driverUserId, item.firstName, item.lastName, vehicle.domain, vehicle.model, vehicle.mark].join(' ').toLowerCase();
@@ -315,7 +316,7 @@ function renderOperationalDashboard(snapshot) {
   const filters = [['TODOS', totals.totalDrivers ?? items.length], ['DISPONIBLE', totals.available ?? items.filter(i => stateLabel(i) === 'DISPONIBLE').length], ['NO DISPONIBLE', totals.unavailable ?? items.filter(i => stateLabel(i) === 'NO DISPONIBLE').length], ['FUERA DE SERVICIO', totals.out_of_service ?? items.filter(i => stateLabel(i) === 'FUERA DE SERVICIO').length], ['EN VIAJE', totals.totalDriversInTravel ?? items.filter(i => stateLabel(i) === 'EN VIAJE').length]];
   const filterNode = document.getElementById('operational-status-filters');
   filterNode.innerHTML = filters.map(([label, count]) => `<button type="button" data-filter="${label}" class="${label === activeFilter ? 'active' : ''}">${label}<b>${crmEscape(count)}</b></button>`).join('');
-  filterNode.querySelectorAll('button').forEach(button => button.addEventListener('click', () => { filterNode.querySelectorAll('button').forEach(b => b.classList.remove('active')); button.classList.add('active'); renderOperationalDashboard(operationalSnapshot); }));
+  filterNode.querySelectorAll('button').forEach(button => button.addEventListener('click', () => { operationalStatusFilter = button.dataset.filter || 'EN VIAJE'; filterNode.querySelectorAll('button').forEach(b => b.classList.remove('active')); button.classList.add('active'); renderOperationalDashboard(operationalSnapshot); }));
   renderOperationalMap(items);
 }
 

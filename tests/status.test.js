@@ -30,6 +30,12 @@ describe('CRM operational status contract', () => {
     assert.match(app, /assigned.*arriving.*in_progress/);
   });
 
+  it('starts the operational list filtered to drivers in travel', () => {
+    assert.match(app, /let operationalStatusFilter = 'EN VIAJE'/);
+    assert.match(app, /\|\| operationalStatusFilter/);
+    assert.match(app, /operationalStatusFilter = button\.dataset\.filter \|\| 'EN VIAJE'/);
+  });
+
   it('does not render historical driver sessions in the map viewer', () => {
     assert.match(app, /function isLiveMapLocation\(item\)/);
     assert.match(app, /items\.filter\(isLiveMapLocation\)\.map/);
