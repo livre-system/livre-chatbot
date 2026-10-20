@@ -1612,19 +1612,21 @@ async function apiGetMessages(chatId) {
 
 async function apiRenameChat(chatId, title) {
   const token = getToken();
-  await fetch(HASH_CLOUD_URL + '/chat/' + chatId + '/title', {
+  const res = await fetch(HASH_CLOUD_URL + '/chat/' + chatId + '/title', {
     method: 'PATCH',
     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
     body: JSON.stringify({ title }),
   });
+  if (!res.ok) throw new Error('Error ' + res.status);
 }
 
 async function apiDeleteChat(chatId) {
   const token = getToken();
-  await fetch(HASH_CLOUD_URL + '/chat/' + chatId, {
+  const res = await fetch(HASH_CLOUD_URL + '/chat/' + chatId, {
     method: 'DELETE',
     headers: { 'Authorization': 'Bearer ' + token },
   });
+  if (!res.ok) throw new Error('Error ' + res.status);
 }
 
 async function askHash(messages, onChunk) {
@@ -1745,12 +1747,15 @@ async function syncFront(chatId) {
 
 
 
-function openNewChat() {
-  activeChatId = null;
-  activeFrontId = null;
-  localStorage.removeItem('hash_active_chat');
+async function openNewChat() {
+  const chat = await apiNewChat();
+  const front = { id: chat.chat_id, name: chat.title || 'Nueva conversación', chat_id: chat.chat_id };
+  FRONTS = [front, ...FRONTS.filter(item => item.chat_id !== front.chat_id)];
+  activeChatId = front.chat_id;
+  activeFrontId = front.chat_id;
   messages = [];
-  // Quitar selección activa del sidebar sin agregar item temporal
+  chatCache[front.chat_id] = [];
+  localStorage.setItem('hash_active_chat', activeChatId);
   renderFrontList();
   renderHeader();
   renderMessages();
@@ -2086,15 +2091,7 @@ function renderFrontList() {
     select.className = 'chat-list-select';
     select.textContent = front.name || 'Nueva conversación';
     select.title = select.textContent;
-    select.onclick = async () => {
-      activeChatId = front.chat_id;
-      activeFrontId = activeChatId;
-      localStorage.setItem('hash_active_chat', activeChatId);
-      messages = [];
-      renderFrontList();
-      renderHeader();
-      await syncFront(activeChatId);
-    };
+    select.onclick = () => selectFront(front.chat_id);
     const actions = document.createElement('div');
     actions.className = 'chat-list-actions';
     const rename = document.createElement('button');
@@ -2529,10 +2526,19 @@ function initApp() {
 
 
 
-  document.getElementById('chat-new-button').addEventListener('click', () => {
-    openNewChat();
-    document.querySelectorAll('#main-navigation .main-nav-item').forEach(item => item.classList.remove('main-nav-item--active'));
-    document.querySelector('#main-navigation [data-view="livi"]').classList.add('main-nav-item--active');
+  document.getElementById('chat-new-button').addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    try {
+      await openNewChat();
+      document.querySelectorAll('#main-navigation .main-nav-item').forEach(item => item.classList.remove('main-nav-item--active'));
+      document.querySelector('#main-navigation [data-view="livi"]').classList.add('main-nav-item--active');
+    } catch (err) {
+      setSyncStatus('error', 'No se pudo crear la conversación. Intentá de nuevo.');
+      console.error('openNewChat error:', err);
+    } finally {
+      button.disabled = false;
+    }
   });
 
   document.getElementById('message-submit').addEventListener('click', async () => {
