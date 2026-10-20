@@ -2364,11 +2364,16 @@ html[data-theme="dark"] body, html[data-theme="dark"] .main-content { background
 .header-actions button, #theme-toggle { border:1px solid var(--border); border-radius:999px; background:var(--graphite); color:var(--text); padding:9px 13px; font-weight:600; cursor:pointer; }
 #theme-toggle { color:var(--lime); }
 #operational-view { --op-accent:#e8003d; }
-.operational-kpis { gap:14px; }
+.operational-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap:14px; }
 .operational-kpi { min-height:112px; border-radius:14px; border:1px solid var(--border); background:var(--graphite); color:var(--text); }
 .operational-kpi span { font-size:.9rem; color:var(--text-dim); }
 .operational-kpi strong { font-size:2rem; color:var(--lime); }
-.operational-section { border-radius:14px; background:var(--graphite); color:var(--text); }
+.operational-kpi small { color:var(--text-faint); font-size:.72rem; }
+.operational-kpi--primary { border-top:3px solid var(--op-accent); }
+.operational-drivers table { min-width:720px; }
+.operational-drivers td small { color:var(--text-faint); }
+@media (max-width:900px) { .operational-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width:640px) { .operational-kpis { grid-template-columns: 1fr 1fr; } }
 .travel-history-table { overflow:auto; border:1px solid var(--border); border-radius:14px; background:var(--graphite); }
 .travel-history-table table { width:100%; min-width:900px; border-collapse:collapse; }
 .travel-history-table th,.travel-history-table td { padding:12px 14px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }

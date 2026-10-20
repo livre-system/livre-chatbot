@@ -274,25 +274,22 @@ async function changeOperationalDriverStatus(driverUserId, status, control) {
 
 function renderOperationalDashboard(snapshot) {
   operationalSnapshot = snapshot;
-  const summary = snapshot.status || {};
   const totals = snapshot.driver_totals || {};
   const dashboard = snapshot.drivers || snapshot.drivers_by_vehicle || snapshot.driver_statuses || [];
   const items = Array.isArray(dashboard) ? dashboard : dashboard.items || dashboard.content || dashboard.page?.content || [];
-  const value = (key) => summary[key] ?? '—';
+  const countByState = state => items.filter(item => operationalStateLabel(item) === state).length;
+  const totalDrivers = totals.totalDrivers ?? items.length;
+  const availableDrivers = totals.available ?? countByState('DISPONIBLE');
+  const inTravelDrivers = totals.totalDriversInTravel ?? countByState('EN VIAJE');
+  const liveGpsDrivers = items.filter(item => item.sessionActive === true).length;
   const kpis = [
-    ['Choferes totales', totals.totalDrivers ?? items.length, 'operational-kpi--primary'],
-    ['Disponibles', totals.totalDriversOnline ?? '—', ''],
-    ['Fuera de servicio', totals.totalDriversOffline ?? '—', ''],
-    ['En viaje', totals.totalDriversInTravel ?? '—', ''],
-    ['Viajes reales realizados', value('travelsQuantity'), ''],
-    ['Pruebas realizadas', value('testTravelsQuantity'), ''],
-    ['Viajes sin clasificar', value('unclassifiedTravelsQuantity'), ''],
-    ['Kilómetros', value('kilometersTotal'), ''],
-    ['Vehículos operando', value('workingVehiclesQuantity'), ''],
-    ['Clientes del día', value('clientsIndividualsAmount'), ''],
+    ['Choferes visibles', totalDrivers, 'operational-kpi--primary', 'Cuentas activas en esta vista'],
+    ['Disponibles', availableDrivers, '', 'Listos para recibir viaje'],
+    ['En viaje', inTravelDrivers, '', 'Viaje activo no terminal'],
+    ['GPS actualizado', liveGpsDrivers, '', 'Últimos 2 minutos'],
   ];
-  document.getElementById('operational-kpis').innerHTML = kpis.map(([label, amount, modifier]) =>
-    `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong></article>`
+  document.getElementById('operational-kpis').innerHTML = kpis.map(([label, amount, modifier, note]) =>
+    `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong><small>${crmEscape(note)}</small></article>`
   ).join('');
 
   const stateLabel = operationalStateLabel;
@@ -303,17 +300,17 @@ function renderOperationalDashboard(snapshot) {
     const text = [item.driverIdForCarrier, item.driverUserId, item.firstName, item.lastName, vehicle.domain, vehicle.model, vehicle.mark].join(' ').toLowerCase();
     return (!search || text.includes(search)) && operationalFilterMatches(item, activeFilter);
   });
-  const showDriverId = document.getElementById('operational-show-driver-id')?.checked;
-  const showVehicleId = document.getElementById('operational-show-vehicle-id')?.checked;
   const rows = filtered.map(item => {
     const vehicle = item.vehicle || {};
-    const name = [item.firstName, item.lastName].filter(Boolean).join(' ').trim() || '—';
+    const name = [item.firstName, item.lastName].filter(Boolean).join(' ').trim() || item.driverName || '—';
     const state = stateLabel(item);
     const stateClass = state === 'DISPONIBLE' ? 'available' : state === 'EN VIAJE' ? 'travel' : state === 'FUERA DE SERVICIO' ? 'out-of-service' : 'unavailable';
+    const gpsLabel = item.sessionActive === true ? 'ACTIVO' : 'SIN SEÑAL';
+    const gpsClass = item.sessionActive === true ? 'available' : 'unavailable';
     const statusOptions = Object.entries(OPERATIONAL_STATUS_LABELS).map(([value, label]) => `<option value="${value}" ${item.operationalStatus === value ? 'selected' : ''}>${label}</option>`).join('');
-    return `<tr><td>${crmEscape(item.driverIdForCarrier ?? item.driverUserId ?? '—')}${showDriverId ? `<small class="operational-id">#${crmEscape(item.driverUserId)}</small>` : ''}</td><td><strong>${crmEscape(name)}</strong></td><td>${crmEscape(vehicle.domain || '—')}${showVehicleId ? `<small class="operational-id">#${crmEscape(vehicle.vehicleId || '—')}</small>` : ''}<small>${crmEscape(`${vehicle.mark || ''} ${vehicle.model || ''}`.trim())}</small></td><td>${crmEscape(vehicle.transportTypeName || '—')}</td><td><span class="vehicle-state vehicle-state--${stateClass}">${state}</span></td><td>${crmEscape(item.currentBase || '—')}</td><td>${crmEscape(item.queueFifoPosition || '—')}</td><td>${crmEscape(item.appVersion || '—')}</td><td><select class="operational-status-control" data-driver-user-id="${crmEscape(item.driverUserId)}" aria-label="Estado operativo">${statusOptions}</select></td></tr>`;
+    return `<tr><td><strong>${crmEscape(name)}</strong><small>${crmEscape(item.driverIdForCarrier ?? item.driverUserId ?? '—')}</small></td><td>${crmEscape(vehicle.plate || vehicle.domain || '—')}<small>${crmEscape(`${vehicle.mark || ''} ${vehicle.model || ''}`.trim())}</small></td><td><span class="vehicle-state vehicle-state--${stateClass}">${state}</span></td><td><span class="vehicle-state vehicle-state--${gpsClass}">${gpsLabel}</span><small>${crmEscape(item.lastSee || 'Sin registro')}</small></td><td><select class="operational-status-control" data-driver-user-id="${crmEscape(item.driverUserId)}" aria-label="Estado operativo">${statusOptions}</select></td></tr>`;
   }).join('');
-  document.getElementById('operational-drivers').innerHTML = `<div class="operational-table-scroll"><table><thead><tr><th>Código</th><th>Nombre</th><th>Vehículo</th><th>Tipo</th><th>Estado</th><th>Sucursal</th><th>Orden</th><th>App v.</th><th>Estado operativo</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No hay choferes para este filtro.</td></tr>'}</tbody></table></div><small>Mostrando ${filtered.length} de ${items.length} choferes.</small>`;
+  document.getElementById('operational-drivers').innerHTML = `<div class="operational-table-scroll"><table><thead><tr><th>Chofer</th><th>Vehículo</th><th>Estado</th><th>GPS</th><th>Actualizar estado</th></tr></thead><tbody>${rows || '<tr><td colspan="5">No hay choferes para este filtro.</td></tr>'}</tbody></table></div><small>Mostrando ${filtered.length} de ${items.length} choferes.</small>`;
   document.querySelectorAll('.operational-status-control').forEach(control => control.addEventListener('change', event => changeOperationalDriverStatus(control.dataset.driverUserId, event.target.value, control)));
   const filters = [['TODOS', totals.totalDrivers ?? items.length], ['DISPONIBLE', totals.available ?? items.filter(i => stateLabel(i) === 'DISPONIBLE').length], ['NO DISPONIBLE', totals.unavailable ?? items.filter(i => stateLabel(i) === 'NO DISPONIBLE').length], ['FUERA DE SERVICIO', totals.out_of_service ?? items.filter(i => stateLabel(i) === 'FUERA DE SERVICIO').length], ['EN VIAJE', totals.totalDriversInTravel ?? items.filter(i => stateLabel(i) === 'EN VIAJE').length]];
   const filterNode = document.getElementById('operational-status-filters');
@@ -2911,9 +2908,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('map-view-refresh').addEventListener('click', loadMapViewer);
   document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
   document.getElementById('shift-closures-apply').addEventListener('click', loadDriverShiftClosures);
-  ['operational-driver-search', 'operational-show-driver-id', 'operational-show-vehicle-id'].forEach(id => {
+  ['operational-driver-search'].forEach(id => {
     const control = document.getElementById(id);
-    if (control) control.addEventListener(control.type === 'search' ? 'input' : 'change', () => { if (operationalSnapshot) renderOperationalDashboard(operationalSnapshot); });
+    if (control) control.addEventListener('input', () => { if (operationalSnapshot) renderOperationalDashboard(operationalSnapshot); });
   });
   document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
   document.getElementById('sidebar-logout').addEventListener('click', logout);
