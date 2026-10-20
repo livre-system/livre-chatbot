@@ -278,21 +278,6 @@ function renderOperationalDashboard(snapshot) {
   const totals = snapshot.driver_totals || {};
   const dashboard = snapshot.drivers || snapshot.drivers_by_vehicle || snapshot.driver_statuses || [];
   const items = Array.isArray(dashboard) ? dashboard : dashboard.items || dashboard.content || dashboard.page?.content || [];
-  const countByState = state => items.filter(item => operationalStateLabel(item) === state).length;
-  const totalDrivers = totals.totalDrivers ?? items.length;
-  const availableDrivers = totals.available ?? countByState('DISPONIBLE');
-  const inTravelDrivers = totals.totalDriversInTravel ?? countByState('EN VIAJE');
-  const liveGpsDrivers = items.filter(item => item.sessionActive === true).length;
-  const kpis = [
-    ['Choferes visibles', totalDrivers, 'operational-kpi--primary', 'Cuentas activas en esta vista'],
-    ['Disponibles', availableDrivers, '', 'Listos para recibir viaje'],
-    ['En viaje', inTravelDrivers, '', 'Viaje activo no terminal'],
-    ['Sesión GPS activa', liveGpsDrivers, '', 'Choferes con sesión activa'],
-  ];
-  document.getElementById('operational-kpis').innerHTML = kpis.map(([label, amount, modifier, note]) =>
-    `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong><small>${crmEscape(note)}</small></article>`
-  ).join('');
-
   const stateLabel = operationalStateLabel;
   const search = (document.getElementById('operational-driver-search')?.value || '').toLowerCase();
   const activeFilter = document.querySelector('#operational-status-filters button.active')?.dataset.filter || operationalStatusFilter;
@@ -301,6 +286,16 @@ function renderOperationalDashboard(snapshot) {
     const text = [item.driverIdForCarrier, item.driverUserId, item.firstName, item.lastName, vehicle.domain, vehicle.model, vehicle.mark].join(' ').toLowerCase();
     return (!search || text.includes(search)) && operationalFilterMatches(item, activeFilter);
   });
+  const countByState = state => filtered.filter(item => operationalStateLabel(item) === state).length;
+  const kpis = [
+    ['Choferes visibles', filtered.length, 'operational-kpi--primary', 'Cuentas activas en esta vista'],
+    ['Disponibles', countByState('DISPONIBLE'), '', 'Listos para recibir viaje'],
+    ['En viaje', countByState('EN VIAJE'), '', 'Viaje activo no terminal'],
+    ['Sesión GPS activa', filtered.filter(item => item.sessionActive === true).length, '', 'Choferes con sesión activa'],
+  ];
+  document.getElementById('operational-kpis').innerHTML = kpis.map(([label, amount, modifier, note]) =>
+    `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong><small>${crmEscape(note)}</small></article>`
+  ).join('');
   const rows = filtered.map(item => {
     const vehicle = item.vehicle || {};
     const name = [item.firstName, item.lastName].filter(Boolean).join(' ').trim() || item.driverName || '—';

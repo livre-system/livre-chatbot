@@ -36,6 +36,14 @@ describe('CRM operational status contract', () => {
     assert.match(app, /operationalStatusFilter = button\.dataset\.filter \|\| 'EN VIAJE'/);
   });
 
+  it('calculates KPI cards from the same filtered rows shown in the table', () => {
+    assert.match(app, /const countByState = state => filtered\.filter/);
+    assert.match(app, /\['Choferes visibles', filtered\.length/);
+    assert.match(app, /\['En viaje', countByState\('EN VIAJE'\)/);
+    assert.match(app, /filtered\.filter\(item => item\.sessionActive === true\)\.length/);
+    assert.doesNotMatch(app, /\['Choferes visibles', totalDrivers/);
+  });
+
   it('does not render historical driver sessions in the map viewer', () => {
     assert.match(app, /function isLiveMapLocation\(item\)/);
     assert.match(app, /items\.filter\(isLiveMapLocation\)\.map/);
