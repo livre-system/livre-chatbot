@@ -331,6 +331,10 @@ body {
   display: flex;
 }
 
+/* El atributo hidden debe retirar el workspace del layout; si no, deja un
+   segundo panel ocupando altura y provoca scroll/clipping en las vistas CRM. */
+#chat-workspace[hidden] { display: none !important; }
+
 #chat-history { display: none; }
 #chat-history {
   width: 250px;
