@@ -41,3 +41,19 @@ test('drivers screen renders local vehicle links', () => {
   assert.match(app, /Array\.isArray\(item\.vehicles\)/);
   assert.match(app, /item\.vehicle\?\.plate/);
 });
+
+test('histórico de viajes usa el contrato real de Livre Cloud y no columnas inexistentes', () => {
+  assert.match(cloudRouter, /@router\.get\("\/travel-history"\)/);
+  for (const field of ['id', 'origen', 'destino', 'status', 'created_at']) {
+    assert.match(cloudRouter, new RegExp(`\\b${field}\\b`));
+    assert.match(app, new RegExp(`\\['${field}',`));
+  }
+  assert.doesNotMatch(app, /\['Col1', 'ID viaje'\]/);
+  assert.match(app, /formatHistoryAmount\(summary\.final_amount_ars\)/);
+});
+
+test('histórico no queda superpuesto al cambiar de sección', () => {
+  assert.match(app, /function hideTravelHistory\(\)/);
+  assert.match(app, /function showCrm\(resource\) \{\s+hideTravelHistory\(\)/);
+  assert.match(app, /function showChat\(\) \{\s+hideTravelHistory\(\)/);
+});

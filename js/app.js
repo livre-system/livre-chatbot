@@ -417,6 +417,7 @@ function setChatWorkspaceVisible(visible) {
 }
 
 function showMapViewer() {
+  hideTravelHistory();
   crmVisible = true;
   setChatWorkspaceVisible(false);
   crmMode = 'map';
@@ -1056,6 +1057,7 @@ function showAgencyCommissions() {
 }
 
 function showCrm(resource) {
+  hideTravelHistory();
   crmVisible = true;
   setChatWorkspaceVisible(false);
   crmMode = resource === 'control' ? 'control' : 'resource';
@@ -1134,6 +1136,7 @@ function hideCrm() {
 }
 
 function showChat() {
+  hideTravelHistory();
   setChatWorkspaceVisible(true);
   document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = true;
@@ -2857,6 +2860,11 @@ document.addEventListener('keydown', event => {
   if (vehicleModal && !vehicleModal.hidden) closeNewVehicleModal();
 });
 
+function hideTravelHistory() {
+  const view = document.getElementById('travel-history-view');
+  if (view) view.hidden = true;
+}
+
 function updateTravelHistoryDateConstraints() {
   const from = document.getElementById('history-date-from');
   const to = document.getElementById('history-date-to');
@@ -2886,27 +2894,34 @@ async function loadTravelHistory() {
   catch (error) { status.textContent = 'No se pudo cargar el historial desde Livre Cloud.'; console.error(error); }
 }
 const TRAVEL_HISTORY_COLUMNS = [
-  ['Col1', 'ID viaje'], ['Col2', 'Código'], ['Col3', 'Fecha'], ['Col4', 'Hora'],
-  ['Col5', 'Chofer'], ['Col6', 'Pasajero'], ['Col7', 'Vehículo'], ['Col8', 'Servicio'],
-  ['Col9', 'Origen'], ['Col10', 'Destino'], ['Col11', 'Precio final'], ['Col12', 'Estado'],
-  ['Col13', 'Forma de pago'], ['Col14', 'Importe'], ['Col15', 'Presupuesto'],
+  ['id', 'ID viaje'], ['created_at', 'Fecha'], ['whatsapp_user', 'Pasajero'],
+  ['tracking_driver_name', 'Chofer'], ['tracking_plate', 'Patente'],
+  ['tracking_vehicle_model', 'Vehículo'], ['origen', 'Origen'], ['destino', 'Destino'],
+  ['status', 'Estado'], ['updated_at', 'Actualizado'],
 ];
 
 function formatHistoryValue(value, key) {
   if (value === null || value === undefined || value === '') return '—';
   if (typeof value === 'object') return JSON.stringify(value);
-  if (/^Col(11|14|15)$/.test(key)) {
-    const number = typeof value === 'number' ? value : Number(String(value).replace(/[$ARS\s.]/g, '').replace(',', '.'));
-    if (Number.isFinite(number)) return `ARS ${new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number)}`;
+  if (key === 'created_at' || key === 'updated_at') {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) return date.toLocaleString('es-AR');
   }
   return String(value);
+}
+
+function formatHistoryAmount(value) {
+  if (value === null || value === undefined || value === '') return '—';
+  const number = Number(value);
+  return Number.isFinite(number)
+    ? `ARS ${new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number)}`
+    : '—';
 }
 
 function renderTravelHistory(items, summary = {}) {
   const root = document.getElementById('travel-history-table'); root.replaceChildren();
   const summaryRoot = document.getElementById('travel-history-summary');
-  const ars = value => `ARS ${new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value) || 0)}`;
-  summaryRoot.innerHTML = `<article><strong>${summary.trips ?? items.length}</strong><span>Viajes</span></article><article><strong>${ars(summary.final_amount_ars)}</strong><span>Importe final</span></article><article><strong>${ars(summary.amount_ars)}</strong><span>Importe total</span></article><article><strong>${ars(summary.budget_ars)}</strong><span>Presupuesto</span></article>`;
+  summaryRoot.innerHTML = `<article><strong>${summary.trips ?? items.length}</strong><span>Viajes</span></article><article><strong>${formatHistoryAmount(summary.final_amount_ars)}</strong><span>Importe final</span></article><article><strong>${formatHistoryAmount(summary.amount_ars)}</strong><span>Importe total</span></article><article><strong>${formatHistoryAmount(summary.budget_ars)}</strong><span>Presupuesto</span></article>`;
   if (!items.length) { root.innerHTML = '<p class="empty-state">No hay viajes para esos filtros.</p>'; return; }
   const available = new Set(items.flatMap(item => Object.keys(item || {})));
   const columns = TRAVEL_HISTORY_COLUMNS.filter(([key]) => available.has(key));
