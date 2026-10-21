@@ -39,7 +39,7 @@
 
     <aside id="sidebar">
       <div id="app-title">
-        <img src="images/logo_livre.png" alt="HASH" id="app-logo">
+        <img src="images/logo_livre.png" alt="LIVRE" id="app-logo">
       </div>
       <nav id="main-navigation" aria-label="Navegación principal">
         <button type="button" class="main-nav-item main-nav-item--active" data-view="control">Operaciones</button>
@@ -109,12 +109,12 @@
         </div>
         <div id="crm-cards" class="crm-cards"></div>
         <div id="driver-management-view" hidden aria-label="Gestión de choferes">
-          <div class="driver-management-actions"><button type="button" class="driver-primary-action" id="driver-new-button">＋ Alta de chofer</button><button type="button" class="crm-livi-context" data-livi-resource="drivers">Consultar a LIVI IA</button></div>
+          <div class="driver-management-actions"><button type="button" class="driver-primary-action" id="driver-new-button">＋ Alta de chofer</button></div>
           <div id="driver-management-table" class="driver-management-table"></div>
         </div>
         <div id="vehicle-management-view" hidden aria-label="Gestión de vehículos">
           <div class="vehicle-page-heading"><h2>Vehículos</h2></div>
-          <div class="vehicle-management-toolbar"><input id="vehicle-management-search" type="search" placeholder="Buscar por dominio, marca o modelo..." autocomplete="off"><button type="button" class="vehicle-new-button">Nuevo Vehículo</button><button type="button" class="crm-livi-context" data-livi-resource="vehicles">Consultar a LIVI IA</button></div>
+          <div class="vehicle-management-toolbar"><input id="vehicle-management-search" type="search" placeholder="Buscar por dominio, marca o modelo..." autocomplete="off"><button type="button" class="vehicle-new-button">Nuevo Vehículo</button></div>
           <div id="vehicle-management-table" class="vehicle-management-table"></div>
         </div>
         <div id="owner-management-view" hidden aria-label="Propietarios">
@@ -151,7 +151,7 @@
           <div id="conversations-table" class="vehicle-management-table"></div>
         </div>
         <div id="travel-management-view" hidden aria-label="Viajes">
-          <div class="travel-management-filters"><input id="travel-management-search" type="search" placeholder="Buscar..." autocomplete="off"><label id="travel-date-from-filter" hidden>Fecha desde <input type="date" id="travel-management-date-from"></label><label>Fecha hasta <input type="date" id="travel-management-date"></label><button type="button" class="crm-livi-context" data-livi-resource="travels">Consultar a LIVI IA</button></div>
+          <div class="travel-management-filters"><input id="travel-management-search" type="search" placeholder="Buscar..." autocomplete="off"><label id="travel-date-from-filter" hidden>Fecha desde <input type="date" id="travel-management-date-from"></label><label>Fecha hasta <input type="date" id="travel-management-date"></label></div>
           <div class="travel-status-tabs" role="tablist"><button class="active" type="button">Asignar <small>1</small></button><button type="button">En curso <small>3</small></button><button type="button">Programados <small>0</small></button><button type="button">En Conflicto <small>0</small></button><button type="button">Perdidas <small>0</small></button><button type="button">Cancelados <small>7</small></button><button type="button">Finalizados <small>100</small></button></div>
           <div id="travel-management-table" class="travel-management-table"></div>
           <div class="travel-distribution"><div class="distribution-heading"><strong>Distribución total de viajes</strong><small id="travel-management-sync">Última actualización: —</small></div><div class="distribution-charts"><div class="distribution-chart"><strong>Últimas 24 hs: cantidad por hora</strong><div id="travel-distribution-hourly" class="chart-grid"><span>Sin datos de distribución</span></div></div><div class="distribution-chart"><strong>Últimos 15 días: cantidad por día</strong><div id="travel-distribution-daily" class="chart-grid"><span>Sin datos de distribución</span></div></div></div></div>
@@ -327,14 +327,7 @@
       </form>
     </div>
   </div>
-  <div id="livi-floating" class="livi-floating" aria-live="polite">
-    <button type="button" id="livi-floating-toggle" class="livi-floating-toggle" aria-expanded="false" aria-controls="livi-floating-panel">🎧 <span>Habla con LIVI IA</span></button>
-    <section id="livi-floating-panel" class="livi-floating-panel" hidden aria-label="Chat con LIVI IA">
-      <header><span class="livi-brand"><span class="livi-help-emoji" aria-hidden="true">🎧</span><strong>LIVI IA</strong><small>Asistente operativo</small></span><button type="button" id="livi-floating-close" aria-label="Cerrar">✕</button></header>
-      <div class="livi-floating-body"><p>Preguntame algo sobre la operación.</p></div>
-      <form id="livi-floating-form"><input id="livi-floating-input" placeholder="Escribí tu consulta..." autocomplete="off"><button type="submit" aria-label="Enviar">➤</button></form>
-    </section>
-  </div>
+
   <div id="sidebar-overlay"></div>
   <div id="new-front-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div id="new-front-modal-box">

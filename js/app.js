@@ -2851,70 +2851,10 @@ async function checkAuth() {
   await bootApp();
 }
 
-async function askLiviFloating(text) {
-  const res = await fetch(HASH_CLOUD_URL + '/chat/stream', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages: [{ role: 'user', content: text }], provider: activeProvider, chat_id: null, mode: activeMode }),
-  });
-  if (!res.ok) throw new Error('Error ' + res.status);
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '', reply = '';
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n'); buffer = lines.pop();
-    for (const line of lines) {
-      if (!line.startsWith('data: ')) continue;
-      const chunk = line.slice(6).replace(/\\n/g, '\n');
-      if (chunk === '[DONE]') return reply;
-      if (chunk.startsWith('[CHAT_ID] ')) continue;
-      if (chunk.startsWith('[ERROR]')) throw new Error(chunk.slice(8));
-      try { reply += JSON.parse(chunk).content || JSON.parse(chunk).text || ''; } catch { reply += chunk; }
-    }
-  }
-  const tail = buffer.startsWith('data: ') ? buffer.slice(6) : '';
-  if (tail && tail !== '[DONE]' && !tail.startsWith('[CHAT_ID] ') && !tail.startsWith('[ERROR]')) reply += tail.replace(/\\n/g, '\n');
-  return reply;
-}
-
-function initLiviFloating() {
-  const toggle = document.getElementById('livi-floating-toggle');
-  const panel = document.getElementById('livi-floating-panel');
-  const close = document.getElementById('livi-floating-close');
-  const form = document.getElementById('livi-floating-form');
-  const input = document.getElementById('livi-floating-input');
-  const body = document.querySelector('.livi-floating-body');
-  const setOpen = open => { panel.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); if (open) input.focus(); };
-  toggle.addEventListener('click', () => setOpen(panel.hidden));
-  close.addEventListener('click', () => setOpen(false));
-  form.addEventListener('submit', async event => {
-    event.preventDefault();
-    const text = input.value.trim();
-    if (!text) return;
-    body.insertAdjacentHTML('beforeend', `<div class="livi-floating-user">${crmEscape(text)}</div><div class="livi-floating-wait"><span class="livi-wait-icon">✨</span><span>LIVI está pensando...</span></div>`);
-    input.value = ''; input.disabled = true;
-    body.scrollTop = body.scrollHeight;
-    const wait = body.querySelector('.livi-floating-wait:last-child');
-    const waitText = wait.querySelector('span:last-child');
-    try {
-      const reply = await askLiviFloating(text);
-      wait.classList.add('livi-floating-answer');
-      waitText.textContent = reply.trim() || 'No pude encontrar datos para esa consulta. Probá preguntarme por viajes, choferes o vehículos.';
-    }
-    catch (error) { wait.classList.add('livi-floating-error'); waitText.textContent = 'No pude responder ahora. Revisá la conexión e intentá de nuevo.'; console.error(error); }
-    finally { input.disabled = false; input.focus(); body.scrollTop = body.scrollHeight; }
-  });
-}
-
 document.addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
   const vehicleModal = document.getElementById('new-vehicle-modal');
   if (vehicleModal && !vehicleModal.hidden) closeNewVehicleModal();
-  const liviPanel = document.getElementById('livi-floating-panel');
-  if (liviPanel && !liviPanel.hidden) document.getElementById('livi-floating-close').click();
 });
 
 function updateTravelHistoryDateConstraints() {
@@ -3004,7 +2944,7 @@ function initThemeToggle() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initLiviFloating();
+
   initThemeToggle();
   const savedFont = localStorage.getItem('hash_font_size') || '18';
   document.documentElement.style.setProperty('--font-size-base', savedFont + 'px');
@@ -3042,17 +2982,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ['history-date-from', 'history-date-to'].forEach(id => document.getElementById(id).addEventListener('change', updateTravelHistoryDateConstraints));
   document.getElementById('history-state').addEventListener('change', loadTravelHistory);
   document.getElementById('history-search').addEventListener('keydown', event => { if (event.key === 'Enter') loadTravelHistory(); });
-  document.querySelectorAll('.crm-livi-context').forEach(button => button.addEventListener('click', () => {
-    const resource = button.dataset.liviResource || document.getElementById('crm-resource').value;
-    const label = CRM_LABELS[resource] || 'datos de la operación';
-    const panel = document.getElementById('livi-floating-panel');
-    const toggle = document.getElementById('livi-floating-toggle');
-    const input = document.getElementById('livi-floating-input');
-    panel.hidden = false;
-    toggle.setAttribute('aria-expanded', 'true');
-    input.value = `Organizá las consultas pendientes de ${label}: separá urgentes, repetidas y sin resolver, y proponé el próximo paso.`;
-    input.focus();
-  }));
+
   document.getElementById('driver-new-button').addEventListener('click', openNewDriverModal);
   document.getElementById('owner-new-button').addEventListener('click', () => openOwnerModal());
   document.getElementById('new-owner-form').addEventListener('submit', saveVehicleOwner);
