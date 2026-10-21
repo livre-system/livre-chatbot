@@ -411,8 +411,14 @@ async function loadMapViewer() {
   }
 }
 
+function setChatWorkspaceVisible(visible) {
+  const workspace = document.getElementById('chat-workspace');
+  if (workspace) workspace.hidden = !visible;
+}
+
 function showMapViewer() {
   crmVisible = true;
+  setChatWorkspaceVisible(false);
   crmMode = 'map';
   document.getElementById('crm-title').textContent = 'Visor de mapa';
   document.getElementById('crm-subtitle').textContent = 'Ubicación en tiempo real de la operación.';
@@ -933,6 +939,7 @@ async function loadConversations() {
 
 function showConversations() {
   crmVisible = true;
+  setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Conversaciones';
   document.getElementById('crm-subtitle').textContent = 'Transcripciones y chats almacenados en Livre Cloud.';
   ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
@@ -1012,6 +1019,7 @@ async function loadDriverShiftClosures() {
 
 function showDriverShiftClosures() {
   crmVisible = true;
+  setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Historial y cierres';
   document.getElementById('crm-subtitle').textContent = 'Cierres registrados en Livre Cloud.';
   ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
@@ -1030,6 +1038,7 @@ function showDriverShiftClosures() {
 
 function showAgencyCommissions() {
   crmVisible = true;
+  setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
   document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde Livre Cloud.';
   ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
@@ -1048,6 +1057,7 @@ function showAgencyCommissions() {
 
 function showCrm(resource) {
   crmVisible = true;
+  setChatWorkspaceVisible(false);
   crmMode = resource === 'control' ? 'control' : 'resource';
   if (resource === 'control') resource = 'travels';
   crmOffset = 0;
@@ -1096,6 +1106,7 @@ function showCrm(resource) {
 
 function showVehicleOwnerManagement() {
   crmVisible = true;
+  setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Propietarios';
   document.getElementById('crm-subtitle').textContent = 'Propietarios registrados y disponibles para asignar.';
   document.getElementById('crm-cards').hidden = true;
@@ -1123,6 +1134,7 @@ function hideCrm() {
 }
 
 function showChat() {
+  setChatWorkspaceVisible(true);
   document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = true;
   document.getElementById('message-list').hidden = false;
@@ -1270,6 +1282,7 @@ function showTravelForm() {
   const app = document.getElementById('app');
   const view = document.getElementById('travel-form-view');
   const form = document.getElementById('travel-create-form');
+  setChatWorkspaceVisible(false);
   lockScreen.hidden = true;
   lockScreen.style.removeProperty('display');
   app.hidden = false;
@@ -2968,6 +2981,7 @@ function renderTravelHistory(items, summary = {}) {
   table.appendChild(tbody); root.appendChild(table);
 }
 function showTravelHistory() {
+  setChatWorkspaceVisible(false);
   document.getElementById('travel-form-view').hidden = true; document.getElementById('crm-dashboard').hidden = true; document.getElementById('travel-history-view').hidden = false; document.getElementById('message-list').hidden = true; document.getElementById('composer').hidden = true; crmVisible = false; loadTravelHistory();
 }
 function initThemeToggle() {

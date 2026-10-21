@@ -332,7 +332,6 @@ body {
 }
 
 #chat-history { display: none; }
-#crm-dashboard[hidden] ~ #chat-workspace #chat-history { display: block; }
 #chat-history {
   width: 250px;
   flex: 0 0 250px;
