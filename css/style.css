@@ -3713,6 +3713,53 @@ html[data-theme="dark"] #chat-history { background: var(--surface-0); }
 html[data-theme="dark"] .chat-list-row:hover { background: var(--surface-2); }
 html[data-theme="dark"] .chat-list-row--active { background: rgba(232, 0, 61, .12); border-color: rgba(232, 0, 61, .34); }
 
+/* Las conversaciones comparten exactamente el lenguaje de .front-item. */
+#chat-list { gap: 4px; }
+.chat-list-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 0;
+  border: 0;
+  border-radius: 12px;
+  padding: 0;
+  background: transparent;
+  transform: none;
+  transition: background-color 150ms var(--ease), color 150ms var(--ease);
+}
+.chat-list-row::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  margin-left: 11px;
+  border-radius: 50%;
+  background: var(--border-soft);
+  box-shadow: none;
+}
+.chat-list-row:hover { background: #f1f4f8; border-color: transparent; transform: none; }
+.chat-list-row--active { background: #fff0f4; border-color: transparent; }
+.chat-list-row--active::before { background: var(--lime); box-shadow: 0 0 0 4px rgba(232,0,61,.10); }
+.chat-list-select {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  padding: 10px 5px 10px 0;
+  color: #536171;
+  font-size: .82rem;
+  font-weight: 500;
+}
+.chat-list-row--active .chat-list-select { color: #b50030; font-weight: 600; }
+.chat-list-select:hover { color: var(--text); }
+.chat-list-actions { gap: 1px; padding-right: 4px; }
+.chat-list-action { width: 25px; height: 25px; border: 0; border-radius: 8px; }
+.chat-list-action:hover { background: rgba(232,0,61,.08); border-color: transparent; }
+.chat-list-action--danger:hover { background: rgba(232,0,61,.12); border-color: transparent; color: var(--lime); }
+html[data-theme="dark"] .chat-list-row:hover { background: var(--surface-2); }
+html[data-theme="dark"] .chat-list-row--active { background: rgba(232,0,61,.12); }
+html[data-theme="dark"] .chat-list-select,
+html[data-theme="dark"] .chat-list-row--active .chat-list-select { color: var(--text); }
+
 html[data-theme="dark"] #main-header,
 html[data-theme="dark"] #composer,
 html[data-theme="dark"] #composer .input-wrapper,
