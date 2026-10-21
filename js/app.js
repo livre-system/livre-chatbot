@@ -2114,10 +2114,10 @@ function renderFrontList() {
     const actions = document.createElement('div');
     actions.className = 'chat-list-actions';
     const rename = document.createElement('button');
-    rename.type = 'button'; rename.className = 'chat-list-action'; rename.textContent = '✎'; rename.title = 'Renombrar';
+    rename.type = 'button'; rename.className = 'chat-list-action'; rename.textContent = 'Más opciones'; rename.title = 'Más opciones'; rename.setAttribute('aria-label', 'Más opciones');
     rename.onclick = () => openRenameModal(front);
     const remove = document.createElement('button');
-    remove.type = 'button'; remove.className = 'chat-list-action chat-list-action--danger'; remove.textContent = '×'; remove.title = 'Eliminar';
+    remove.type = 'button'; remove.className = 'chat-list-action chat-list-action--danger'; remove.textContent = 'Eliminar'; remove.title = 'Eliminar'; remove.setAttribute('aria-label', 'Eliminar');
     remove.onclick = () => confirmDeleteFront(front);
     actions.append(rename, remove);
     row.append(select, actions);
