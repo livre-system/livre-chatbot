@@ -423,7 +423,7 @@ function showMapViewer() {
   crmMode = 'map';
   document.getElementById('crm-title').textContent = 'Visor de mapa';
   document.getElementById('crm-subtitle').textContent = 'Ubicación en tiempo real de la operación.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('map-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -923,34 +923,6 @@ async function loadCrmData() {
   }
 }
 
-async function loadConversations() {
-  const status = document.getElementById('conversations-status');
-  const table = document.getElementById('conversations-table');
-  status.textContent = 'Consultando Livre Cloud...';
-  try {
-    const data = await apiCrm('conversations?limit=100');
-    const rows = (data.items || []).map(row => `<tr><td>${crmEscape(row.name || row.key)}</td><td>${crmEscape(row.chat_id || '—')}</td><td>${crmEscape(row.rows_count)}</td><td>${crmEscape(row.updated_at || row.created_at || '—')}</td></tr>`).join('');
-    table.innerHTML = rows ? `<div class="vehicle-table-scroll"><table><thead><tr><th>Conversación</th><th>Chat</th><th>Mensajes</th><th>Última actualización</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="crm-empty">No hay conversaciones locales cargadas.</p>';
-    status.textContent = `${data.total || 0} conversación(es) locales.`;
-  } catch (error) {
-    status.textContent = 'No se pudieron cargar las conversaciones locales.';
-    console.error(error);
-  }
-}
-
-function showConversations() {
-  crmVisible = true;
-  setChatWorkspaceVisible(false);
-  document.getElementById('crm-title').textContent = 'Conversaciones';
-  document.getElementById('crm-subtitle').textContent = 'Transcripciones y chats almacenados en Livre Cloud.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
-  document.getElementById('conversations-view').hidden = false;
-  document.getElementById('message-list').hidden = true;
-  document.getElementById('composer').hidden = true;
-  document.getElementById('travel-form-view').hidden = true;
-  document.getElementById('crm-dashboard').hidden = false;
-  loadConversations();
-}
 
 async function loadAgencyCommissions() {
   const status = document.getElementById('agency-commissions-status');
@@ -1023,7 +995,7 @@ function showDriverShiftClosures() {
   setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Historial y cierres';
   document.getElementById('crm-subtitle').textContent = 'Cierres registrados en Livre Cloud.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('driver-shift-closures-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -1042,7 +1014,7 @@ function showAgencyCommissions() {
   setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
   document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde Livre Cloud.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'conversations-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('agency-commissions-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -2978,8 +2950,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showAgencyCommissions();
       } else if (view === 'driver-shift-closures') {
         showDriverShiftClosures();
-      } else if (view === 'conversations') {
-        showConversations();
       } else if (view === 'vehicle-owners') {
         showVehicleOwnerManagement();
       } else if (view === 'crear-viaje') {
