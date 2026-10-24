@@ -44,11 +44,12 @@ describe('CRM operational status contract', () => {
     assert.doesNotMatch(app, /\['Choferes visibles', totalDrivers/);
   });
 
-  it('does not render historical driver sessions in the map viewer', () => {
+  it('does not render stale or inactive driver sessions in the map viewer', () => {
     assert.match(app, /function isLiveMapLocation\(item\)/);
     assert.match(app, /items\.filter\(isLiveMapLocation\)\.map/);
     assert.match(app, /const list = rawList\.filter\(isLiveMapLocation\)/);
     assert.match(app, /sessionActive === true/);
+    assert.match(app, /Number\.isFinite\(latitude\)/);
   });
 
   it('exposes the CRM control and does not couple it to GPS or trip polling', () => {

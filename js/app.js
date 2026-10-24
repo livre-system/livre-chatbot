@@ -367,7 +367,9 @@ function renderOperationalMap(items, targetId = 'operational-map') {
 function isLiveMapLocation(item) {
   const latitude = Number(item?.lastPlace?.latitude);
   const longitude = Number(item?.lastPlace?.longitude);
-  return Number.isFinite(latitude) && Number.isFinite(longitude);
+  return item?.sessionActive === true
+    && Number.isFinite(latitude)
+    && Number.isFinite(longitude);
 }
 
 async function loadMapViewer() {
