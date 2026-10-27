@@ -765,7 +765,13 @@ function renderTravelManagement(data, summary) {
     if (p.destino !== undefined) p.destination = p.destino;
     if (p.created_at !== undefined) p.travelDate = p.created_at;
     if (p.status === 'pending' || p.status === 'searching') p.state = 'SEARCHING_DRIVER';
-    if (p.status === 'confirmed') p.state = 'WITH_DRIVER_ASSIGNED';
+    if (p.status === 'confirmed' || p.status === 'assigned') p.state = 'WITH_DRIVER_ASSIGNED';
+    if (p.status === 'arriving') p.state = 'GOING_TO_CLIENT';
+    if (p.status === 'in_progress') p.state = 'GOING_TO_DESTINATION';
+    if (p.status === 'scheduled') p.state = 'SCHEDULED';
+    if (p.status === 'conflict') p.state = 'IN_CONFLICT';
+    if (p.status === 'lost') p.state = 'LOST';
+    if (p.status === 'completed' || p.status === 'done') p.state = 'DONE';
     if (p.status === 'cancelled') p.state = 'CANCELLED';
     const state = pick(p, ['state', 'status', 'travelStatus']);
     const driver = [p.driverFirstName, p.driverLastName].filter(Boolean).join(' ') || p.driverName || p.driver || p.tracking_driver_name || (p.assigned_driver_user_id ? `ID ${p.assigned_driver_user_id}` : '—');
