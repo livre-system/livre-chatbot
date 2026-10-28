@@ -376,7 +376,7 @@ function isLiveMapLocation(item) {
 
 async function loadMapViewer() {
   const status = document.getElementById('map-view-status');
-  const refresh = document.getElementById('map-view-refresh');
+  const refresh = document.getElementById('crm-refresh');
   if (!status) return;
   if (refresh) refresh.disabled = true;
   status.textContent = 'Cargando ubicaciones...';
@@ -2998,8 +2998,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-owner-modal').addEventListener('click', event => { if (event.target.id === 'new-owner-modal') closeOwnerModal(); });
   document.getElementById('new-owner-email-confirm').addEventListener('click', event => confirmManagedEmail('new-owner-email', 'VEHICLEOWNER', 'new-owner-status', event.currentTarget));
   document.getElementById('owner-management-search').addEventListener('input', () => { ownerPage = 1; clearTimeout(crmSearchTimer); crmSearchTimer = setTimeout(loadVehicleOwners, 350); });
-  document.getElementById('crm-refresh').addEventListener('click', loadCrmData);
-  document.getElementById('map-view-refresh').addEventListener('click', loadMapViewer);
+  document.getElementById('crm-refresh').addEventListener('click', () => {
+    if (crmMode === 'map') return loadMapViewer();
+    return loadCrmData();
+  });
   document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
   document.getElementById('agency-commissions-settle').addEventListener('click', settleAgencyCommissions);
   document.getElementById('shift-closures-apply').addEventListener('click', loadDriverShiftClosures);
