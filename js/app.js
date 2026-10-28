@@ -376,7 +376,9 @@ function isLiveMapLocation(item) {
 
 async function loadMapViewer() {
   const status = document.getElementById('map-view-status');
+  const refresh = document.getElementById('map-view-refresh');
   if (!status) return;
+  if (refresh) refresh.disabled = true;
   status.textContent = 'Cargando ubicaciones...';
   try {
     const snapshot = await apiCrm('operational');
@@ -410,10 +412,13 @@ async function loadMapViewer() {
     }));
     const filtered = list.filter(item => operationalFilterMatches(item, mapViewerFilter));
     renderOperationalMap(filtered, 'map-view-map');
+    operationalMap?.invalidateSize();
     status.textContent = `Última actualización: ${new Date().toLocaleTimeString('es-AR')}. ${filtered.length} vehículo(s) informados.`;
   } catch (error) {
     status.textContent = 'No se pudieron cargar las ubicaciones.';
     console.error(error);
+  } finally {
+    if (refresh) refresh.disabled = false;
   }
 }
 
