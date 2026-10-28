@@ -17,7 +17,7 @@
 
 ## Hallazgo visual reciente
 
-La bandeja para escribir tiene una luz LED animada implementada con `conic-gradient`, `--led-angle` y `@keyframes led-rotate` en `css/style.css`. Una regla visual posterior la desactivaba con `animation: none` y otra regla del tema oscuro reemplazaba el gradiente por un fondo plano. Ambas reglas deben preservar la animación para que la luz recorra el borde de la bandeja.
+La animación LED del composer también tenía una segunda regla al final del CSS del tema oscuro que sobrescribía el gradiente con `background: var(--surface-0) !important`. La corrección debe preservar el `conic-gradient` y `led-rotate` en la última regla aplicable.
 
 ## Validación reciente
 
