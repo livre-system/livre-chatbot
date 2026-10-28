@@ -2833,7 +2833,10 @@ button, input, select, textarea { font-family: inherit; }
   border-top: 1px solid var(--border);
   background: rgba(255,255,255,.72);
 }
-#composer .input-wrapper { animation: none; background: var(--border-soft); border-radius: 15px; }
+#composer .input-wrapper {
+  border-radius: 15px;
+  animation: led-rotate 4s linear infinite;
+}
 #composer .input-wrapper::before { background: #fff; border-radius: 14px; }
 #message-input { min-height: 44px; padding-left: 16px; font-size: .9rem; }
 #message-submit { min-height: 38px; padding: 8px 18px; box-shadow: 0 5px 14px rgba(232,0,61,.16); }
@@ -3268,10 +3271,21 @@ html[data-theme="dark"] #livi-floating-input {
 }
 
 html[data-theme="dark"] #composer,
-html[data-theme="dark"] #composer .input-wrapper,
 html[data-theme="dark"] #composer .input-wrapper::before {
   background: var(--surface-0) !important;
   border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] #composer .input-wrapper {
+  background: conic-gradient(
+    from var(--led-angle, 0deg),
+    transparent 0deg,
+    transparent 320deg,
+    rgba(232, 0, 61, 0.7) 345deg,
+    rgba(255, 255, 255, 0.85) 355deg,
+    rgba(232, 0, 61, 0.7) 360deg
+  ) !important;
+  animation: led-rotate 4s linear infinite !important;
 }
 
 html[data-theme="dark"] .operational-map-placeholder,
