@@ -361,14 +361,16 @@ function renderOperationalMap(items, targetId = 'operational-map') {
   operationalMarkerGroup.clearLayers();
   const points = items.filter(isLiveMapLocation).map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
   const vehicleIcon = L.divIcon({ className: 'operational-vehicle-marker', html: '<span aria-hidden="true">🚗</span>', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15] });
-  points.forEach(({ item, lat, lng }) => L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape(item.driverName || [item.firstName, item.lastName].filter(Boolean).join(' ') || 'Conductor')}</strong><br>${crmEscape(item.vehicle?.plate || item.vehicle?.domain || 'Sin vehículo')}<br><strong>${crmEscape(operationalStateLabel(item))}</strong><br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(operationalMarkerGroup));
+  points.forEach(({ item, lat, lng }) => {
+    const gpsLabel = item.sessionActive === true ? 'GPS activo' : 'Última ubicación conocida';
+    L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape(item.driverName || [item.firstName, item.lastName].filter(Boolean).join(' ') || 'Conductor')}</strong><br>${crmEscape(item.vehicle?.plate || item.vehicle?.domain || 'Sin vehículo')}<br><strong>${crmEscape(operationalStateLabel(item))}</strong><br><strong>${gpsLabel}</strong><br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(operationalMarkerGroup);
+  });
 }
 
 function isLiveMapLocation(item) {
   const latitude = Number(item?.lastPlace?.latitude);
   const longitude = Number(item?.lastPlace?.longitude);
-  return item?.sessionActive === true
-    && Number.isFinite(latitude)
+  return Number.isFinite(latitude)
     && Number.isFinite(longitude);
 }
 
@@ -380,7 +382,7 @@ async function loadMapViewer() {
     const snapshot = await apiCrm('operational');
     const items = snapshot.drivers || snapshot.drivers_by_vehicle || snapshot.driver_statuses || [];
     const rawList = Array.isArray(items) ? items : items.items || items.content || items.page?.content || [];
-    // El visor es operativo: no reutiliza posiciones de sesiones históricas.
+    // Mostrar la última posición válida, diferenciando GPS activo de dato vencido.
     const list = rawList.filter(isLiveMapLocation);
     const totals = {
       available: list.filter(item => operationalFilterMatches(item, 'DISPONIBLE')).length,
