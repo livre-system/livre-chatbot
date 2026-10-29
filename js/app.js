@@ -72,7 +72,7 @@ let travelStateFilter = '';
 let vehicleTypesPromise;
 let crmLoadController;
 let crmLoadSequence = 0;
-const driverFilters = { code: '', name: '', phone: '', email: '', vehicle: '' };
+const driverFilters = { code: '', name: '', phone: '', email: '', vehicle: '', vehicleType: '' };
 const TRAVEL_STATE_FILTERS = [
   'SEARCHING_DRIVER',
   'CLOSING_TRAVEL-GOING_TO_CLIENT-GOING_TO_DESTINATION',
@@ -493,7 +493,7 @@ function renderDriverManagement(data) {
   const page = Number(data.page) || Math.floor(crmOffset / size) + 1;
   const total = Number(data.total) || 0;
   const totalPages = Math.max(1, Math.ceil(total / size));
-  table.innerHTML = `<div class="driver-table-scroll"><table><thead><tr><th>Apellido y Nombre<br><input data-driver-filter="name" placeholder="Buscar"></th><th>Tipo de vehículo</th><th>Vehículo<br><input data-driver-filter="vehicle" placeholder="Patente"></th><th>Teléfono<br><input data-driver-filter="phone" placeholder="Buscar"></th><th>Email<br><input data-driver-filter="email" placeholder="Buscar"></th><th>Acciones</th><th>Código<br><input data-driver-filter="code" placeholder="Buscar"></th></tr></thead><tbody>${rows || '<tr><td colspan="7">No hay choferes registrados.</td></tr>'}</tbody></table></div><div class="driver-table-footer"><span>Total: ${total}</span><label>Mostrar <select data-driver-size><option value="20" ${size === 20 ? 'selected' : ''}>20</option><option value="50" ${size === 50 ? 'selected' : ''}>50</option><option value="100" ${size === 100 ? 'selected' : ''}>100</option></select></label><span>Página ${page} de ${totalPages}</span><button type="button" data-driver-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>Anterior</button><button type="button" data-driver-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>Siguiente</button></div>`;
+  table.innerHTML = `<div class="driver-table-scroll"><table><thead><tr><th>Apellido y Nombre<br><input data-driver-filter="name" placeholder="Buscar"></th><th>Tipo de vehículo<br><input data-driver-filter="vehicleType" placeholder="Buscar"></th><th>Vehículo<br><input data-driver-filter="vehicle" placeholder="Patente"></th><th>Teléfono<br><input data-driver-filter="phone" placeholder="Buscar"></th><th>Email<br><input data-driver-filter="email" placeholder="Buscar"></th><th>Acciones</th><th>Código<br><input data-driver-filter="code" placeholder="Buscar"></th></tr></thead><tbody>${rows || '<tr><td colspan="7">No hay choferes registrados.</td></tr>'}</tbody></table></div><div class="driver-table-footer"><span>Total: ${total}</span><label>Mostrar <select data-driver-size><option value="20" ${size === 20 ? 'selected' : ''}>20</option><option value="50" ${size === 50 ? 'selected' : ''}>50</option><option value="100" ${size === 100 ? 'selected' : ''}>100</option></select></label><span>Página ${page} de ${totalPages}</span><button type="button" data-driver-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>Anterior</button><button type="button" data-driver-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>Siguiente</button></div>`;
   table.querySelectorAll('[data-driver-page]').forEach(button => button.addEventListener('click', () => {
     crmOffset = (Number(button.dataset.driverPage) - 1) * crmPageSize;
     loadCrmData();
@@ -947,6 +947,7 @@ async function loadCrmData() {
         phone: driverFilters.phone.trim(),
         email: driverFilters.email.trim(),
         vehicle: driverFilters.vehicle.trim(),
+        vehicle_type: driverFilters.vehicleType.trim(),
       });
       const data = await apiCrm('drivers/live?' + liveParams.toString(), requestOptions);
       if (loadSequence !== crmLoadSequence) return;
