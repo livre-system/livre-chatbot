@@ -251,6 +251,12 @@ function isDriverInTravel(item) {
 }
 
 function canonicalOperationalStateLabel(item) {
+  // El backend puede mantener operationalStatus=available aunque el
+  // heartbeat GPS haya vencido. Para KPIs y filtros manda el estado efectivo.
+  const effective = String(item.operationalState || item.operability || '').trim().toUpperCase();
+  if (effective === 'DISPONIBLE') return 'DISPONIBLE';
+  if (effective === 'NO DISPONIBLE') return 'NO DISPONIBLE';
+  if (effective === 'FUERA DE SERVICIO') return 'FUERA DE SERVICIO';
   const status = String(item.operationalStatus || '').toLowerCase();
   if (status === 'available') return 'DISPONIBLE';
   if (status === 'unavailable') return 'NO DISPONIBLE';
