@@ -484,17 +484,16 @@ function renderDriverManagement(data) {
     const name = p.driverName || [p.lastName, p.firstName].filter(Boolean).join(' ') || '—';
     const phone = p.phoneNumber || p.phone || '—';
     const email = p.driverUserEmail || p.mail || p.email || '—';
-    const vehicleLabels = Array.isArray(item.vehicles) && item.vehicles.length ? item.vehicles.join(', ') : (item.vehicleDescription || item.vehicle?.plate || '—');
-    const vehicle = vehicleLabels;
-    const active = p.operability ?? item.active;
-    const rating = p.rating;
-    return `<tr><td>${crmEscape(id)}</td><td>${crmEscape(name)}</td><td><span class="driver-phone"><b>🇦🇷</b>${crmEscape(phone)}</span></td><td>${crmEscape(email)}</td><td class="driver-vehicle">${crmEscape(vehicle)}</td><td>${crmEscape(p.vehicleType || '—')}</td><td><span class="vehicle-active-dot ${String(active) === '0' || String(active).toLowerCase() === 'false' ? 'vehicle-inactive' : 'vehicle-active'}">●</span></td><td>${crmEscape(rating || '—')}</td><td><button type="button" class="driver-action" data-driver-detail="${crmEscape(id)}" aria-label="Ver chofer">◉</button><button type="button" class="driver-action" data-driver-edit="${crmEscape(id)}" aria-label="Editar chofer">✎</button></td></tr>`;
+    const details = Array.isArray(item.vehicleDetails) ? item.vehicleDetails : [];
+    const models = details.map(vehicle => vehicle.model).filter(Boolean).join(', ') || p.vehicleModel || p.vehicleType || '—';
+    const plates = details.map(vehicle => vehicle.plate).filter(Boolean).join(', ') || (Array.isArray(item.vehicles) && item.vehicles.length ? item.vehicles.join(', ') : (item.vehicle?.plate || '—'));
+    return `<tr><td>${crmEscape(name)}</td><td><strong>${crmEscape(models)}</strong></td><td>${crmEscape(plates)}</td><td><span class="driver-phone"><b>🇦🇷</b>${crmEscape(phone)}</span></td><td>${crmEscape(email)}</td><td><button type="button" class="driver-action" data-driver-detail="${crmEscape(id)}" aria-label="Ver chofer">◉</button><button type="button" class="driver-action" data-driver-edit="${crmEscape(id)}" aria-label="Editar chofer">✎</button></td><td>${crmEscape(id)}</td></tr>`;
   }).join('');
   const size = Number(data.size) || crmPageSize;
   const page = Number(data.page) || Math.floor(crmOffset / size) + 1;
   const total = Number(data.total) || 0;
   const totalPages = Math.max(1, Math.ceil(total / size));
-  table.innerHTML = `<div class="driver-table-scroll"><table><thead><tr><th>Código<br><input data-driver-filter="code" placeholder="Buscar"></th><th>Apellido y Nombre<br><input data-driver-filter="name" placeholder="Buscar"></th><th>Teléfono<br><input data-driver-filter="phone" placeholder="Buscar"></th><th>Email<br><input data-driver-filter="email" placeholder="Buscar"></th><th>Vehículo<br><input data-driver-filter="vehicle" placeholder="Buscar"></th><th>Tipo de Veh.</th><th>Activo</th><th>Calificación</th><th>Acciones</th></tr></thead><tbody>${rows || '<tr><td colspan="9">No hay choferes registrados.</td></tr>'}</tbody></table></div><div class="driver-table-footer"><span>Total: ${total}</span><label>Mostrar <select data-driver-size><option value="20" ${size === 20 ? 'selected' : ''}>20</option><option value="50" ${size === 50 ? 'selected' : ''}>50</option><option value="100" ${size === 100 ? 'selected' : ''}>100</option></select></label><span>Página ${page} de ${totalPages}</span><button type="button" data-driver-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>Anterior</button><button type="button" data-driver-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>Siguiente</button></div>`;
+  table.innerHTML = `<div class="driver-table-scroll"><table><thead><tr><th>Apellido y Nombre<br><input data-driver-filter="name" placeholder="Buscar"></th><th>Tipo de vehículo</th><th>Vehículo<br><input data-driver-filter="vehicle" placeholder="Patente"></th><th>Teléfono<br><input data-driver-filter="phone" placeholder="Buscar"></th><th>Email<br><input data-driver-filter="email" placeholder="Buscar"></th><th>Acciones</th><th>Código<br><input data-driver-filter="code" placeholder="Buscar"></th></tr></thead><tbody>${rows || '<tr><td colspan="7">No hay choferes registrados.</td></tr>'}</tbody></table></div><div class="driver-table-footer"><span>Total: ${total}</span><label>Mostrar <select data-driver-size><option value="20" ${size === 20 ? 'selected' : ''}>20</option><option value="50" ${size === 50 ? 'selected' : ''}>50</option><option value="100" ${size === 100 ? 'selected' : ''}>100</option></select></label><span>Página ${page} de ${totalPages}</span><button type="button" data-driver-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>Anterior</button><button type="button" data-driver-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>Siguiente</button></div>`;
   table.querySelectorAll('[data-driver-page]').forEach(button => button.addEventListener('click', () => {
     crmOffset = (Number(button.dataset.driverPage) - 1) * crmPageSize;
     loadCrmData();
@@ -3033,7 +3032,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-owner-email-confirm').addEventListener('click', event => confirmManagedEmail('new-owner-email', 'VEHICLEOWNER', 'new-owner-status', event.currentTarget));
   document.getElementById('owner-management-search').addEventListener('input', () => { ownerPage = 1; clearTimeout(crmSearchTimer); crmSearchTimer = setTimeout(loadVehicleOwners, 350); });
   document.getElementById('crm-refresh').addEventListener('click', () => {
-    if (crmMode === 'map') return loadMapViewer();
+    if (crmMode === 'map' || !document.getElementById('map-view').hidden) return loadMapViewer();
+    if (!document.getElementById('owner-management-view').hidden) return loadVehicleOwners();
+    if (!document.getElementById('agency-commissions-view').hidden) return loadAgencyCommissions();
+    if (!document.getElementById('driver-shift-closures-view').hidden) return loadDriverShiftClosures();
     return loadCrmData();
   });
   document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
