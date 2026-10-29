@@ -254,6 +254,7 @@ function canonicalOperationalStateLabel(item) {
   // El backend puede mantener operationalStatus=available aunque el
   // heartbeat GPS haya vencido. Para KPIs y filtros manda el estado efectivo.
   const effective = String(item.operationalState || item.operability || '').trim().toUpperCase();
+  if (effective === 'SIN SESIÓN') return 'SIN SESIÓN';
   if (effective === 'DISPONIBLE') return 'DISPONIBLE';
   if (effective === 'NO DISPONIBLE') return 'NO DISPONIBLE';
   if (effective === 'FUERA DE SERVICIO') return 'FUERA DE SERVICIO';
@@ -354,7 +355,7 @@ function renderOperationalDashboard(snapshot) {
   }).join('');
   document.getElementById('operational-drivers').innerHTML = `<div class="operational-table-scroll"><table><thead><tr><th>Chofer</th><th>Vehículo</th><th>Estado</th><th>GPS</th><th>Actualizar estado</th></tr></thead><tbody>${rows || '<tr><td colspan="5">No hay choferes para este filtro.</td></tr>'}</tbody></table></div><small>Mostrando ${filtered.length} de ${items.length} choferes.</small>`;
   document.querySelectorAll('.operational-status-control').forEach(control => control.addEventListener('change', event => changeOperationalDriverStatus(control.dataset.driverUserId, event.target.value, control)));
-  const filters = [['TODOS', items.length], ['DISPONIBLE', items.filter(i => stateLabel(i) === 'DISPONIBLE').length], ['NO DISPONIBLE', items.filter(i => stateLabel(i) === 'NO DISPONIBLE').length], ['FUERA DE SERVICIO', items.filter(i => stateLabel(i) === 'FUERA DE SERVICIO').length], ['EN VIAJE', items.filter(i => stateLabel(i) === 'EN VIAJE').length]];
+  const filters = [['TODOS', items.length], ['DISPONIBLE', items.filter(i => stateLabel(i) === 'DISPONIBLE').length], ['NO DISPONIBLE', items.filter(i => stateLabel(i) === 'NO DISPONIBLE').length], ['FUERA DE SERVICIO', items.filter(i => stateLabel(i) === 'FUERA DE SERVICIO').length], ['SIN SESIÓN', items.filter(i => stateLabel(i) === 'SIN SESIÓN').length], ['EN VIAJE', items.filter(i => stateLabel(i) === 'EN VIAJE').length]];
   const filterNode = document.getElementById('operational-status-filters');
   filterNode.innerHTML = filters.map(([label, count]) => `<button type="button" data-filter="${label}" class="${label === activeFilter ? 'active' : ''}">${label}<b>${crmEscape(count)}</b></button>`).join('');
   filterNode.querySelectorAll('button').forEach(button => button.addEventListener('click', () => { operationalStatusFilter = button.dataset.filter || 'EN VIAJE'; filterNode.querySelectorAll('button').forEach(b => b.classList.remove('active')); button.classList.add('active'); renderOperationalDashboard(operationalSnapshot); }));
@@ -419,6 +420,7 @@ async function loadMapViewer() {
       ['DISPONIBLE', 'DISPONIBLES', totals.available ?? '—'],
       ['NO DISPONIBLE', 'NO DISPONIBLES', totals.unavailable ?? '—'],
       ['FUERA DE SERVICIO', 'FUERA DE SERVICIO', totals.out_of_service ?? '—'],
+      ['SIN SESIÓN', 'SIN SESIÓN', list.filter(item => operationalFilterMatches(item, 'SIN SESIÓN')).length],
       ['EN VIAJE', 'EN VIAJE', totals.totalDriversInTravel ?? '—'],
     ];
     const filterNode = document.getElementById('map-view-filters');
