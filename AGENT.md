@@ -4,7 +4,7 @@
 
 - Frontend estático del panel LIVI / Viaja Livre.
 - Entrada: `index.html`; lógica: `js/app.js`; estilos: `css/style.css`.
-- El frontend se publica en Vercel y el backend CRM corre en Railway.
+- El frontend y el backend CRM se publican únicamente en Railway.
 
 ## Reglas de trabajo
 

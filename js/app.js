@@ -17,10 +17,13 @@ async function apiCrm(path, options = {}) {
   return await res.json();
 }
 
-async function apiOperational() {
+async function apiOperational(options = {}) {
   const token = getToken();
   const res = await fetch(HASH_CLOUD_URL + '/crm/operational', {
-    headers: { 'Authorization': 'Bearer ' + token },
+    ...options,
+    headers: { 'Authorization': 'Bearer ' + token, ...(options.headers || {}) },
+    signal: options.signal,
+    cache: 'no-store',
   });
   if (!res.ok) throw new Error('Error ' + res.status);
   return await res.json();
