@@ -122,9 +122,19 @@ function crmValue(value, key = '') {
   }
   if (typeof value === 'boolean') return value ? 'Sí' : 'No';
   if ((key.toLowerCase().includes('date') || key.toLowerCase().endsWith('at')) && !Number.isNaN(Date.parse(value))) {
-    return new Date(value).toLocaleString('es-AR');
+    return formatArgentinaDate(value);
   }
   return String(value);
+}
+
+function formatArgentinaDate(value, options = {}) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value ?? '—');
+  return date.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', ...options });
+}
+
+function formatArgentinaTime(value = new Date()) {
+  return formatArgentinaDate(value, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 function crmFieldLabel(key) {
@@ -385,7 +395,7 @@ function renderOperationalMap(items, targetId = 'operational-map') {
   const vehicleIcon = L.divIcon({ className: 'operational-vehicle-marker', html: '<span aria-hidden="true">🚗</span>', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15] });
   points.forEach(({ item, lat, lng }) => {
     const gpsLabel = item.sessionActive === true ? 'GPS activo' : 'Última ubicación conocida';
-    L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape(item.driverName || [item.firstName, item.lastName].filter(Boolean).join(' ') || 'Conductor')}</strong><br>${crmEscape(item.vehicle?.plate || item.vehicle?.domain || 'Sin vehículo')}<br><strong>${crmEscape(operationalStateLabel(item))}</strong><br><strong>${gpsLabel}</strong><br><small>Último dato: ${crmEscape(item.lastSee || '—')}</small>`).addTo(operationalMarkerGroup);
+    L.marker([lat, lng], { icon: vehicleIcon }).bindPopup(`<strong>${crmEscape(item.driverName || [item.firstName, item.lastName].filter(Boolean).join(' ') || 'Conductor')}</strong><br>${crmEscape(item.vehicle?.plate || item.vehicle?.domain || 'Sin vehículo')}<br><strong>${crmEscape(operationalStateLabel(item))}</strong><br><strong>${gpsLabel}</strong><br><small>Último dato (Argentina): ${crmEscape(item.lastSee ? formatArgentinaDate(item.lastSee) : '—')}</small>`).addTo(operationalMarkerGroup);
   });
 }
 
@@ -431,12 +441,12 @@ async function loadMapViewer() {
       filterNode.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button));
       const filtered = list.filter(item => operationalFilterMatches(item, mapViewerFilter));
       renderOperationalMap(filtered, 'map-view-map');
-      status.textContent = `Última actualización: ${new Date().toLocaleTimeString('es-AR')}. ${filtered.length} vehículo(s) informados.`;
+      status.textContent = `Última actualización (Argentina): ${formatArgentinaTime()}. ${filtered.length} vehículo(s) informados.`
     }));
     const filtered = list.filter(item => operationalFilterMatches(item, mapViewerFilter));
     renderOperationalMap(filtered, 'map-view-map');
     operationalMap?.invalidateSize();
-    status.textContent = `Última actualización: ${new Date().toLocaleTimeString('es-AR')}. ${filtered.length} vehículo(s) informados.`;
+    status.textContent = `Última actualización (Argentina): ${formatArgentinaTime()}. ${filtered.length} vehículo(s) informados.`;
   } catch (error) {
     status.textContent = 'No se pudieron cargar las ubicaciones.';
     console.error(error);
@@ -2917,7 +2927,7 @@ function formatHistoryValue(value, key) {
   if (typeof value === 'object') return JSON.stringify(value);
   if (key === 'created_at' || key === 'updated_at') {
     const date = new Date(value);
-    if (!Number.isNaN(date.getTime())) return date.toLocaleString('es-AR');
+    if (!Number.isNaN(date.getTime())) return formatArgentinaDate(date);
   }
   return String(value);
 }
