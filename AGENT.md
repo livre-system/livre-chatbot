@@ -31,3 +31,13 @@ La animación LED del composer también tenía una segunda regla al final del CS
 - La animación del borde fue reactivada para temas claro y oscuro.
 - Se incrementó la versión del CSS en `index.html` para evitar caché del navegador.
 - Tests del proyecto: 19 pasan.
+
+## Últimos cambios operativos (2026-10-29)
+
+- El dashboard muestra las horas con la zona explícita `America/Argentina/Buenos_Aires`, sin depender de la configuración del navegador. El visor usa `Última actualización (Argentina)` y los popups muestran `Último dato (Argentina)`.
+- El cambio está publicado en `75f3b44` (`fix: show dashboard times in Argentina`). Validado con `node --check js/app.js` y `git diff --check`.
+- La creación y programación de viajes fue corregida en el backend: `date_programmed` se conserva, los programados quedan en `scheduled` y se liberan a `searching` al llegar la hora.
+- El botón de actualización de Gestión de viajes (`#crm-refresh`) está conectado a `loadCrmData()` y el endpoint `/crm/travels/live` responde correctamente.
+- El error de base de datos posterior a confirmar un viaje se debía a que producción no tenía la columna `livi_trips.scheduled_at`; la migración `20261029_scheduled_trips.sql` fue aplicada y registrada en producción. `/ready` respondió `200` con base y migraciones OK.
+- El backend correspondiente quedó publicado en `9556b95` (`fix: persist and release scheduled trips`). Tests enfocados del backend: `26 passed`.
+- No se creó un viaje real durante las verificaciones.
