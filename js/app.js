@@ -300,7 +300,6 @@ async function changeOperationalDriverStatus(driverUserId, status, control) {
 
 function renderOperationalDashboard(snapshot) {
   operationalSnapshot = snapshot;
-  const totals = snapshot.driver_totals || {};
   const dashboard = snapshot.drivers || snapshot.drivers_by_vehicle || snapshot.driver_statuses || [];
   const items = Array.isArray(dashboard) ? dashboard : dashboard.items || dashboard.content || dashboard.page?.content || [];
   const stateLabel = operationalStateLabel;
@@ -312,11 +311,24 @@ function renderOperationalDashboard(snapshot) {
     return (!search || text.includes(search)) && operationalFilterMatches(item, activeFilter);
   });
   const countByState = state => filtered.filter(item => operationalStateLabel(item) === state).length;
+  const activity = snapshot.activity || {};
+  const tripStatuses = activity.trips?.by_status_and_type || {};
+  const countTripStatus = statuses => Object.entries(tripStatuses)
+    .filter(([key]) => statuses.includes(key.split(':', 1)[0]))
+    .reduce((total, [, amount]) => total + (Number(amount) || 0), 0);
+  const completedTrips = countTripStatus(['completed']);
+  const cancelledTrips = countTripStatus(['cancelled', 'canceled']);
+  const whatsappRequests = activity.whatsapp?.trip_requests;
+  const crmRequests = activity.crm?.trip_requests;
   const kpis = [
     ['Choferes visibles', filtered.length, 'operational-kpi--primary', 'Cuentas activas en esta vista'],
     ['Disponibles', countByState('DISPONIBLE'), '', 'Listos para recibir viaje'],
     ['En viaje', countByState('EN VIAJE'), '', 'Viaje activo no terminal'],
     ['Sesión GPS activa', filtered.filter(item => item.sessionActive === true).length, '', 'Choferes con sesión activa'],
+    ['Viajes realizados', completedTrips, '', 'Viajes finalizados'],
+    ['Cancelados', cancelledTrips, '', 'Viajes cancelados'],
+    ['Pedidos WhatsApp', whatsappRequests ?? '—', '', 'Pedidos registrados por WhatsApp'],
+    ['Pedidos CRM', crmRequests ?? '—', '', 'Pedidos creados desde el dashboard'],
   ];
   document.getElementById('operational-kpis').innerHTML = kpis.map(([label, amount, modifier, note]) =>
     `<article class="operational-kpi ${modifier}"><span>${crmEscape(label)}</span><strong>${crmEscape(amount)}</strong><small>${crmEscape(note)}</small></article>`
@@ -333,11 +345,11 @@ function renderOperationalDashboard(snapshot) {
   }).join('');
   document.getElementById('operational-drivers').innerHTML = `<div class="operational-table-scroll"><table><thead><tr><th>Chofer</th><th>Vehículo</th><th>Estado</th><th>GPS</th><th>Actualizar estado</th></tr></thead><tbody>${rows || '<tr><td colspan="5">No hay choferes para este filtro.</td></tr>'}</tbody></table></div><small>Mostrando ${filtered.length} de ${items.length} choferes.</small>`;
   document.querySelectorAll('.operational-status-control').forEach(control => control.addEventListener('change', event => changeOperationalDriverStatus(control.dataset.driverUserId, event.target.value, control)));
-  const filters = [['TODOS', totals.totalDrivers ?? items.length], ['DISPONIBLE', totals.available ?? items.filter(i => stateLabel(i) === 'DISPONIBLE').length], ['NO DISPONIBLE', totals.unavailable ?? items.filter(i => stateLabel(i) === 'NO DISPONIBLE').length], ['FUERA DE SERVICIO', totals.out_of_service ?? items.filter(i => stateLabel(i) === 'FUERA DE SERVICIO').length], ['EN VIAJE', totals.totalDriversInTravel ?? items.filter(i => stateLabel(i) === 'EN VIAJE').length]];
+  const filters = [['TODOS', items.length], ['DISPONIBLE', items.filter(i => stateLabel(i) === 'DISPONIBLE').length], ['NO DISPONIBLE', items.filter(i => stateLabel(i) === 'NO DISPONIBLE').length], ['FUERA DE SERVICIO', items.filter(i => stateLabel(i) === 'FUERA DE SERVICIO').length], ['EN VIAJE', items.filter(i => stateLabel(i) === 'EN VIAJE').length]];
   const filterNode = document.getElementById('operational-status-filters');
   filterNode.innerHTML = filters.map(([label, count]) => `<button type="button" data-filter="${label}" class="${label === activeFilter ? 'active' : ''}">${label}<b>${crmEscape(count)}</b></button>`).join('');
   filterNode.querySelectorAll('button').forEach(button => button.addEventListener('click', () => { operationalStatusFilter = button.dataset.filter || 'EN VIAJE'; filterNode.querySelectorAll('button').forEach(b => b.classList.remove('active')); button.classList.add('active'); renderOperationalDashboard(operationalSnapshot); }));
-  renderOperationalMap(items);
+  renderOperationalMap(filtered);
 }
 
 function renderOperationalMap(items, targetId = 'operational-map') {

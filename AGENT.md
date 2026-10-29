@@ -19,6 +19,13 @@
 
 La animación LED del composer también tenía una segunda regla al final del CSS del tema oscuro que sobrescribía el gradiente con `background: var(--surface-0) !important`. La corrección debe preservar el `conic-gradient` y `led-rotate` en la última regla aplicable.
 
+## Hallazgo operativo reciente
+
+- El estado `unavailable` o `out_of_service` no apaga el GPS del conductor; la app mantiene el GPS y esos estados sólo impiden nuevos ofrecimientos cuando corresponde.
+- En Operaciones, tabla, contadores de filtros, KPIs y mapa deben usar la misma colección `snapshot.drivers`. No se deben mezclar `driver_totals` globales con una lista parcial.
+- El mapa debe recibir la colección filtrada: `TODOS` muestra todos los choferes con coordenadas válidas; cada estado muestra sólo ese estado. Una fila sin `lastPlace` no se dibuja para no mostrar una ubicación vieja como actual.
+- Los KPIs de actividad se alimentan de `snapshot.activity` y distinguen viajes realizados, cancelados, pedidos de WhatsApp y pedidos CRM.
+
 ## Validación reciente
 
 - La animación del borde fue reactivada para temas claro y oscuro.

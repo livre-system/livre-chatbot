@@ -42,6 +42,10 @@ describe('CRM operational status contract', () => {
     assert.match(app, /\['En viaje', countByState\('EN VIAJE'\)/);
     assert.match(app, /filtered\.filter\(item => item\.sessionActive === true\)\.length/);
     assert.doesNotMatch(app, /\['Choferes visibles', totalDrivers/);
+    assert.match(app, /\['Pedidos WhatsApp', whatsappRequests/);
+    assert.match(app, /\['Pedidos CRM', crmRequests/);
+    assert.match(app, /renderOperationalMap\(filtered\)/);
+    assert.doesNotMatch(app, /const filters = \[\['TODOS', totals\./);
   });
 
   it('renders valid last-known positions and labels stale GPS separately', () => {
