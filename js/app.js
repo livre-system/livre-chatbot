@@ -359,7 +359,7 @@ function renderOperationalDashboard(snapshot) {
   const filterNode = document.getElementById('operational-status-filters');
   filterNode.innerHTML = filters.map(([label, count]) => `<button type="button" data-filter="${label}" class="${label === activeFilter ? 'active' : ''}">${label}<b>${crmEscape(count)}</b></button>`).join('');
   filterNode.querySelectorAll('button').forEach(button => button.addEventListener('click', () => { operationalStatusFilter = button.dataset.filter || 'EN VIAJE'; filterNode.querySelectorAll('button').forEach(b => b.classList.remove('active')); button.classList.add('active'); renderOperationalDashboard(operationalSnapshot); }));
-  renderOperationalMap(items.filter(isLiveMapLocation));
+  renderOperationalMap(items);
 }
 
 function renderOperationalMap(items, targetId = 'operational-map') {
@@ -392,7 +392,7 @@ function renderOperationalMap(items, targetId = 'operational-map') {
 function isLiveMapLocation(item) {
   const latitude = Number(item?.lastPlace?.latitude);
   const longitude = Number(item?.lastPlace?.longitude);
-  return item?.locationFresh !== false
+  return item?.sessionActive === true
     && Number.isFinite(latitude)
     && Number.isFinite(longitude);
 }
@@ -407,7 +407,7 @@ async function loadMapViewer() {
     const snapshot = await apiCrm('operational');
     const items = snapshot.drivers || snapshot.drivers_by_vehicle || snapshot.driver_statuses || [];
     const rawList = Array.isArray(items) ? items : items.items || items.content || items.page?.content || [];
-    // Ambos mapas muestran el mismo conjunto: última posición válida dentro de 24 h.
+    // Ambos mapas renderizan el mismo snapshot; el mapa conserva sólo GPS activo.
     const list = rawList.filter(isLiveMapLocation);
     const totals = {
       available: list.filter(item => operationalFilterMatches(item, 'DISPONIBLE')).length,

@@ -44,7 +44,7 @@ describe('CRM operational status contract', () => {
     assert.doesNotMatch(app, /\['Choferes visibles', totalDrivers/);
     assert.match(app, /\['Pedidos WhatsApp', whatsappRequests/);
     assert.match(app, /\['Pedidos CRM', crmRequests/);
-    assert.match(app, /renderOperationalMap\(items\.filter\(isLiveMapLocation\)\)/);
+    assert.match(app, /renderOperationalMap\(items\)/);
     assert.doesNotMatch(app, /const filters = \[\['TODOS', totals\./);
   });
 
