@@ -73,7 +73,9 @@ describe('CRM operational status contract', () => {
     assert.doesNotMatch(app, /rate_id: Number\(document\.getElementById\('tariff-rate-id'\)/);
     assert.doesNotMatch(app, /Number\.isFinite\(payload\.rate_id\)/);
     assert.match(app, /identity\.username \|\| identity\.email \|\| identity\.user\?\.username/);
-    assert.match(app, /identityUsername === 'livreuser'/);
+    assert.match(app, /const privilegedUsernames = new Set\(\['livreuser', 'smoreno', 'mgiagante'\]\)/);
+    assert.match(app, /const isPrivilegedUser/);
+    assert.match(app, /identityUsername/);
     assert.match(app, /const verified = await apiCrm\('tariff'\)/);
     assert.match(app, /verified\.premium_price_per_km/);
     assert.match(app, /identityRoles\.has\('crm_admin'\)/);

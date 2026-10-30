@@ -2926,9 +2926,10 @@ async function bootApp() {
   }
   const identityRoles = new Set(identity.roles || []);
   const identityUsername = String(identity.username || identity.email || identity.user?.username || '').trim().toLowerCase();
-  const isLivreUser = identityUsername === 'livreuser' || identity.id === 'livreuser';
+  const privilegedUsernames = new Set(['livreuser', 'smoreno', 'mgiagante']);
+  const isPrivilegedUser = privilegedUsernames.has(identityUsername) || privilegedUsernames.has(String(identity.id || '').trim().toLowerCase());
   const canViewTariff = true; // La autorización real está en Livre Cloud; el item debe ser navegable en el CRM.
-  const canEditTariff = isLivreUser || identityRoles.has('admin') || identityRoles.has('crm_admin');
+  const canEditTariff = isPrivilegedUser || identityRoles.has('admin') || identityRoles.has('crm_admin');
   window.canEditTariff = canEditTariff;
   const tariffNav = document.getElementById('tariff-nav-item');
   if (tariffNav) tariffNav.hidden = false;
