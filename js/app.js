@@ -1079,7 +1079,6 @@ async function loadTariff() {
   status.textContent = 'Cargando configuración...';
   try {
     const data = await apiCrm('tariff');
-    document.getElementById('tariff-rate-id').textContent = data.rate_id ?? '—';
     document.getElementById('tariff-premium-km').value = data.premium_price_per_km ?? '';
     document.getElementById('tariff-premium-fixed').value = data.premium_fixed_cost ?? '';
     document.getElementById('tariff-ahorro-discount').value = data.ahorro_discount_percentage ?? '';
@@ -1113,7 +1112,6 @@ async function saveTariff(event) {
   try {
     const saved = await apiCrm('tariff', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const verified = await apiCrm('tariff');
-    document.getElementById('tariff-rate-id').textContent = verified.rate_id ?? saved.rate_id ?? '—';
     document.getElementById('tariff-premium-km').value = verified.premium_price_per_km ?? '';
     document.getElementById('tariff-premium-fixed').value = verified.premium_fixed_cost ?? '';
     document.getElementById('tariff-ahorro-discount').value = verified.ahorro_discount_percentage ?? '';
@@ -2927,7 +2925,8 @@ async function bootApp() {
     return;
   }
   const identityRoles = new Set(identity.roles || []);
-  const isLivreUser = identity.id === 'livreuser' || identity.username === 'livreuser';
+  const identityUsername = String(identity.username || identity.email || identity.user?.username || '').trim().toLowerCase();
+  const isLivreUser = identityUsername === 'livreuser' || identity.id === 'livreuser';
   const canViewTariff = true; // La autorización real está en Livre Cloud; el item debe ser navegable en el CRM.
   const canEditTariff = isLivreUser || identityRoles.has('admin') || identityRoles.has('crm_admin');
   window.canEditTariff = canEditTariff;

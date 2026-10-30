@@ -136,7 +136,6 @@
           <div id="agency-commissions-table" class="vehicle-management-table"></div>
         </div>
         <div id="tariff-view" hidden aria-label="Tarifa">
-          <div class="vehicle-page-heading"><h2>Tarifa</h2><p>Cambiá únicamente los valores que usa Livre para calcular nuevos viajes.</p></div>
           <form id="tariff-form" class="tariff-form">
             <div class="tariff-help-card"><strong>¿Qué tenés que cambiar?</strong><p>Solo el precio por kilómetro, el costo fijo y el descuento de Livre Ahorro. El sistema calcula todo lo demás.</p></div>
             <label>Premium · precio por km <span class="tariff-hint">Lo que se cobra por cada kilómetro.</span><input id="tariff-premium-km" type="number" min="0.01" step="0.01" required></label>
@@ -145,7 +144,6 @@
             <div class="tariff-form-actions"><button type="submit" class="vehicle-new-button">Guardar tarifa</button><span id="tariff-status" class="crm-status" aria-live="polite"></span></div>
           </form>
           <div class="tariff-rule-card"><strong>Cómo se calcula</strong><p id="tariff-formula">—</p><small>Los viajes ya creados conservan su importe. El cambio se aplica a nuevas cotizaciones.</small></div>
-          <div class="tariff-internal-card"><strong>Configuración interna</strong><p>Identificador de la tarifa: <code id="tariff-rate-id">—</code></p><small>Es un código técnico usado por el sistema. No necesitás modificarlo.</small></div>
         </div>
         <div id="driver-shift-closures-view" hidden aria-label="Historial y cierres">
           <div class="vehicle-page-heading"><h2>Historial y cierres</h2><p>Cierres de turno registrados en Livre Cloud.</p></div>
@@ -451,7 +449,7 @@
   
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-<script src="js/app.js?v=1787362001"></script>
+<script src="js/app.js?v=1787364001"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
