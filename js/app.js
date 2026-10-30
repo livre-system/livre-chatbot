@@ -467,7 +467,7 @@ function showMapViewer() {
   crmMode = 'map';
   document.getElementById('crm-title').textContent = 'Visor de mapa';
   document.getElementById('crm-subtitle').textContent = 'Ubicación en tiempo real de la operación.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'tariff-view', 'driver-shift-closures-view', 'operational-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('map-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -1046,7 +1046,7 @@ function showDriverShiftClosures() {
   setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Historial y cierres';
   document.getElementById('crm-subtitle').textContent = 'Cierres registrados en Livre Cloud.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'tariff-view', 'driver-shift-closures-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('driver-shift-closures-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -1060,12 +1060,69 @@ function showDriverShiftClosures() {
   loadDriverShiftClosures();
 }
 
+function showTariff() {
+  crmVisible = true;
+  setChatWorkspaceVisible(false);
+  document.getElementById('crm-title').textContent = 'Tarifa';
+  document.getElementById('crm-subtitle').textContent = 'Configuración administrable de Premium y Ahorro.';
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'tariff-view', 'driver-shift-closures-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  document.getElementById('tariff-view').hidden = false;
+  document.getElementById('message-list').hidden = true;
+  document.getElementById('composer').hidden = true;
+  document.getElementById('travel-form-view').hidden = true;
+  document.getElementById('crm-dashboard').hidden = false;
+  loadTariff();
+}
+
+async function loadTariff() {
+  const status = document.getElementById('tariff-status');
+  status.textContent = 'Cargando configuración...';
+  try {
+    const data = await apiCrm('tariff');
+    document.getElementById('tariff-rate-id').value = data.rate_id ?? '';
+    document.getElementById('tariff-premium-km').value = data.premium_price_per_km ?? '';
+    document.getElementById('tariff-premium-fixed').value = data.premium_fixed_cost ?? '';
+    document.getElementById('tariff-ahorro-discount').value = data.ahorro_discount_percentage ?? '';
+    document.getElementById('tariff-formula').textContent = data.formula || '—';
+    status.textContent = 'Configuración vigente cargada.';
+  } catch (error) {
+    status.textContent = 'No se pudo cargar la tarifa.';
+    console.error(error);
+  }
+}
+
+async function saveTariff(event) {
+  event.preventDefault();
+  const status = document.getElementById('tariff-status');
+  const button = event.currentTarget.querySelector('button[type="submit"]');
+  const payload = {
+    rate_id: Number(document.getElementById('tariff-rate-id').value),
+    premium_price_per_km: Number(document.getElementById('tariff-premium-km').value),
+    premium_fixed_cost: Number(document.getElementById('tariff-premium-fixed').value),
+    ahorro_discount_percentage: Number(document.getElementById('tariff-ahorro-discount').value),
+  };
+  if (!Number.isFinite(payload.rate_id) || payload.rate_id < 1 || !Number.isFinite(payload.premium_price_per_km) || payload.premium_price_per_km <= 0 || !Number.isFinite(payload.premium_fixed_cost) || payload.premium_fixed_cost < 0 || !Number.isFinite(payload.ahorro_discount_percentage) || payload.ahorro_discount_percentage < 0 || payload.ahorro_discount_percentage > 100) {
+    status.textContent = 'Revisá los valores: km > 0, fijo >= 0 y Ahorro entre 0 y 100%.';
+    return;
+  }
+  button.disabled = true;
+  status.textContent = 'Guardando tarifa...';
+  try {
+    const data = await apiCrm('tariff', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    document.getElementById('tariff-formula').textContent = data.formula || '—';
+    status.textContent = 'Tarifa guardada y verificada desde Livre Cloud.';
+  } catch (error) {
+    status.textContent = 'No se pudo guardar la tarifa.';
+    console.error(error);
+  } finally { button.disabled = false; }
+}
+
 function showAgencyCommissions() {
   crmVisible = true;
   setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
   document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde Livre Cloud.';
-  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'driver-shift-closures-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
+  ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'tariff-view', 'driver-shift-closures-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
   document.getElementById('agency-commissions-view').hidden = false;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
@@ -1112,6 +1169,7 @@ function showCrm(resource) {
   document.getElementById('vehicle-management-view').hidden = crmMode !== 'resource' || resource !== 'vehicles';
   document.getElementById('owner-management-view').hidden = true;
   document.getElementById('agency-commissions-view').hidden = true;
+  document.getElementById('tariff-view').hidden = true;
   document.getElementById('driver-shift-closures-view').hidden = true;
   document.getElementById('operational-view').hidden = crmMode !== 'control';
   document.getElementById('map-view').hidden = true;
@@ -1140,6 +1198,7 @@ function showVehicleOwnerManagement() {
   document.getElementById('vehicle-management-view').hidden = true;
   document.getElementById('owner-management-view').hidden = false;
   document.getElementById('agency-commissions-view').hidden = true;
+  document.getElementById('tariff-view').hidden = true;
   document.getElementById('driver-shift-closures-view').hidden = true;
   document.getElementById('operational-view').hidden = true;
   document.querySelector('.crm-toolbar').hidden = true;
@@ -2859,6 +2918,10 @@ async function bootApp() {
     renderLoginScreen();
     return;
   }
+  const identityRoles = new Set(identity.roles || []);
+  const canEditTariff = identity.username === 'livreuser' || identityRoles.has('admin') || identityRoles.has('crm_admin');
+  const tariffNav = document.getElementById('tariff-nav-item');
+  if (tariffNav) tariffNav.hidden = !canEditTariff;
   const lockScreen = document.getElementById('lock-screen');
   lockScreen.setAttribute('hidden', '');
   lockScreen.style.removeProperty('display');
@@ -2999,6 +3062,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showCrm(view);
       } else if (view === 'agency-commissions') {
         showAgencyCommissions();
+      } else if (view === 'tariff') {
+        showTariff();
       } else if (view === 'driver-shift-closures') {
         showDriverShiftClosures();
       } else if (view === 'vehicle-owners') {
@@ -3036,11 +3101,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (crmMode === 'map' || !document.getElementById('map-view').hidden) return loadMapViewer();
     if (!document.getElementById('owner-management-view').hidden) return loadVehicleOwners();
     if (!document.getElementById('agency-commissions-view').hidden) return loadAgencyCommissions();
+    if (!document.getElementById('tariff-view').hidden) return loadTariff();
     if (!document.getElementById('driver-shift-closures-view').hidden) return loadDriverShiftClosures();
     return loadCrmData();
   });
   document.getElementById('agency-commissions-apply').addEventListener('click', loadAgencyCommissions);
   document.getElementById('agency-commissions-settle').addEventListener('click', settleAgencyCommissions);
+  document.getElementById('tariff-form').addEventListener('submit', saveTariff);
   document.getElementById('shift-closures-apply').addEventListener('click', loadDriverShiftClosures);
   ['operational-driver-search'].forEach(id => {
     const control = document.getElementById(id);

@@ -52,6 +52,7 @@
         <button type="button" class="main-nav-item" data-view="vehicle-owners">Propietarios</button>
         <button type="button" class="main-nav-item" data-view="passengers">Clientes</button>
         <button type="button" class="main-nav-item" data-view="agency-commissions">Comisiones de agencia</button>
+        <button type="button" class="main-nav-item" data-view="tariff" id="tariff-nav-item" hidden>Tarifa</button>
         <button type="button" class="main-nav-item" data-view="driver-shift-closures">Historial y cierres</button>
       </nav>
       <div class="sidebar-account-actions">
@@ -133,6 +134,17 @@
           <div id="agency-commissions-totals" class="crm-cards"></div>
           <div id="agency-commissions-status" class="crm-status" aria-live="polite"></div>
           <div id="agency-commissions-table" class="vehicle-management-table"></div>
+        </div>
+        <div id="tariff-view" hidden aria-label="Tarifa">
+          <div class="vehicle-page-heading"><h2>Tarifa</h2><p>Configuración vigente para calcular Livre Premium y Livre Ahorro.</p></div>
+          <form id="tariff-form" class="tariff-form">
+            <label>Rate ID <input id="tariff-rate-id" type="number" min="1" step="1" required></label>
+            <label>Premium · precio por km <input id="tariff-premium-km" type="number" min="0.01" step="0.01" required></label>
+            <label>Premium · costo fijo <input id="tariff-premium-fixed" type="number" min="0" step="0.01" required></label>
+            <label>Ahorro · descuento sobre Premium (%) <input id="tariff-ahorro-discount" type="number" min="0" max="100" step="0.01" required></label>
+            <div class="tariff-form-actions"><button type="submit" class="vehicle-new-button">Guardar tarifa</button><span id="tariff-status" class="crm-status" aria-live="polite"></span></div>
+          </form>
+          <div class="tariff-rule-card"><strong>Fórmula activa</strong><p id="tariff-formula">—</p><small>Los viajes ya creados conservan su importe. El cambio se aplica a nuevas cotizaciones.</small></div>
         </div>
         <div id="driver-shift-closures-view" hidden aria-label="Historial y cierres">
           <div class="vehicle-page-heading"><h2>Historial y cierres</h2><p>Cierres de turno registrados en Livre Cloud.</p></div>

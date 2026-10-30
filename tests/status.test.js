@@ -62,4 +62,15 @@ describe('CRM operational status contract', () => {
     assert.match(app, /data-driver-user-id/);
     assert.doesNotMatch(app, /stopGps\(\).*out_of_service/s);
   });
+
+  it('exposes the tariff item only for CRM administrators and uses the tariff contract', () => {
+    assert.match(index, /data-view="tariff" id="tariff-nav-item" hidden/);
+    assert.match(index, /id="tariff-form"/);
+    assert.match(app, /identityRoles\.has\('crm_admin'\)/);
+    assert.match(app, /apiCrm\('tariff'\)/);
+    assert.match(app, /apiCrm\('tariff', \{ method: 'PUT'/);
+    assert.match(app, /ahorro_discount_percentage/);
+    assert.match(app, /premium_price_per_km/);
+    assert.match(index, /Los viajes ya creados conservan su importe/);
+  });
 });
