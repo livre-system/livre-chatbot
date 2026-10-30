@@ -63,4 +63,7 @@ test('histórico no queda superpuesto al cambiar de sección', () => {
   assert.match(app, /function hideTravelHistory\(\)/);
   assert.match(app, /function showCrm\(resource\) \{\s+hideTravelHistory\(\)/);
   assert.match(app, /function showChat\(\) \{\s+hideTravelHistory\(\)/);
+  for (const view of ['showTariff', 'showAgencyCommissions', 'showVehicleOwnerManagement', 'showTravelForm']) {
+    assert.match(app, new RegExp(`function ${view}\\(\\) \\{\\s+hideTravelHistory\\(\\)`));
+  }
 });

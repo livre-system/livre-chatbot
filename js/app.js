@@ -1021,6 +1021,7 @@ async function settleAgencyCommissions() {
 }
 
 function showTariff() {
+  hideTravelHistory();
   crmVisible = true;
   setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Tarifa';
@@ -1084,6 +1085,7 @@ async function saveTariff(event) {
 }
 
 function showAgencyCommissions() {
+  hideTravelHistory();
   crmVisible = true;
   setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
@@ -1153,6 +1155,7 @@ function showCrm(resource) {
 }
 
 function showVehicleOwnerManagement() {
+  hideTravelHistory();
   crmVisible = true;
   setChatWorkspaceVisible(false);
   document.getElementById('crm-title').textContent = 'Propietarios';
@@ -1327,6 +1330,7 @@ function toggleTravelSchedule() {
 }
 
 function showTravelForm() {
+  hideTravelHistory();
   const lockScreen = document.getElementById('lock-screen');
   const app = document.getElementById('app');
   const view = document.getElementById('travel-form-view');
