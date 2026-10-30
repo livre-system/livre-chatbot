@@ -3859,3 +3859,86 @@ html[data-theme="dark"] #composer .input-wrapper {
 .tariff-rule-card p { margin:0 0 8px; color:var(--text); }
 .tariff-rule-card small { color:var(--text-dim); }
 @media (max-width:640px) { .tariff-form { grid-template-columns:1fr; } .tariff-form-actions { grid-column:auto; align-items:flex-start; flex-direction:column; } }
+
+/* QA final: escala legible y superficies semánticas para todas las vistas CRM. */
+:root {
+  --surface: var(--surface-1);
+  --color-surface: var(--surface-1);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-dim);
+  --color-accent: var(--lime);
+}
+html[data-theme="dark"] {
+  --surface: var(--surface-1);
+  --color-surface: var(--surface-1);
+  --color-border: var(--dark-border);
+  --color-text: var(--text);
+  --color-text-muted: var(--dark-muted);
+  --color-accent: var(--lime);
+}
+
+/* El encabezado del CRM es la única fuente del título de cada ítem. */
+#crm-dashboard > .crm-dashboard-header { margin-bottom: 22px; }
+
+/* Lectura cómoda: evita textos diminutos en tablas, filtros y acciones. */
+.crm-table-wrap table,
+.driver-management-table table,
+.vehicle-management-table table,
+.travel-management-table table,
+.travel-history-table table,
+#agency-commissions-table table,
+#shift-closures-table table { font-size: .84rem; }
+.crm-table-wrap th,
+.driver-management-table th,
+.vehicle-management-table th,
+.travel-management-table th,
+.travel-history-table th,
+#agency-commissions-table th,
+#shift-closures-table th { font-size: .74rem; }
+.crm-table-wrap td,
+.driver-management-table td,
+.vehicle-management-table td,
+.travel-management-table td,
+.travel-history-table td,
+#agency-commissions-table td,
+#shift-closures-table td { line-height: 1.4; }
+.crm-toolbar label,
+.agency-commissions-toolbar label,
+.travel-management-filters label { font-size: .82rem; }
+
+/* Comisiones, cierres, tarifa y filtros respetan el tema oscuro. */
+#agency-commissions-table,
+#shift-closures-table,
+#tariff-view,
+#upload-memory-modal-box,
+#agency-commissions-totals,
+.operational-feed-toolbar > input,
+.operational-status-filters button,
+.agency-commissions-toolbar input,
+.agency-commissions-toolbar select { background: var(--surface-1); color: var(--text); border-color: var(--border); }
+.tariff-rule-card,
+.tariff-help-card { color: var(--text); }
+
+/* Botones y campos mantienen una altura cómoda y consistente. */
+#crm-refresh,
+#agency-commissions-apply,
+#agency-commissions-settle,
+#shift-closures-apply,
+.tariff-form-actions button,
+.vehicle-new-button,
+.driver-primary-action { min-height: 42px; }
+
+@media (max-width: 760px) {
+  .crm-table-wrap table,
+  .driver-management-table table,
+  .vehicle-management-table table,
+  .travel-management-table table,
+  .travel-history-table table { font-size: .82rem; }
+  .agency-commissions-toolbar { grid-template-columns: 1fr; }
+  .agency-commissions-toolbar button { width: 100%; }
+}
+@media (max-width: 420px) {
+  .crm-dashboard-header h2, .travel-page-heading h2 { font-size: 1.18rem; }
+  .crm-dashboard-header p { font-size: .82rem; }
+}

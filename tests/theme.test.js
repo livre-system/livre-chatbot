@@ -21,3 +21,14 @@ test('dark theme covers the lock screen and uses dedicated surfaces', () => {
   assert.match(css, /--surface-0: #111216/);
   assert.match(css, /--surface-3: #2d333d/);
 });
+
+test('CRM keeps semantic surfaces and one source for each view title', () => {
+  assert.match(css, /--surface: var\(--surface-1\)/);
+  assert.match(css, /--color-surface: var\(--surface-1\)/);
+  assert.match(css, /#agency-commissions-table,/);
+  assert.match(css, /background: var\(--surface-1\); color: var\(--text\); border-color: var\(--border\)/);
+  assert.doesNotMatch(index, /vehicle-management-view[\\s\\S]*?vehicle-page-heading/);
+  assert.doesNotMatch(index, /owner-management-view[\\s\\S]*?vehicle-page-heading/);
+  assert.doesNotMatch(index, /agency-commissions-view[\\s\\S]*?vehicle-page-heading/);
+  assert.doesNotMatch(index, /driver-shift-closures-view[\\s\\S]*?vehicle-page-heading/);
+});

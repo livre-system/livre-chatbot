@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
   <script src="js/theme-init.js"></script>
-  <link rel="stylesheet" href="css/style.css?v=1787363001">
+  <link rel="stylesheet" href="css/style.css?v=1787365001">
 </head>
 <body>
 
@@ -113,17 +113,14 @@
           <div id="driver-management-table" class="driver-management-table"></div>
         </div>
         <div id="vehicle-management-view" hidden aria-label="Gestión de vehículos">
-          <div class="vehicle-page-heading"><h2>Vehículos</h2></div>
           <div class="vehicle-management-toolbar"><input id="vehicle-management-search" type="search" placeholder="Buscar por dominio, marca o modelo..." autocomplete="off"><button type="button" class="vehicle-new-button">Nuevo Vehículo</button></div>
           <div id="vehicle-management-table" class="vehicle-management-table"></div>
         </div>
         <div id="owner-management-view" hidden aria-label="Propietarios">
-          <div class="vehicle-page-heading"><h2>Propietarios</h2><p>Propietarios ya cargados en la operación.</p></div>
           <div class="vehicle-management-toolbar"><input id="owner-management-search" type="search" placeholder="Buscar por nombre, DNI o teléfono..." autocomplete="off"><button type="button" class="vehicle-new-button" id="owner-new-button">Nuevo propietario</button></div>
           <div id="owner-management-table" class="vehicle-management-table"></div>
         </div>
         <div id="agency-commissions-view" hidden aria-label="Comisiones de agencia">
-          <div class="vehicle-page-heading"><h2>Comisiones de agencia</h2><p>Liquidación por propietario según los viajes del período.</p></div>
           <div class="agency-commissions-toolbar">
             <label>Desde <input type="date" id="agency-commissions-from"></label>
             <label>Hasta <input type="date" id="agency-commissions-to"></label>
@@ -146,7 +143,6 @@
           <div class="tariff-rule-card"><strong>Cómo se calcula</strong><p id="tariff-formula">—</p><small>Los viajes ya creados conservan su importe. El cambio se aplica a nuevas cotizaciones.</small></div>
         </div>
         <div id="driver-shift-closures-view" hidden aria-label="Historial y cierres">
-          <div class="vehicle-page-heading"><h2>Historial y cierres</h2><p>Cierres de turno registrados en Livre Cloud.</p></div>
           <div class="agency-commissions-toolbar">
             <label>Desde <input type="date" id="shift-closures-from"></label>
             <label>Hasta <input type="date" id="shift-closures-to"></label>

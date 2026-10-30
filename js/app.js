@@ -31,12 +31,12 @@ async function apiOperational(options = {}) {
 
 const CRM_LABELS = { passengers: 'Clientes', drivers: 'Choferes', vehicles: 'Vehículos', travels: 'Viajes' };
 const CRM_FIELD_LABELS = {
-  id: 'ID', id: 'ID', passengerUserId: 'ID del cliente', driverUserId: 'ID del conductor', vehicleId: 'ID del vehículo', travelId: 'ID del viaje',
+  id: 'ID', passengerUserId: 'ID del cliente', driverUserId: 'ID del conductor', vehicleId: 'ID del vehículo', travelId: 'ID del viaje',
   code: 'Código', dni: 'DNI', firstName: 'Nombre', name: 'Nombre', lastName: 'Apellido', surname: 'Apellido',
   phone: 'Teléfono', phoneNumber: 'Phone Number', cellphone: 'Celular', email: 'Correo electrónico', passengerUserEmail: 'Passenger User Email', city: 'Ciudad', address: 'Domicilio', country: 'País',
   rate: 'Tarifa', family: 'Familia', paxNote: 'Observaciones', isPaxVip: 'Cliente VIP',
   state: 'Estado', status: 'Estado', origin: 'Origen', destination: 'Destino', channel: 'Canal', travelDate: 'Fecha del viaje',
-  creationDate: 'Fecha de creación', driverId: 'ID del conductor', passengerId: 'ID del cliente', vehicle: 'Vehículo', vehicleId: 'ID del vehículo',
+  creationDate: 'Fecha de creación', driverId: 'ID del conductor', passengerId: 'ID del cliente', vehicle: 'Vehículo',
   brand: 'Marca', model: 'Modelo', plate: 'Patente', domain: 'Patente', year: 'Año', enabled: 'Habilitado',
   vehicleOwner: 'Titular', ownerId: 'ID del titular', vehicleType: 'Tipo de vehículo', type: 'Tipo', additionalTypes: 'Tipos adicionales',
   characteristics: 'Características', documents: 'Documentación', photo: 'Foto', currentBase: 'Base actual',

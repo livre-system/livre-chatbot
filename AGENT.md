@@ -1,5 +1,14 @@
 # AGENT.md — Livre Chatbot
 
+## Criterio activo de entrega (prioridad máxima)
+
+- Tratar el CRM como producto a entregar: recorrer todos los ítems de punta a punta (Operaciones, Visor de mapa, LIVI IA, Crear viaje, Gestión de viajes, Choferes, Vehículos, Propietarios, Clientes, Comisiones, Tarifa, Historial/cierres, Ajustes y temas claro/oscuro).
+- Actuar como tester y corrector: investigar → editar → probar → volver a editar y probar hasta cerrar cada defecto visible o funcional. No pedir al usuario que descubra problemas que pueden verificarse aquí.
+- Revisar especialmente legibilidad, tamaños, duplicaciones, espaciado, botones, formularios, tablas, estados vacíos/carga/error, responsive y contraste en light/dark.
+- Validar en navegador autenticado cuando haga falta; si la sesión no está disponible, dejar explícito el límite y no afirmar que el flujo autenticado está listo.
+- Antes de terminar: tests enfocados, `node --check js/app.js`, `git diff --check`, revisión visual de desktop/móvil y ambos temas, deploy verificado y fetch del asset publicado.
+- Hacer cambios mínimos y aislados, separar visual de backend, no usar credenciales ni inventar datos/IDs, y commitear/pushear lo terminado. No incluir `.env.local`, `errores/` ni `.gitignore`.
+
 ## Contexto activo
 
 - Frontend estático del panel LIVI / Viaja Livre.
