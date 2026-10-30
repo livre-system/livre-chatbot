@@ -1,9 +1,9 @@
-const CACHE_NAME = 'livre-shell-v5';
+const CACHE_NAME = 'livre-shell-v6';
 const APP_SHELL = [
   './',
   './index.html',
   './css/style.css?v=1786659002',
-  './js/app.js?v=1786659011',
+  './js/app.js?v=1787361000',
   './images/favicon.png',
   './images/icon-192.png',
   './images/icon-512.png',
