@@ -53,7 +53,6 @@
         <button type="button" class="main-nav-item" data-view="passengers">Clientes</button>
         <button type="button" class="main-nav-item" data-view="agency-commissions">Comisiones de agencia</button>
         <button type="button" class="main-nav-item" data-view="tariff" id="tariff-nav-item">Tarifa</button>
-        <button type="button" class="main-nav-item" data-view="driver-shift-closures">Historial y cierres</button>
       </nav>
       <div class="sidebar-account-actions">
         <button type="button" class="main-nav-item" id="sidebar-settings">Ajustes</button>
@@ -142,15 +141,6 @@
           </form>
           <div class="tariff-rule-card"><strong>Cómo se calcula</strong><p id="tariff-formula">—</p><small>Los viajes ya creados conservan su importe. El cambio se aplica a nuevas cotizaciones.</small></div>
         </div>
-        <div id="driver-shift-closures-view" hidden aria-label="Historial y cierres">
-          <div class="agency-commissions-toolbar">
-            <label>Desde <input type="date" id="shift-closures-from"></label>
-            <label>Hasta <input type="date" id="shift-closures-to"></label>
-            <button type="button" class="vehicle-new-button" id="shift-closures-apply">Consultar</button>
-          </div>
-          <div id="shift-closures-status" class="crm-status" aria-live="polite"></div>
-          <div id="shift-closures-table" class="vehicle-management-table"></div>
-        </div>
         <div id="travel-management-view" hidden aria-label="Viajes">
           <div class="travel-management-filters"><input id="travel-management-search" type="search" placeholder="Buscar..." autocomplete="off"><label id="travel-date-from-filter" hidden>Fecha desde <input type="date" id="travel-management-date-from"></label><label>Fecha hasta <input type="date" id="travel-management-date"></label></div>
           <div class="travel-status-tabs" role="tablist"><button class="active" type="button">Asignar <small>1</small></button><button type="button">En curso <small>3</small></button><button type="button">Programados <small>0</small></button><button type="button">En Conflicto <small>0</small></button><button type="button">Perdidas <small>0</small></button><button type="button">Cancelados <small>7</small></button><button type="button">Finalizados <small>100</small></button></div>
@@ -193,7 +183,7 @@
 
       <section id="travel-history-view" class="panel-view" hidden aria-label="Histórico de viajes">
         <div class="travel-page-heading"><h2>Histórico de viajes</h2><p>Consultá el historial real de viajes de Livre Cloud.</p></div>
-        <div class="history-toolbar"><label>Desde <input id="history-date-from" type="date"></label><label>Hasta <input id="history-date-to" type="date"></label><select id="history-state"><option value="">Todos los estados</option><option value="DONE">Finalizados</option><option value="CANCELLED">Cancelados</option></select><input id="history-search" type="search" placeholder="Buscar viaje..."><button type="button" id="history-apply">Aplicar filtros</button><button type="button" id="history-refresh">Actualizar</button></div>
+        <div class="history-toolbar"><label>Desde <input id="history-date-from" type="date"></label><label>Hasta <input id="history-date-to" type="date"></label><label>Chofer <select id="history-driver"><option value="">Todos</option></select></label><select id="history-state"><option value="">Todos los estados</option><option value="completed">Finalizados</option><option value="cancelled">Cancelados</option></select><input id="history-search" type="search" placeholder="Buscar viaje, chofer o patente..."><button type="button" id="history-apply">Aplicar filtros</button><button type="button" id="history-refresh">Actualizar</button></div>
         <p id="history-status" aria-live="polite"></p>
         <div id="travel-history-summary" class="travel-history-summary" aria-label="Resumen del histórico"></div>
         <div id="travel-history-table" class="travel-history-table"></div>

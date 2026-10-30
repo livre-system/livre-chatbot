@@ -5,6 +5,7 @@ const path = require('node:path');
 
 const cloudRouter = fs.readFileSync(path.resolve(__dirname, '../../livre-cloud/app/crm/router.py'), 'utf8');
 const app = fs.readFileSync(path.resolve(__dirname, '../js/app.js'), 'utf8');
+const index = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf8');
 
 test('CRM backend reads historical entities from local Livre tables', () => {
   for (const table of ['livre_crm_passengers', 'livre_crm_vehicle_owners']) {
@@ -14,11 +15,14 @@ test('CRM backend reads historical entities from local Livre tables', () => {
   assert.doesNotMatch(cloudRouter, /(?:magiis_passengers|magiis_vehicles|magiis_drivers)/i);
 });
 
-test('CRM exposes the local driver shift closure history', () => {
+test('Historial y cierres queda unificado dentro de Histórico de viajes', () => {
   assert.match(cloudRouter, /@router\.get\("\/driver-shift-closures"\)/);
   assert.match(cloudRouter, /FROM livre_driver_shift_closures/);
-  assert.match(app, /showDriverShiftClosures\(\)/);
-  assert.match(app, /driver-shift-closures\?/);
+  assert.doesNotMatch(app, /showDriverShiftClosures\(\)/);
+  assert.doesNotMatch(app, /data-view="driver-shift-closures"/);
+  assert.match(index, /id="history-driver"/);
+  assert.match(app, /driver_id: driver\.value/);
+  assert.match(app, /commission_rule/);
 });
 
 test('CRM no muestra el canal Base / Handie en los items', () => {
@@ -49,7 +53,10 @@ test('histórico de viajes usa el contrato real de Livre Cloud y no columnas ine
     assert.match(app, new RegExp(`\\['${field}',`));
   }
   assert.doesNotMatch(app, /\['Col1', 'ID viaje'\]/);
-  assert.match(app, /formatHistoryAmount\(summary\.final_amount_ars\)/);
+  assert.match(app, /formatHistoryAmount\(summary\.gross_amount\)/);
+  assert.match(cloudRouter, /commission_rule/);
+  assert.match(cloudRouter, /service_type_id = '1'/);
+  assert.match(cloudRouter, /driver_id: str/);
 });
 
 test('histórico no queda superpuesto al cambiar de sección', () => {
