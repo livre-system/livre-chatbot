@@ -1459,7 +1459,7 @@ function renderTravelQuotes(options) {
     };
   });
   travelQuoteOptions = displayOptions.map(item => item.option);
-  quoteBox.innerHTML = displayOptions.map(item => `<label class="travel-quote-option"><input type="radio" name="travel-service" value="${crmEscape(String(item.option.transportTypeId))}"${item.selected}><span><strong>${item.icon} ${item.label}</strong><small>${item.speed} · Pago en efectivo</small><small>${crmEscape(item.option.duration || 'Tiempo no informado')} · ${crmEscape(item.option.distance ? `${item.option.distance} km` : 'Distancia no informada')}</small><small>Créditos dentro de la app</small></span><b>$ ${Number(item.option.pricePointToPoint || 0).toLocaleString('es-AR')}</b></label>`).join('');
+  quoteBox.innerHTML = displayOptions.map(item => `<label class="travel-quote-option"><input type="radio" name="travel-service" value="${crmEscape(String(item.option.transportTypeId))}"${item.selected}><span><strong>${item.icon} ${item.label}</strong><small>${item.id === '2' ? 'Cobro gestionado desde CRM' : 'Pago en efectivo'}</small><small>${crmEscape(item.option.duration || 'Tiempo no informado')} · ${crmEscape(item.option.distance ? `${item.option.distance} km` : 'Distancia no informada')}</small><small>Créditos dentro de la app</small></span><b>$ ${Number(item.option.pricePointToPoint || 0).toLocaleString('es-AR')}</b></label>`).join('');
   quoteBox.hidden = !available.length;
   return available;
 }
