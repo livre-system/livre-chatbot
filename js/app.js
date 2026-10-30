@@ -1079,7 +1079,7 @@ async function loadTariff() {
   status.textContent = 'Cargando configuración...';
   try {
     const data = await apiCrm('tariff');
-    document.getElementById('tariff-rate-id').value = data.rate_id ?? '';
+    document.getElementById('tariff-rate-id').textContent = data.rate_id ?? '—';
     document.getElementById('tariff-premium-km').value = data.premium_price_per_km ?? '';
     document.getElementById('tariff-premium-fixed').value = data.premium_fixed_cost ?? '';
     document.getElementById('tariff-ahorro-discount').value = data.ahorro_discount_percentage ?? '';
@@ -1100,7 +1100,6 @@ async function saveTariff(event) {
   const status = document.getElementById('tariff-status');
   const button = event.currentTarget.querySelector('button[type="submit"]');
   const payload = {
-    rate_id: Number(document.getElementById('tariff-rate-id').value),
     premium_price_per_km: Number(document.getElementById('tariff-premium-km').value),
     premium_fixed_cost: Number(document.getElementById('tariff-premium-fixed').value),
     ahorro_discount_percentage: Number(document.getElementById('tariff-ahorro-discount').value),

@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
   <script src="js/theme-init.js"></script>
-  <link rel="stylesheet" href="css/style.css?v=1786659006">
+  <link rel="stylesheet" href="css/style.css?v=1787361001">
 </head>
 <body>
 
@@ -136,15 +136,16 @@
           <div id="agency-commissions-table" class="vehicle-management-table"></div>
         </div>
         <div id="tariff-view" hidden aria-label="Tarifa">
-          <div class="vehicle-page-heading"><h2>Tarifa</h2><p>Configuración vigente para calcular Livre Premium y Livre Ahorro.</p></div>
+          <div class="vehicle-page-heading"><h2>Tarifa</h2><p>Cambiá únicamente los valores que usa Livre para calcular nuevos viajes.</p></div>
           <form id="tariff-form" class="tariff-form">
-            <label>Rate ID <input id="tariff-rate-id" type="number" min="1" step="1" required></label>
-            <label>Premium · precio por km <input id="tariff-premium-km" type="number" min="0.01" step="0.01" required></label>
-            <label>Premium · costo fijo <input id="tariff-premium-fixed" type="number" min="0" step="0.01" required></label>
-            <label>Ahorro · descuento sobre Premium (%) <input id="tariff-ahorro-discount" type="number" min="0" max="100" step="0.01" required></label>
+            <div class="tariff-help-card"><strong>¿Qué tenés que cambiar?</strong><p>Solo el precio por kilómetro, el costo fijo y el descuento de Livre Ahorro. El sistema calcula todo lo demás.</p></div>
+            <label>Premium · precio por km <span class="tariff-hint">Lo que se cobra por cada kilómetro.</span><input id="tariff-premium-km" type="number" min="0.01" step="0.01" required></label>
+            <label>Premium · costo fijo <span class="tariff-hint">Importe fijo que se suma al viaje.</span><input id="tariff-premium-fixed" type="number" min="0" step="0.01" required></label>
+            <label>Ahorro · descuento sobre Premium (%) <span class="tariff-hint">Ejemplo: 25 significa 25% menos que Premium.</span><input id="tariff-ahorro-discount" type="number" min="0" max="100" step="0.01" required></label>
             <div class="tariff-form-actions"><button type="submit" class="vehicle-new-button">Guardar tarifa</button><span id="tariff-status" class="crm-status" aria-live="polite"></span></div>
           </form>
-          <div class="tariff-rule-card"><strong>Fórmula activa</strong><p id="tariff-formula">—</p><small>Los viajes ya creados conservan su importe. El cambio se aplica a nuevas cotizaciones.</small></div>
+          <div class="tariff-rule-card"><strong>Cómo se calcula</strong><p id="tariff-formula">—</p><small>Los viajes ya creados conservan su importe. El cambio se aplica a nuevas cotizaciones.</small></div>
+          <div class="tariff-internal-card"><strong>Configuración interna</strong><p>Identificador de la tarifa: <code id="tariff-rate-id">—</code></p><small>Es un código técnico usado por el sistema. No necesitás modificarlo.</small></div>
         </div>
         <div id="driver-shift-closures-view" hidden aria-label="Historial y cierres">
           <div class="vehicle-page-heading"><h2>Historial y cierres</h2><p>Cierres de turno registrados en Livre Cloud.</p></div>

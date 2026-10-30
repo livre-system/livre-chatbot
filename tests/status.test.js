@@ -65,8 +65,11 @@ describe('CRM operational status contract', () => {
 
   it('shows tariff to CRM operators and keeps editing restricted to administrators', () => {
     assert.match(index, /data-view="tariff" id="tariff-nav-item">Tarifa/);
-    assert.match(index, /id="tariff-form"/);
-    assert.match(app, /const canViewTariff = true/);
+    assert.match(index, /Identificador de la tarifa/);
+    assert.match(index, /id="tariff-premium-km"/);
+    assert.doesNotMatch(index, />Rate ID <input/);
+    assert.match(app, /document\.getElementById\('tariff-rate-id'\)\.textContent/);
+    assert.doesNotMatch(app, /rate_id: Number\(document\.getElementById\('tariff-rate-id'\)/);
     assert.match(app, /identityRoles\.has\('crm_admin'\)/);
     assert.match(app, /window\.canEditTariff/);
     assert.match(app, /Modo lectura: solo un administrador/);
