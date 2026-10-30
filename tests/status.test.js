@@ -66,6 +66,7 @@ describe('CRM operational status contract', () => {
   it('shows tariff to CRM operators and keeps editing restricted to administrators', () => {
     assert.match(index, /data-view="tariff" id="tariff-nav-item" hidden/);
     assert.match(index, /id="tariff-form"/);
+    assert.match(app, /identity\.id === 'livreuser'/);
     assert.match(app, /identityRoles\.has\('crm'\)/);
     assert.match(app, /identityRoles\.has\('crm_admin'\)/);
     assert.match(app, /window\.canEditTariff/);

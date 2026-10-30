@@ -2923,8 +2923,9 @@ async function bootApp() {
     return;
   }
   const identityRoles = new Set(identity.roles || []);
-  const canViewTariff = identity.username === 'livreuser' || identityRoles.has('admin') || identityRoles.has('crm_admin') || identityRoles.has('crm');
-  const canEditTariff = identity.username === 'livreuser' || identityRoles.has('admin') || identityRoles.has('crm_admin');
+  const isLivreUser = identity.id === 'livreuser' || identity.username === 'livreuser';
+  const canViewTariff = isLivreUser || identityRoles.has('admin') || identityRoles.has('crm_admin') || identityRoles.has('crm');
+  const canEditTariff = isLivreUser || identityRoles.has('admin') || identityRoles.has('crm_admin');
   window.canEditTariff = canEditTariff;
   const tariffNav = document.getElementById('tariff-nav-item');
   if (tariffNav) tariffNav.hidden = !canViewTariff;
