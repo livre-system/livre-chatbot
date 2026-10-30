@@ -2924,11 +2924,11 @@ async function bootApp() {
   }
   const identityRoles = new Set(identity.roles || []);
   const isLivreUser = identity.id === 'livreuser' || identity.username === 'livreuser';
-  const canViewTariff = isLivreUser || identityRoles.has('admin') || identityRoles.has('crm_admin') || identityRoles.has('crm');
+  const canViewTariff = true; // La autorización real está en Livre Cloud; el item debe ser navegable en el CRM.
   const canEditTariff = isLivreUser || identityRoles.has('admin') || identityRoles.has('crm_admin');
   window.canEditTariff = canEditTariff;
   const tariffNav = document.getElementById('tariff-nav-item');
-  if (tariffNav) tariffNav.hidden = !canViewTariff;
+  if (tariffNav) tariffNav.hidden = false;
   const lockScreen = document.getElementById('lock-screen');
   lockScreen.setAttribute('hidden', '');
   lockScreen.style.removeProperty('display');
