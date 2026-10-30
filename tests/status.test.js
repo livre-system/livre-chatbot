@@ -63,10 +63,13 @@ describe('CRM operational status contract', () => {
     assert.doesNotMatch(app, /stopGps\(\).*out_of_service/s);
   });
 
-  it('exposes the tariff item only for CRM administrators and uses the tariff contract', () => {
+  it('shows tariff to CRM operators and keeps editing restricted to administrators', () => {
     assert.match(index, /data-view="tariff" id="tariff-nav-item" hidden/);
     assert.match(index, /id="tariff-form"/);
+    assert.match(app, /identityRoles\.has\('crm'\)/);
     assert.match(app, /identityRoles\.has\('crm_admin'\)/);
+    assert.match(app, /window\.canEditTariff/);
+    assert.match(app, /Modo lectura: solo un administrador/);
     assert.match(app, /apiCrm\('tariff'\)/);
     assert.match(app, /apiCrm\('tariff', \{ method: 'PUT'/);
     assert.match(app, /ahorro_discount_percentage/);

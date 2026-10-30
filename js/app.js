@@ -1084,7 +1084,11 @@ async function loadTariff() {
     document.getElementById('tariff-premium-fixed').value = data.premium_fixed_cost ?? '';
     document.getElementById('tariff-ahorro-discount').value = data.ahorro_discount_percentage ?? '';
     document.getElementById('tariff-formula').textContent = data.formula || '—';
-    status.textContent = 'Configuración vigente cargada.';
+    const tariffForm = document.getElementById('tariff-form');
+    tariffForm.querySelectorAll('input').forEach(input => { input.disabled = !window.canEditTariff; });
+    const saveButton = tariffForm.querySelector('button[type="submit"]');
+    saveButton.hidden = !window.canEditTariff;
+    status.textContent = window.canEditTariff ? 'Configuración vigente cargada.' : 'Modo lectura: solo un administrador puede modificar la tarifa.';
   } catch (error) {
     status.textContent = 'No se pudo cargar la tarifa.';
     console.error(error);
@@ -2919,9 +2923,11 @@ async function bootApp() {
     return;
   }
   const identityRoles = new Set(identity.roles || []);
+  const canViewTariff = identity.username === 'livreuser' || identityRoles.has('admin') || identityRoles.has('crm_admin') || identityRoles.has('crm');
   const canEditTariff = identity.username === 'livreuser' || identityRoles.has('admin') || identityRoles.has('crm_admin');
+  window.canEditTariff = canEditTariff;
   const tariffNav = document.getElementById('tariff-nav-item');
-  if (tariffNav) tariffNav.hidden = !canEditTariff;
+  if (tariffNav) tariffNav.hidden = !canViewTariff;
   const lockScreen = document.getElementById('lock-screen');
   lockScreen.setAttribute('hidden', '');
   lockScreen.style.removeProperty('display');
