@@ -2962,6 +2962,7 @@ const TRAVEL_HISTORY_COLUMNS = [
   ['origen', 'Origen'], ['destino', 'Destino'], ['status', 'Estado'],
   ['gross_amount', 'Total'], ['driver_amount', 'Conductor'],
   ['commission_amount', 'Comisión Livre'], ['commission_percentage', '%'],
+  ['payment_status', 'Pago'], ['payment_method', 'Medio de pago'], ['payment_provider', 'Proveedor'], ['paid_at', 'Pagado el'],
 ];
 
 function formatHistoryValue(value, key) {
@@ -2969,7 +2970,9 @@ function formatHistoryValue(value, key) {
   if (typeof value === 'object') return JSON.stringify(value);
   if (key === 'gross_amount' || key === 'driver_amount' || key === 'commission_amount') return formatHistoryAmount(value);
   if (key === 'commission_percentage') return `${value}%`;
-  if (key === 'created_at' || key === 'updated_at') {
+  if (key === 'payment_method') return ({ cash: 'Efectivo', visa: 'Tarjeta Visa', master: 'Tarjeta Mastercard', amex: 'Tarjeta American Express', account_money: 'Mercado Pago' }[String(value)] || String(value));
+  if (key === 'payment_status') return ({ paid: 'Pagado', approved: 'Aprobado', pay_on_trip: 'Pago en el viaje', pending: 'Pendiente', rejected: 'Rechazado' }[String(value)] || String(value));
+  if (key === 'created_at' || key === 'updated_at' || key === 'paid_at') {
     const date = new Date(value);
     if (!Number.isNaN(date.getTime())) return formatArgentinaDate(date);
   }
