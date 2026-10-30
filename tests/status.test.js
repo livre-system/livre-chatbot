@@ -70,6 +70,9 @@ describe('CRM operational status contract', () => {
     assert.doesNotMatch(index, />Rate ID <input/);
     assert.match(app, /document\.getElementById\('tariff-rate-id'\)\.textContent/);
     assert.doesNotMatch(app, /rate_id: Number\(document\.getElementById\('tariff-rate-id'\)/);
+    assert.doesNotMatch(app, /Number\.isFinite\(payload\.rate_id\)/);
+    assert.match(app, /const verified = await apiCrm\('tariff'\)/);
+    assert.match(app, /verified\.premium_price_per_km/);
     assert.match(app, /identityRoles\.has\('crm_admin'\)/);
     assert.match(app, /window\.canEditTariff/);
     assert.match(app, /Modo lectura: solo un administrador/);

@@ -1104,15 +1104,20 @@ async function saveTariff(event) {
     premium_fixed_cost: Number(document.getElementById('tariff-premium-fixed').value),
     ahorro_discount_percentage: Number(document.getElementById('tariff-ahorro-discount').value),
   };
-  if (!Number.isFinite(payload.rate_id) || payload.rate_id < 1 || !Number.isFinite(payload.premium_price_per_km) || payload.premium_price_per_km <= 0 || !Number.isFinite(payload.premium_fixed_cost) || payload.premium_fixed_cost < 0 || !Number.isFinite(payload.ahorro_discount_percentage) || payload.ahorro_discount_percentage < 0 || payload.ahorro_discount_percentage > 100) {
+  if (!Number.isFinite(payload.premium_price_per_km) || payload.premium_price_per_km <= 0 || !Number.isFinite(payload.premium_fixed_cost) || payload.premium_fixed_cost < 0 || !Number.isFinite(payload.ahorro_discount_percentage) || payload.ahorro_discount_percentage < 0 || payload.ahorro_discount_percentage > 100) {
     status.textContent = 'Revisá los valores: km > 0, fijo >= 0 y Ahorro entre 0 y 100%.';
     return;
   }
   button.disabled = true;
   status.textContent = 'Guardando tarifa...';
   try {
-    const data = await apiCrm('tariff', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    document.getElementById('tariff-formula').textContent = data.formula || '—';
+    const saved = await apiCrm('tariff', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const verified = await apiCrm('tariff');
+    document.getElementById('tariff-rate-id').textContent = verified.rate_id ?? saved.rate_id ?? '—';
+    document.getElementById('tariff-premium-km').value = verified.premium_price_per_km ?? '';
+    document.getElementById('tariff-premium-fixed').value = verified.premium_fixed_cost ?? '';
+    document.getElementById('tariff-ahorro-discount').value = verified.ahorro_discount_percentage ?? '';
+    document.getElementById('tariff-formula').textContent = verified.formula || saved.formula || '—';
     status.textContent = 'Tarifa guardada y verificada desde Livre Cloud.';
   } catch (error) {
     status.textContent = 'No se pudo guardar la tarifa.';
