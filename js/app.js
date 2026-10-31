@@ -1221,11 +1221,11 @@ function initTravelMap() {
   if (!container || !window.L) return;
   if (!travelMap) {
     travelMap = L.map(container).setView([-38.7183, -62.2663], 12);
-    travelTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    travelTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
       attribution: '&copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors',
     }).addTo(travelMap);
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
       pane: 'overlayPane',
     }).addTo(travelMap);
