@@ -3942,3 +3942,12 @@ html[data-theme="dark"] {
   .crm-dashboard-header h2, .travel-page-heading h2 { font-size: 1.18rem; }
   .crm-dashboard-header p { font-size: .82rem; }
 }
+
+.base-handie-list { display: grid; gap: 12px; max-height: 62vh; overflow: auto; }
+.base-handie-item { padding: 14px; border: 1px solid var(--border-soft); border-radius: 14px; background: var(--surface); }
+.base-handie-item header { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.base-handie-item p { margin: 0 0 8px; white-space: pre-wrap; }
+.base-handie-item audio { width: min(360px, 100%); }
+.base-handie-form { display: flex; gap: 8px; margin-top: 14px; }
+.base-handie-form input { flex: 1; min-width: 0; padding: 11px; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--surface); color: inherit; }
+.base-handie-form button { padding: 0 16px; border-radius: 10px; background: #e8003d; color: white; }

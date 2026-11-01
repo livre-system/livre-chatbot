@@ -25,8 +25,10 @@ test('Historial y cierres queda unificado dentro de Histórico de viajes', () =>
   assert.match(app, /commission_rule/);
 });
 
-test('CRM no muestra el canal Base / Handie en los items', () => {
-  assert.doesNotMatch(app, /base-handie|Base \/ Handie/i);
+test('CRM muestra el canal Base / Handie en una sección propia', () => {
+  assert.match(index, /data-view="handie"/);
+  assert.match(index, /id="base-handie-view"/);
+  assert.match(app, /mobility\/base\/messages/);
 });
 
 test('driver endpoint exposes every local driver-vehicle link', () => {

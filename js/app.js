@@ -3031,6 +3031,39 @@ function initThemeToggle() {
   });
 }
 
+async function loadBaseHandie() {
+  const status = document.getElementById('base-handie-status');
+  const list = document.getElementById('base-handie-list');
+  try {
+    const response = await fetch(HASH_CLOUD_URL + '/mobility/base/messages', { headers: { Authorization: 'Bearer ' + getToken() } });
+    if (!response.ok) throw Error('No se pudo cargar la bandeja');
+    const items = await response.json();
+    list.innerHTML = items.map(item => {
+      const safeAudio = typeof item.media_data === 'string' && /^data:audio\/[a-z0-9.+-]+;base64,[A-Za-z0-9+/=]+$/i.test(item.media_data) ? item.media_data : '';
+      return `<article class="base-handie-item"><header><strong>${crmEscape(item.sender_role === 'driver' ? 'Conductor' : 'Base')}</strong><small>Viaje #${crmEscape(item.trip_id || 'sin viaje')} · ${crmEscape(item.created_at || '')}</small></header><p>${safeAudio ? `<audio controls preload="metadata" src="${safeAudio}"></audio>` : crmEscape(item.body)}</p><small>${crmEscape(item.origen || '')} → ${crmEscape(item.destino || '')}</small></article>`;
+    }).join('') || '<p>No hay mensajes del handie.</p>';
+    status.textContent = '';
+  } catch (error) { status.textContent = error.message; }
+}
+function showBaseHandie() {
+  setChatWorkspaceVisible(false);
+  document.getElementById('travel-form-view').hidden = true;
+  document.getElementById('travel-history-view').hidden = true;
+  document.getElementById('crm-dashboard').hidden = false;
+  document.getElementById('crm-cards').hidden = true;
+  document.getElementById('driver-management-view').hidden = true;
+  document.getElementById('vehicle-management-view').hidden = true;
+  document.getElementById('owner-management-view').hidden = true;
+  document.getElementById('agency-commissions-view').hidden = true;
+  document.getElementById('tariff-view').hidden = true;
+  document.getElementById('travel-management-view').hidden = true;
+  document.getElementById('operational-view').hidden = true;
+  document.getElementById('map-view').hidden = true;
+  document.getElementById('base-handie-view').hidden = false;
+  document.querySelector('.crm-toolbar').hidden = true;
+  loadBaseHandie();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
   initThemeToggle();
@@ -3049,6 +3082,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showCrm(view);
       } else if (view === 'agency-commissions') {
         showAgencyCommissions();
+      } else if (view === 'handie') {
+        showBaseHandie();
       } else if (view === 'tariff') {
         showTariff();
       } else if (view === 'vehicle-owners') {
@@ -3069,6 +3104,18 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('history-state').addEventListener('change', loadTravelHistory);
   document.getElementById('history-search').addEventListener('keydown', event => { if (event.key === 'Enter') loadTravelHistory(); });
 
+  document.getElementById('base-handie-refresh').addEventListener('click', loadBaseHandie);
+  document.getElementById('base-handie-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    const input = document.getElementById('base-handie-input');
+    const body = input.value.trim();
+    if (!body) return;
+    try {
+      const response = await fetch(HASH_CLOUD_URL + '/mobility/base/messages', { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ body }) });
+      if (!response.ok) throw Error('No hay un handie abierto');
+      input.value = ''; await loadBaseHandie();
+    } catch (error) { document.getElementById('base-handie-status').textContent = error.message; }
+  });
   document.getElementById('driver-new-button').addEventListener('click', openNewDriverModal);
   document.getElementById('owner-new-button').addEventListener('click', () => openOwnerModal());
   document.getElementById('new-owner-form').addEventListener('submit', saveVehicleOwner);
