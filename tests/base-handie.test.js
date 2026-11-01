@@ -34,6 +34,12 @@ test('la base puede avisar mensajes nuevos sin duplicar notificaciones', () => {
   assert.match(html, /base-handie-notifications/);
 });
 
+test('el aviso sonoro requiere activación explícita del operador', () => {
+  assert.match(js, /base_handie_sound/);
+  assert.match(js, /playHandieAlertSound/);
+  assert.match(js, /AudioContext/);
+});
+
 test('CRM separa la bandeja de pasajeros del handie', () => {
   assert.match(html, /data-view="passenger-chat"/);
   assert.match(html, /id="passenger-chat-view"/);

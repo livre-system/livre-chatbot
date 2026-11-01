@@ -3034,6 +3034,23 @@ function initThemeToggle() {
 
 const HANDIE_SEEN_KEY = 'base_handie_seen';
 const HANDIE_NOTIFIED_KEY = 'base_handie_notified';
+const HANDIE_SOUND_KEY = 'base_handie_sound';
+let handieAudioContext;
+function playHandieAlertSound() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    handieAudioContext ||= new AudioContextClass();
+    const oscillator = handieAudioContext.createOscillator();
+    const gain = handieAudioContext.createGain();
+    oscillator.type = 'sine'; oscillator.frequency.value = 880;
+    gain.gain.setValueAtTime(0.0001, handieAudioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.12, handieAudioContext.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, handieAudioContext.currentTime + 0.18);
+    oscillator.connect(gain).connect(handieAudioContext.destination); oscillator.start(); oscillator.stop(handieAudioContext.currentTime + 0.2);
+  } catch {}
+}
+function handieSoundEnabled() { return localStorage.getItem(HANDIE_SOUND_KEY) === '1'; }
 function handieSeen() { try { return JSON.parse(localStorage.getItem(HANDIE_SEEN_KEY) || '{}'); } catch { return {}; } }
 function markHandieSeen(sessionId, rows) {
   const seen = handieSeen();
@@ -3047,6 +3064,7 @@ function notifyNewHandie(sessionId, driver, row) {
   if (notified[key]) return;
   notified[key] = Date.now();
   localStorage.setItem(HANDIE_NOTIFIED_KEY, JSON.stringify(notified));
+  if (handieSoundEnabled()) playHandieAlertSound();
   new Notification(`Mensaje de ${driver}`, { body: row.body || 'Audio del handie', tag: key });
 }
 function renderHandieWindow(sessionId, rows) {
@@ -3204,6 +3222,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('base-handie-notifications').addEventListener('click', async event => {
     if (!('Notification' in window)) { event.currentTarget.textContent = 'Avisos no disponibles'; return; }
     const permission = await Notification.requestPermission();
+    if (permission === 'granted') { localStorage.setItem(HANDIE_SOUND_KEY, '1'); playHandieAlertSound(); }
     event.currentTarget.textContent = permission === 'granted' ? 'Avisos activos' : 'Avisos bloqueados';
   });
   document.getElementById('base-handie-form').addEventListener('submit', async event => {
