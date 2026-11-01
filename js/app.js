@@ -3031,6 +3031,36 @@ function initThemeToggle() {
   });
 }
 
+const HANDIE_SEEN_KEY = 'base_handie_seen';
+const HANDIE_NOTIFIED_KEY = 'base_handie_notified';
+function handieSeen() { try { return JSON.parse(localStorage.getItem(HANDIE_SEEN_KEY) || '{}'); } catch { return {}; } }
+function markHandieSeen(sessionId, rows) {
+  const seen = handieSeen();
+  seen[sessionId] = rows.reduce((latest, item) => Math.max(latest, new Date(item.created_at || 0).getTime()), 0);
+  localStorage.setItem(HANDIE_SEEN_KEY, JSON.stringify(seen));
+}
+function notifyNewHandie(sessionId, driver, row) {
+  if (!row || row.sender_role !== 'driver' || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const notified = JSON.parse(localStorage.getItem(HANDIE_NOTIFIED_KEY) || '{}');
+  const key = `${sessionId}:${row.id}`;
+  if (notified[key]) return;
+  notified[key] = Date.now();
+  localStorage.setItem(HANDIE_NOTIFIED_KEY, JSON.stringify(notified));
+  new Notification(`Mensaje de ${driver}`, { body: row.body || 'Audio del handie', tag: key });
+}
+function renderHandieWindow(sessionId, rows) {
+  const root = document.getElementById('base-handie-windows');
+  const driver = rows[0]?.driver_name || `Chofer ${rows[0]?.driver_user_id || ''}`;
+  const transcript = rows.slice().reverse().map(item => {
+    const mine = item.sender_role === 'base';
+    const audio = typeof item.media_data === 'string' && item.media_data.startsWith('data:audio/') ? `<audio controls preload="metadata" src="${item.media_data}"></audio>` : crmEscape(item.body || 'Audio del handie');
+    return `<article class="base-driver-message ${mine ? 'is-base' : 'is-driver'}"><small>${mine ? 'Base' : crmEscape(driver)} · ${crmEscape(item.created_at || '')}</small><p>${audio}</p></article>`;
+  }).join('');
+  root.querySelectorAll('.base-driver-window').forEach(node => { if (node.dataset.sessionId !== sessionId) node.remove(); });
+  root.insertAdjacentHTML('beforeend', `<section class="base-driver-window" data-session-id="${crmEscape(sessionId)}"><header><strong>${crmEscape(driver)}</strong><button type="button" class="base-driver-window-close" aria-label="Cerrar ventana">×</button></header><div class="base-driver-transcript">${transcript || '<p class="empty-state">Todavía no hay mensajes.</p>'}</div></section>`);
+  root.querySelector(`[data-session-id="${CSS.escape(sessionId)}"] .base-driver-window-close`).addEventListener('click', event => event.currentTarget.closest('.base-driver-window').remove());
+}
+
 async function loadBaseHandie() {
   const status = document.getElementById('base-handie-status');
   const list = document.getElementById('base-handie-list');
@@ -3048,10 +3078,13 @@ async function loadBaseHandie() {
     const cutoff = Date.now() - 12 * 60 * 60 * 1000;
     const active = [...groups.entries()].filter(([, rows]) => new Date(rows[0]?.created_at || 0).getTime() >= cutoff && rows[0]?.session_id);
     const archived = [...groups.entries()].filter(([key, rows]) => key === 'base' || new Date(rows[0]?.created_at || 0).getTime() < cutoff || !rows[0]?.session_id);
+    const seen = handieSeen();
     windows.innerHTML = active.map(([sessionId, rows]) => {
       const driver = rows[0].driver_name || `Chofer ${rows[0].driver_user_id || ''}`;
       const last = rows[0];
-      return `<button type="button" class="base-driver-bubble" data-session-id="${crmEscape(sessionId)}" title="Abrir conversación con ${crmEscape(driver)}"><span class="base-driver-avatar">${crmEscape(driver.slice(0, 1).toUpperCase())}</span><span><strong>${crmEscape(driver)}</strong><small>${crmEscape(last.body || 'Audio del handie')}</small></span></button>`;
+      const unread = rows.filter(item => item.sender_role === 'driver' && new Date(item.created_at || 0).getTime() > (seen[sessionId] || 0)).length;
+      notifyNewHandie(sessionId, driver, last);
+      return `<button type="button" class="base-driver-bubble ${unread ? 'has-unread' : ''}" data-session-id="${crmEscape(sessionId)}" title="Abrir conversación con ${crmEscape(driver)}"><span class="base-driver-avatar">${crmEscape(driver.slice(0, 1).toUpperCase())}</span><span><strong>${crmEscape(driver)}${unread ? ` <em class="base-driver-unread">${unread}</em>` : ''}</strong><small>${crmEscape(last.body || 'Audio del handie')}</small></span></button>`;
     }).join('');
     list.innerHTML = `<section class="base-archive"><header><strong>Base Barrajandi</strong><small>Historial de más de 12 horas</small></header>${archived.flatMap(([, rows]) => rows).map(item => {
       const safeAudio = typeof item.media_data === 'string' && item.media_data.startsWith('data:audio/') && /^[A-Za-z0-9+/=]+$/.test(item.media_data.split(',')[1] || '') ? item.media_data : '';
@@ -3060,6 +3093,11 @@ async function loadBaseHandie() {
     }).join('') || '<p>No hay mensajes archivados.</p>'}</section>`;
     windows.querySelectorAll('[data-session-id]').forEach(button => button.addEventListener('click', () => {
       document.getElementById('base-handie-session').value = button.dataset.sessionId;
+      const rows = groups.get(button.dataset.sessionId) || [];
+      markHandieSeen(button.dataset.sessionId, rows);
+      renderHandieWindow(button.dataset.sessionId, rows);
+      button.classList.remove('has-unread');
+      button.querySelector('.base-driver-unread')?.remove();
       document.getElementById('base-handie-input').placeholder = `Responder a ${button.querySelector('strong')?.textContent || 'chofer'}…`;
       document.querySelectorAll('.base-driver-bubble').forEach(node => node.classList.toggle('is-selected', node === button));
       document.getElementById('base-handie-input').focus();
@@ -3129,6 +3167,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('history-search').addEventListener('keydown', event => { if (event.key === 'Enter') loadTravelHistory(); });
 
   document.getElementById('base-handie-refresh').addEventListener('click', loadBaseHandie);
+  document.getElementById('base-handie-notifications').addEventListener('click', async event => {
+    if (!('Notification' in window)) { event.currentTarget.textContent = 'Avisos no disponibles'; return; }
+    const permission = await Notification.requestPermission();
+    event.currentTarget.textContent = permission === 'granted' ? 'Avisos activos' : 'Avisos bloqueados';
+  });
   document.getElementById('base-handie-form').addEventListener('submit', async event => {
     event.preventDefault();
     const input = document.getElementById('base-handie-input');
@@ -3238,6 +3281,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(() => {
     const resource = document.getElementById('crm-resource')?.value;
     const travelsVisible = crmVisible && crmMode === 'resource' && resource === 'travels';
+    const handieVisible = !document.getElementById('base-handie-view')?.hidden;
+    if (handieVisible && document.visibilityState === 'visible') loadBaseHandie();
     if ((crmMode === 'control' || travelsVisible) && document.visibilityState === 'visible') loadCrmData();
   }, 5000);
 });

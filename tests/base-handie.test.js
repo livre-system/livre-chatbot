@@ -19,3 +19,17 @@ test('base handie exige seleccionar el destinatario antes de responder', () => {
   assert.match(js, /Elegí primero la ventana del chofer/);
   assert.match(js, /client_message_id/);
 });
+
+test('cada chofer tiene ventana con historial y mensajes no leídos', () => {
+  assert.match(js, /base-driver-window/);
+  assert.match(js, /unread/);
+  assert.match(js, /localStorage/);
+  assert.match(js, /base_handie_seen/);
+  assert.match(css, /base-driver-transcript/);
+});
+
+test('la base puede avisar mensajes nuevos sin duplicar notificaciones', () => {
+  assert.match(js, /Notification/);
+  assert.match(js, /base_handie_notified/);
+  assert.match(html, /base-handie-notifications/);
+});
