@@ -3034,16 +3034,40 @@ function initThemeToggle() {
 async function loadBaseHandie() {
   const status = document.getElementById('base-handie-status');
   const list = document.getElementById('base-handie-list');
+  const windows = document.getElementById('base-handie-windows');
   try {
-    const response = await fetch(HASH_CLOUD_URL + '/mobility/base/messages', { headers: { Authorization: 'Bearer ' + getToken() } });
-    if (!response.ok) throw Error('No se pudo cargar la bandeja');
+    const response = await fetch(HASH_CLOUD_URL + '/mobility/base/messages', { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' });
+    if (!response.ok) throw Error(response.status === 401 ? 'Sesión vencida. Volvé a iniciar sesión.' : `No se pudo cargar la bandeja (${response.status})`);
     const items = await response.json();
-    list.innerHTML = items.map(item => {
-      const safeAudio = typeof item.media_data === 'string' && /^data:audio\/[a-z0-9.+-]+;base64,[A-Za-z0-9+/=]+$/i.test(item.media_data) ? item.media_data : '';
-      return `<article class="base-handie-item"><header><strong>${crmEscape(item.sender_role === 'driver' ? 'Conductor' : 'Base')}</strong><small>Viaje #${crmEscape(item.trip_id || 'sin viaje')} · ${crmEscape(item.created_at || '')}</small></header><p>${safeAudio ? `<audio controls preload="metadata" src="${safeAudio}"></audio>` : crmEscape(item.body)}</p><small>${crmEscape(item.origen || '')} → ${crmEscape(item.destino || '')}</small></article>`;
-    }).join('') || '<p>No hay mensajes del handie.</p>';
-    status.textContent = '';
-  } catch (error) { status.textContent = error.message; }
+    const groups = new Map();
+    items.forEach(item => {
+      const key = item.session_id || 'base';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(item);
+    });
+    const cutoff = Date.now() - 12 * 60 * 60 * 1000;
+    const active = [...groups.entries()].filter(([, rows]) => new Date(rows[0]?.created_at || 0).getTime() >= cutoff && rows[0]?.session_id);
+    const archived = [...groups.entries()].filter(([key, rows]) => key === 'base' || new Date(rows[0]?.created_at || 0).getTime() < cutoff || !rows[0]?.session_id);
+    windows.innerHTML = active.map(([sessionId, rows]) => {
+      const driver = rows[0].driver_name || `Chofer ${rows[0].driver_user_id || ''}`;
+      const last = rows[0];
+      return `<button type="button" class="base-driver-bubble" data-session-id="${crmEscape(sessionId)}" title="Abrir conversación con ${crmEscape(driver)}"><span class="base-driver-avatar">${crmEscape(driver.slice(0, 1).toUpperCase())}</span><span><strong>${crmEscape(driver)}</strong><small>${crmEscape(last.body || 'Audio del handie')}</small></span></button>`;
+    }).join('');
+    list.innerHTML = `<section class="base-archive"><header><strong>Base Barrajandi</strong><small>Historial de más de 12 horas</small></header>${archived.flatMap(([, rows]) => rows).map(item => {
+      const safeAudio = typeof item.media_data === 'string' && item.media_data.startsWith('data:audio/') && /^[A-Za-z0-9+/=]+$/.test(item.media_data.split(',')[1] || '') ? item.media_data : '';
+      const driver = item.driver_name || (item.sender_role === 'driver' ? `Chofer ${item.driver_user_id || ''}` : 'Base');
+      return `<article class="base-handie-item"><header><strong>${crmEscape(driver)}</strong><small>${crmEscape(item.created_at || '')}</small></header><p>${safeAudio ? `<audio controls preload="metadata" src="${safeAudio}"></audio>` : crmEscape(item.body)}</p></article>`;
+    }).join('') || '<p>No hay mensajes archivados.</p>'}</section>`;
+    windows.querySelectorAll('[data-session-id]').forEach(button => button.addEventListener('click', () => {
+      document.getElementById('base-handie-session').value = button.dataset.sessionId;
+      document.getElementById('base-handie-input').placeholder = `Responder a ${button.querySelector('strong')?.textContent || 'chofer'}…`;
+      document.querySelectorAll('.base-driver-bubble').forEach(node => node.classList.toggle('is-selected', node === button));
+      document.getElementById('base-handie-input').focus();
+    }));
+    status.textContent = active.length ? `${active.length} conversación${active.length === 1 ? '' : 'es'} activa${active.length === 1 ? '' : 's'}.` : 'No hay conversaciones activas en las últimas 12 horas.';
+  } catch (error) {
+    status.textContent = error.message === 'Failed to fetch' ? 'No se pudo conectar con Livre Cloud. Revisá la conexión o recargá la sesión.' : error.message;
+  }
 }
 function showBaseHandie() {
   setChatWorkspaceVisible(false);
@@ -3108,10 +3132,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('base-handie-form').addEventListener('submit', async event => {
     event.preventDefault();
     const input = document.getElementById('base-handie-input');
+    const sessionId = document.getElementById('base-handie-session').value;
     const body = input.value.trim();
     if (!body) return;
+    if (!sessionId) { document.getElementById('base-handie-status').textContent = 'Elegí primero la ventana del chofer al que querés responder.'; return; }
     try {
-      const response = await fetch(HASH_CLOUD_URL + '/mobility/base/messages', { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ body }) });
+      const response = await fetch(HASH_CLOUD_URL + '/mobility/base/messages', { method: 'POST', headers: { Authorization: 'Bearer ' + getToken(), 'Content-Type': 'application/json' }, body: JSON.stringify({ body, session_id: sessionId, client_message_id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}` }) });
       if (!response.ok) throw Error('No hay un handie abierto');
       input.value = ''; await loadBaseHandie();
     } catch (error) { document.getElementById('base-handie-status').textContent = error.message; }

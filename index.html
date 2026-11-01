@@ -174,7 +174,8 @@
         <div id="base-handie-view" hidden aria-label="Mensajería base y handie">
           <div class="crm-dashboard-header"><div><h2>Base / Handie</h2><p>Mensajes y audios guardados de los conductores.</p></div><button type="button" id="base-handie-refresh">Actualizar</button></div>
           <div id="base-handie-list" class="base-handie-list" aria-live="polite"></div>
-          <form id="base-handie-form" class="base-handie-form"><input id="base-handie-input" maxlength="1000" placeholder="Responder al handie…" autocomplete="off"><button type="submit">Enviar</button></form>
+          <div id="base-handie-windows" class="base-handie-windows" aria-live="polite"></div>
+          <form id="base-handie-form" class="base-handie-form"><input id="base-handie-session" type="hidden"><input id="base-handie-input" maxlength="1000" placeholder="Responder al handie…" autocomplete="off"><button type="submit">Enviar</button></form>
           <p id="base-handie-status" class="crm-status" role="status"></p>
         </div>
         <div class="crm-toolbar">
