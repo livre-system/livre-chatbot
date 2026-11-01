@@ -53,6 +53,7 @@
         <button type="button" class="main-nav-item" data-view="passengers">Clientes</button>
         <button type="button" class="main-nav-item" data-view="agency-commissions">Comisiones de agencia</button>
         <button type="button" class="main-nav-item" data-view="handie">🎙️ Base / Handie</button>
+        <button type="button" class="main-nav-item" data-view="passenger-chat">💬 Pasajeros</button>
         <button type="button" class="main-nav-item" data-view="tariff" id="tariff-nav-item">Tarifa</button>
       </nav>
       <div class="sidebar-account-actions">
@@ -177,6 +178,11 @@
           <div id="base-handie-windows" class="base-handie-windows" aria-live="polite"></div>
           <form id="base-handie-form" class="base-handie-form"><input id="base-handie-session" type="hidden"><input id="base-handie-input" maxlength="1000" placeholder="Responder al handie…" autocomplete="off"><button type="submit">Enviar</button></form>
           <p id="base-handie-status" class="crm-status" role="status"></p>
+        </div>
+        <div id="passenger-chat-view" hidden aria-label="Conversaciones de pasajeros">
+          <div class="crm-dashboard-header"><div><h2>Conversaciones de pasajeros</h2><p>Consulta el chat del viaje. Las respuestas desde el CRM quedan pendientes de canal autorizado.</p></div><button type="button" id="passenger-chat-refresh">Actualizar</button></div>
+          <div id="passenger-chat-list" class="passenger-chat-list" aria-live="polite"></div>
+          <p id="passenger-chat-status" class="crm-status" role="status"></p>
         </div>
         <div class="crm-toolbar">
           <label id="crm-resource-label" hidden>Recurso <select id="crm-resource"><option value="travels">Viajes</option><option value="passengers">Clientes</option><option value="drivers">Choferes</option><option value="vehicles">Vehículos</option></select></label>

@@ -3943,6 +3943,18 @@ html[data-theme="dark"] {
   .crm-dashboard-header p { font-size: .82rem; }
 }
 
+.passenger-chat-list { display: grid; gap: 14px; }
+  .passenger-chat-card { border: 1px solid var(--border-soft); border-radius: 14px; background: var(--surface); overflow: hidden; }
+  .passenger-chat-card > header { display: flex; justify-content: space-between; gap: 16px; padding: 14px 16px; border-bottom: 1px solid var(--border-soft); }
+  .passenger-chat-card > header div { display: grid; gap: 4px; }
+  .passenger-chat-card > header small { color: var(--muted); }
+  .passenger-chat-transcript { display: grid; gap: 8px; padding: 14px; max-height: 360px; overflow: auto; }
+  .passenger-chat-message { max-width: min(620px, 86%); padding: 9px 11px; border-radius: 12px; background: var(--surface-alt, #f1f1f1); }
+  .passenger-chat-message.is-passenger { border-left: 3px solid #e8003d; }
+  .passenger-chat-message.is-other { justify-self: end; background: rgba(232,0,61,.1); }
+  .passenger-chat-message small { display: block; color: var(--muted); font-size: .72rem; }
+  .passenger-chat-message p { margin: 4px 0 0; white-space: pre-wrap; }
+
 .base-handie-list { display: grid; gap: 12px; max-height: 42vh; overflow: auto; }
   .base-handie-actions { display: flex; gap: 8px; }
   .base-handie-actions button { padding: 8px 12px; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--surface); color: inherit; cursor: pointer; }

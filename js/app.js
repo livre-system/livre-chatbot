@@ -1140,6 +1140,7 @@ function showCrm(resource) {
   document.getElementById('tariff-view').hidden = true;
   document.getElementById('operational-view').hidden = crmMode !== 'control';
   document.getElementById('map-view').hidden = true;
+  document.getElementById('passenger-chat-view').hidden = true;
   document.querySelector('.crm-toolbar').hidden = crmMode === 'control' || (crmMode === 'resource' && (resource === 'travels' || resource === 'vehicles' || resource === 'drivers'));
   const genericTable = document.getElementById('crm-table-wrap');
   const usesDedicatedView = crmMode === 'resource' && ['travels', 'drivers', 'vehicles'].includes(resource);
@@ -3107,6 +3108,35 @@ async function loadBaseHandie() {
     status.textContent = error.message === 'Failed to fetch' ? 'No se pudo conectar con Livre Cloud. Revisá la conexión o recargá la sesión.' : error.message;
   }
 }
+function showPassengerChat() {
+  setChatWorkspaceVisible(false);
+  document.getElementById('travel-form-view').hidden = true;
+  document.getElementById('travel-history-view').hidden = true;
+  document.getElementById('crm-dashboard').hidden = false;
+  document.getElementById('crm-cards').hidden = true;
+  ['driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'tariff-view', 'travel-management-view', 'operational-view', 'map-view', 'base-handie-view'].forEach(id => { const node = document.getElementById(id); if (node) node.hidden = true; });
+  document.getElementById('passenger-chat-view').hidden = false;
+  document.querySelector('.crm-toolbar').hidden = true;
+  loadPassengerChat();
+}
+async function loadPassengerChat() {
+  const list = document.getElementById('passenger-chat-list');
+  const status = document.getElementById('passenger-chat-status');
+  try {
+    const response = await fetch(HASH_CLOUD_URL + '/mobility/crm/passenger-messages', { headers: { Authorization: 'Bearer ' + getToken() }, cache: 'no-store' });
+    if (!response.ok) throw Error(response.status === 401 ? 'Sesión vencida. Volvé a iniciar sesión.' : `No se pudo cargar la bandeja (${response.status})`);
+    const items = await response.json();
+    const groups = new Map();
+    items.forEach(item => { const key = String(item.trip_id); if (!groups.has(key)) groups.set(key, []); groups.get(key).push(item); });
+    list.innerHTML = [...groups.values()].map(rows => {
+      const first = rows[rows.length - 1];
+      const passenger = first.passenger_key || 'Pasajero sin teléfono';
+      const messages = rows.slice().reverse().map(item => `<article class="passenger-chat-message ${item.sender_role === 'passenger' ? 'is-passenger' : 'is-other'}"><small>${crmEscape(item.sender_role === 'passenger' ? passenger : (item.driver_name || item.sender_role))} · ${crmEscape(item.created_at || '')}</small><p>${crmEscape(item.body || 'Audio sin transcripción')}</p></article>`).join('');
+      return `<section class="passenger-chat-card"><header><div><strong>Viaje #${crmEscape(String(first.trip_id))}</strong><small>${crmEscape(passenger)} · ${crmEscape(first.trip_status || '')}</small></div><span>${crmEscape(first.origen || '—')} → ${crmEscape(first.destino || '—')}</span></header><div class="passenger-chat-transcript">${messages}</div></section>`;
+    }).join('') || '<p class="empty-state">No hay conversaciones de pasajeros.</p>';
+    status.textContent = `${groups.size} conversación${groups.size === 1 ? '' : 'es'} encontrada${groups.size === 1 ? '' : 's'}. Solo lectura.`;
+  } catch (error) { status.textContent = error.message === 'Failed to fetch' ? 'No se pudo conectar con Livre Cloud.' : error.message; }
+}
 function showBaseHandie() {
   setChatWorkspaceVisible(false);
   document.getElementById('travel-form-view').hidden = true;
@@ -3122,6 +3152,7 @@ function showBaseHandie() {
   document.getElementById('operational-view').hidden = true;
   document.getElementById('map-view').hidden = true;
   document.getElementById('base-handie-view').hidden = false;
+  document.getElementById('passenger-chat-view').hidden = true;
   document.querySelector('.crm-toolbar').hidden = true;
   loadBaseHandie();
 }
@@ -3146,6 +3177,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showAgencyCommissions();
       } else if (view === 'handie') {
         showBaseHandie();
+      } else if (view === 'passenger-chat') {
+        showPassengerChat();
       } else if (view === 'tariff') {
         showTariff();
       } else if (view === 'vehicle-owners') {
@@ -3167,6 +3200,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('history-search').addEventListener('keydown', event => { if (event.key === 'Enter') loadTravelHistory(); });
 
   document.getElementById('base-handie-refresh').addEventListener('click', loadBaseHandie);
+  document.getElementById('passenger-chat-refresh').addEventListener('click', loadPassengerChat);
   document.getElementById('base-handie-notifications').addEventListener('click', async event => {
     if (!('Notification' in window)) { event.currentTarget.textContent = 'Avisos no disponibles'; return; }
     const permission = await Notification.requestPermission();

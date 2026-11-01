@@ -33,3 +33,9 @@ test('la base puede avisar mensajes nuevos sin duplicar notificaciones', () => {
   assert.match(js, /base_handie_notified/);
   assert.match(html, /base-handie-notifications/);
 });
+
+test('CRM separa la bandeja de pasajeros del handie', () => {
+  assert.match(html, /data-view="passenger-chat"/);
+  assert.match(html, /id="passenger-chat-view"/);
+  assert.match(js, /mobility\/crm\/passenger-messages/);
+});
