@@ -3072,8 +3072,9 @@ function renderHandieWindow(sessionId, rows) {
   const driver = rows[0]?.driver_name || `Chofer ${rows[0]?.driver_user_id || ''}`;
   const transcript = rows.slice().reverse().map(item => {
     const mine = item.sender_role === 'base';
+    const speaker = item.sender_role === 'assistant' ? 'Livi' : mine ? 'Base' : crmEscape(driver);
     const audio = typeof item.media_data === 'string' && item.media_data.startsWith('data:audio/') ? `<audio controls preload="metadata" src="${item.media_data}"></audio>` : crmEscape(item.body || 'Audio del handie');
-    return `<article class="base-driver-message ${mine ? 'is-base' : 'is-driver'}"><small>${mine ? 'Base' : crmEscape(driver)} · ${crmEscape(item.created_at || '')}</small><p>${audio}</p></article>`;
+    return `<article class="base-driver-message ${mine ? 'is-base' : item.sender_role === 'assistant' ? 'is-livi' : 'is-driver'}"><small>${speaker} · ${crmEscape(item.created_at || '')}</small><p>${audio}</p></article>`;
   }).join('');
   root.querySelectorAll('.base-driver-window').forEach(node => { if (node.dataset.sessionId !== sessionId) node.remove(); });
   root.insertAdjacentHTML('beforeend', `<section class="base-driver-window" data-session-id="${crmEscape(sessionId)}"><header><strong>${crmEscape(driver)}</strong><button type="button" class="base-driver-window-close" aria-label="Cerrar ventana">×</button></header><div class="base-driver-transcript">${transcript || '<p class="empty-state">Todavía no hay mensajes.</p>'}</div></section>`);
@@ -3107,7 +3108,7 @@ async function loadBaseHandie() {
     }).join('');
     list.innerHTML = `<section class="base-archive"><header><strong>Base Barrajandi</strong><small>Historial de más de 12 horas</small></header>${archived.flatMap(([, rows]) => rows).map(item => {
       const safeAudio = typeof item.media_data === 'string' && item.media_data.startsWith('data:audio/') && /^[A-Za-z0-9+/=]+$/.test(item.media_data.split(',')[1] || '') ? item.media_data : '';
-      const driver = item.driver_name || (item.sender_role === 'driver' ? `Chofer ${item.driver_user_id || ''}` : 'Base');
+      const driver = item.driver_name || (item.sender_role === 'driver' ? `Chofer ${item.driver_user_id || ''}` : item.sender_role === 'assistant' ? 'Livi' : 'Base');
       return `<article class="base-handie-item"><header><strong>${crmEscape(driver)}</strong><small>${crmEscape(item.created_at || '')}</small></header><p>${safeAudio ? `<audio controls preload="metadata" src="${safeAudio}"></audio>` : crmEscape(item.body)}</p></article>`;
     }).join('') || '<p>No hay mensajes archivados.</p>'}</section>`;
     windows.querySelectorAll('[data-session-id]').forEach(button => button.addEventListener('click', () => {
