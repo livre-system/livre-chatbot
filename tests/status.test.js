@@ -56,10 +56,17 @@ describe('CRM operational status contract', () => {
     assert.match(app, /Última ubicación conocida/);
   });
 
-  it('refreshes the operational map automatically while it is visible', () => {
-    assert.match(app, /let operationalMapRefreshInFlight = false/);
-    assert.match(app, /const mapVisible = crmVisible && crmMode === 'map'/);
-    assert.match(app, /if \(mapVisible && document\.visibilityState === 'visible'\) loadMapViewer\(\)/);
+  it('refreshes every CRM view automatically while it is visible', () => {
+    assert.match(app, /let crmRefreshInFlight = false/);
+    assert.match(app, /async function refreshVisibleCrm\(\)/);
+    assert.match(app, /crmMode === 'tariff'/);
+    assert.match(app, /crmMode === 'agency-commissions'/);
+    assert.match(app, /crmMode === 'owners'/);
+    assert.match(app, /else await loadCrmData\(\)/);
+    assert.match(app, /bindCrmLifecycleRefresh\(\)/);
+    assert.match(app, /\['pageshow', 'focus', 'online'\]/);
+    assert.match(app, /document\.addEventListener\('visibilitychange'/);
+    assert.match(app, /void refreshVisibleCrm\(\)/);
     assert.match(app, /}, 5000\)/);
   });
 

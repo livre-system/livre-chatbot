@@ -65,6 +65,7 @@ const CRM_HIDDEN_FIELDS = {
 let crmVisible = false;
 let crmSearchTimer;
 let crmMode = 'control';
+let crmRefreshInFlight = false;
 let crmOffset = 0;
 let crmPageSize = 20;
 let travelPageSize = 20;
@@ -462,6 +463,28 @@ async function loadMapViewer() {
 function setChatWorkspaceVisible(visible) {
   const workspace = document.getElementById('chat-workspace');
   if (workspace) workspace.hidden = !visible;
+}
+
+async function refreshVisibleCrm() {
+  if (!crmVisible || document.visibilityState !== 'visible' || crmRefreshInFlight) return;
+  crmRefreshInFlight = true;
+  try {
+    if (crmMode === 'map') await loadMapViewer();
+    else if (crmMode === 'tariff') {
+      // No pisar una tarifa que el operador está editando.
+      if (!document.activeElement?.closest('#tariff-form')) await loadTariff();
+    } else if (crmMode === 'agency-commissions') await loadAgencyCommissions();
+    else if (crmMode === 'owners') await loadVehicleOwners();
+    else await loadCrmData();
+  } finally {
+    crmRefreshInFlight = false;
+  }
+}
+
+function bindCrmLifecycleRefresh() {
+  const refresh = () => { void refreshVisibleCrm(); };
+  ['pageshow', 'focus', 'online'].forEach(eventName => window.addEventListener(eventName, refresh));
+  document.addEventListener('visibilitychange', refresh);
 }
 
 function showMapViewer() {
@@ -1028,6 +1051,7 @@ function showTariff() {
   hideTravelHistory();
   crmVisible = true;
   setChatWorkspaceVisible(false);
+  crmMode = 'tariff';
   document.getElementById('crm-title').textContent = 'Tarifa';
   document.getElementById('crm-subtitle').textContent = 'Configuración administrable de Premium y Ahorro.';
   ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'tariff-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
@@ -1092,6 +1116,7 @@ function showAgencyCommissions() {
   hideTravelHistory();
   crmVisible = true;
   setChatWorkspaceVisible(false);
+  crmMode = 'agency-commissions';
   document.getElementById('crm-title').textContent = 'Comisiones de agencia';
   document.getElementById('crm-subtitle').textContent = 'Liquidaciones consultadas desde Livre Cloud.';
   ['crm-cards', 'travel-management-view', 'driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'tariff-view', 'operational-view', 'map-view', 'crm-toolbar', 'crm-table-wrap'].forEach(id => { const node = document.getElementById(id) || document.querySelector('.' + id); if (node) node.hidden = true; });
@@ -1163,6 +1188,7 @@ function showVehicleOwnerManagement() {
   hideTravelHistory();
   crmVisible = true;
   setChatWorkspaceVisible(false);
+  crmMode = 'owners';
   document.getElementById('crm-title').textContent = 'Propietarios';
   document.getElementById('crm-subtitle').textContent = 'Propietarios registrados y disponibles para asignar.';
   document.getElementById('crm-cards').hidden = true;
@@ -3336,14 +3362,11 @@ document.addEventListener('DOMContentLoaded', () => {
   syncTravelDateFromFilter();
   resetTravelDateFilterToToday();
   checkAuth();
+  bindCrmLifecycleRefresh();
   setInterval(() => {
-    const resource = document.getElementById('crm-resource')?.value;
-    const travelsVisible = crmVisible && crmMode === 'resource' && resource === 'travels';
+    if (document.visibilityState === 'visible') void refreshVisibleCrm();
     const handieVisible = !document.getElementById('base-handie-view')?.hidden;
-    const mapVisible = crmVisible && crmMode === 'map' && !document.getElementById('map-view')?.hidden;
     if (handieVisible && document.visibilityState === 'visible') loadBaseHandie();
-    if (mapVisible && document.visibilityState === 'visible') loadMapViewer();
-    if ((crmMode === 'control' || travelsVisible) && document.visibilityState === 'visible') loadCrmData();
   }, 5000);
 });
 
