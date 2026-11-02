@@ -62,3 +62,19 @@
 - Validar visualmente el asset HTTPS si aparece una regresión de caché o deploy.
 - Probar creación/programación sólo con autorización y operación controlada; no inventar viajes ni IDs.
 - No afirmar que GPS, notificaciones o APK están validados físicamente desde este repositorio web.
+
+## Estado actualizado (2026-11-01)
+
+- El CRM separa la bandeja de conversaciones de pasajeros de la sección Base / Handie. La bandeja es de sólo lectura y consume el historial agrupado por viaje desde Livre Cloud; no se habilitó responder pasajeros desde el CRM sin un canal autorizado.
+- El backend publicado expone `GET /crm/passenger-messages`; el contrato no agrega un POST de respuesta. El endpoint requiere autenticación CRM.
+- La sección Base / Handie mantiene ventanas por chofer, historial y destinatario explícito antes de responder. Los avisos de mensajes nuevos usan Notification y deduplicación en `localStorage` (`base_handie_notified`).
+- El aviso sonoro del Handie está implementado en `js/app.js` con Web Audio (`AudioContext`) y la clave `base_handie_sound`. Sólo se habilita cuando el operador pulsa “Activar avisos” y concede permiso de notificaciones; así se respeta el bloqueo de autoplay. El sonido no se repite para mensajes ya notificados.
+- Commits publicados: `9896175` (bandeja de pasajeros), `eba7071` (alertas sonoras Handie). El backend correspondiente está en `livre-cloud` commit `71fdf2f`.
+- Validación registrada: 27 tests frontend, `node --check js/app.js` y `git diff --check` correctos. El asset HTTPS publicado contiene `base_handie_sound` y `playHandieAlertSound`.
+- Estado local: `main` está sincronizada con `origin/main`. No agregar `.env.local`, `.vercel/` ni `errores/` al commit.
+
+### Pendientes actuales
+
+- Probar visualmente el CRM con una sesión autenticada real y conversaciones reales cargadas.
+- Confirmar con el usuario el canal autorizado antes de implementar respuestas desde la bandeja de pasajeros.
+- No declarar validado el audio en todos los navegadores/dispositivos sin una prueba manual en el CRM publicado.
