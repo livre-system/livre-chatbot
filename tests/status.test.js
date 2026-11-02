@@ -56,6 +56,13 @@ describe('CRM operational status contract', () => {
     assert.match(app, /Última ubicación conocida/);
   });
 
+  it('refreshes the operational map automatically while it is visible', () => {
+    assert.match(app, /let operationalMapRefreshInFlight = false/);
+    assert.match(app, /const mapVisible = crmVisible && crmMode === 'map'/);
+    assert.match(app, /if \(mapVisible && document\.visibilityState === 'visible'\) loadMapViewer\(\)/);
+    assert.match(app, /}, 5000\)/);
+  });
+
   it('exposes the CRM control and does not couple it to GPS or trip polling', () => {
     assert.match(index, /operational-status-filters/);
     assert.match(app, /class="operational-status-control"/);

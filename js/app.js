@@ -253,6 +253,7 @@ let operationalSnapshot = null;
 let operationalMap = null;
 let operationalMapContainerId = null;
 let operationalMarkerGroup = null;
+let operationalMapRefreshInFlight = false;
 let mapViewerFilter = 'TODOS';
 let operationalStatusFilter = 'EN VIAJE';
 
@@ -411,6 +412,8 @@ async function loadMapViewer() {
   const status = document.getElementById('map-view-status');
   const refresh = document.getElementById('crm-refresh');
   if (!status) return;
+  if (operationalMapRefreshInFlight) return;
+  operationalMapRefreshInFlight = true;
   if (refresh) refresh.disabled = true;
   status.textContent = 'Cargando ubicaciones...';
   try {
@@ -451,6 +454,7 @@ async function loadMapViewer() {
     status.textContent = 'No se pudieron cargar las ubicaciones.';
     console.error(error);
   } finally {
+    operationalMapRefreshInFlight = false;
     if (refresh) refresh.disabled = false;
   }
 }
@@ -3336,7 +3340,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const resource = document.getElementById('crm-resource')?.value;
     const travelsVisible = crmVisible && crmMode === 'resource' && resource === 'travels';
     const handieVisible = !document.getElementById('base-handie-view')?.hidden;
+    const mapVisible = crmVisible && crmMode === 'map' && !document.getElementById('map-view')?.hidden;
     if (handieVisible && document.visibilityState === 'visible') loadBaseHandie();
+    if (mapVisible && document.visibilityState === 'visible') loadMapViewer();
     if ((crmMode === 'control' || travelsVisible) && document.visibilityState === 'visible') loadCrmData();
   }, 5000);
 });
