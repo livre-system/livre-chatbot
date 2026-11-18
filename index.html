@@ -26,8 +26,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-  <script src="js/theme-init.js"></script>
-  <link rel="stylesheet" href="css/style.css?v=passenger-suite-20261118-01">
+  <script src="js/theme-init.js?v=light-default-20261118-01"></script>
+  <link rel="stylesheet" href="css/style.css?v=dashboard-cleanup-light-20261118-02">
 </head>
 <body>
 
@@ -67,8 +67,8 @@
         <button type="button" id="hamburger" aria-label="Abrir menú">
           <span></span><span></span><span></span>
         </button>
-        <h2 id="active-front-name" hidden>—</h2>
-        <p id="active-front-description" hidden></p>
+        <h2 id="active-front-name">Operaciones</h2>
+        <p id="active-front-description">Resumen actualizado de la operación.</p>
         <div class="header-actions">
           <button type="button" id="travel-history-btn">↺ Histórico de viajes</button>
           <button type="button" id="theme-toggle" aria-pressed="false">☼ / ◐</button>
@@ -105,8 +105,8 @@
 
       <section id="crm-dashboard" class="panel-view" hidden aria-label="Operaciones">
         <div class="crm-dashboard-header">
-          <div><h2 id="crm-title">Operaciones</h2><p id="crm-subtitle">Resumen actualizado de la operación.</p></div>
-          <button type="button" id="crm-refresh">Actualizar</button>
+          <div><h2 id="crm-title" hidden>Operaciones</h2><p id="crm-subtitle" hidden>Resumen actualizado de la operación.</p></div>
+          <button type="button" id="crm-refresh" hidden>Actualizar</button>
         </div>
         <div id="crm-cards" class="crm-cards"></div>
         <div id="driver-management-view" hidden aria-label="Gestión de choferes">
@@ -173,14 +173,14 @@
           <p id="map-view-status" class="crm-status" aria-live="polite"></p>
         </div>
         <div id="base-handie-view" hidden aria-label="Mensajería base y handie">
-          <div class="crm-dashboard-header"><div><h2>Base / Handie</h2><p>Mensajes y audios guardados de los conductores.</p></div><div class="base-handie-actions"><button type="button" id="base-handie-notifications">Activar avisos</button><button type="button" id="base-handie-refresh">Actualizar</button></div></div>
+          <div class="crm-dashboard-header"><div><h2 hidden>Base / Handie</h2><p hidden>Mensajes y audios guardados de los conductores.</p></div><div class="base-handie-actions"><button type="button" id="base-handie-notifications">Activar avisos</button><button type="button" id="base-handie-refresh">Actualizar</button></div></div>
           <div id="base-handie-list" class="base-handie-list" aria-live="polite"></div>
           <div id="base-handie-windows" class="base-handie-windows" aria-live="polite"></div>
           <form id="base-handie-form" class="base-handie-form"><input id="base-handie-session" type="hidden"><input id="base-handie-input" maxlength="1000" placeholder="Responder al handie…" autocomplete="off"><button type="submit">Enviar</button></form>
           <p id="base-handie-status" class="crm-status" role="status"></p>
         </div>
         <div id="passenger-chat-view" hidden aria-label="Conversaciones de pasajeros">
-          <div class="crm-dashboard-header"><div><h2>Conversaciones de pasajeros</h2><p>Consulta el chat del viaje. Las respuestas desde el CRM quedan pendientes de canal autorizado.</p></div><button type="button" id="passenger-chat-refresh">Actualizar</button></div>
+          <div class="crm-dashboard-header"><div><h2 hidden>Conversaciones de pasajeros</h2><p hidden>Consulta el chat del viaje. Las respuestas desde el CRM quedan pendientes de canal autorizado.</p></div><button type="button" id="passenger-chat-refresh">Actualizar</button></div>
           <div id="passenger-chat-list" class="passenger-chat-list" aria-live="polite"></div>
           <p id="passenger-chat-status" class="crm-status" role="status"></p>
         </div>
@@ -449,7 +449,7 @@
   
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-<script src="js/app.js?v=1787364001"></script>
+<script src="js/app.js?v=dashboard-cleanup-light-20261118-02"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

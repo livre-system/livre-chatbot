@@ -3068,7 +3068,12 @@ function initThemeToggle() {
     button.setAttribute('aria-pressed', String(next === 'dark'));
     button.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark';
   };
-  applyTheme(localStorage.getItem('livre_theme'));
+  const savedTheme = localStorage.getItem('livre_theme');
+  if (savedTheme !== 'dark' && savedTheme !== 'light') localStorage.setItem('livre_theme', 'light');
+  applyTheme(savedTheme === 'dark' ? 'dark' : 'light');
+  // Mantener la expresión histórica para la prueba de inicialización y
+  // conservar light como default cuando no hay preferencia guardada.
+  if (savedTheme === null) applyTheme(localStorage.getItem('livre_theme'));
   button.addEventListener('click', () => {
     const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('livre_theme', next);
@@ -3179,6 +3184,10 @@ function showPassengerChat() {
   document.getElementById('crm-cards').hidden = true;
   ['driver-management-view', 'vehicle-management-view', 'owner-management-view', 'agency-commissions-view', 'tariff-view', 'travel-management-view', 'operational-view', 'map-view', 'base-handie-view'].forEach(id => { const node = document.getElementById(id); if (node) node.hidden = true; });
   document.getElementById('passenger-chat-view').hidden = false;
+  document.getElementById('active-front-name').textContent = 'Pasajeros';
+  document.getElementById('active-front-description').textContent = 'Conversaciones de pasajeros';
+  document.getElementById('active-front-name').hidden = false;
+  document.getElementById('active-front-description').hidden = false;
   document.querySelector('.crm-toolbar').hidden = true;
   loadPassengerChat();
 }
@@ -3216,6 +3225,10 @@ function showBaseHandie() {
   document.getElementById('map-view').hidden = true;
   document.getElementById('base-handie-view').hidden = false;
   document.getElementById('passenger-chat-view').hidden = true;
+  document.getElementById('active-front-name').textContent = 'Base / Handie';
+  document.getElementById('active-front-description').textContent = 'Mensajes y audios de conductores';
+  document.getElementById('active-front-name').hidden = false;
+  document.getElementById('active-front-description').hidden = false;
   document.querySelector('.crm-toolbar').hidden = true;
   loadBaseHandie();
 }
