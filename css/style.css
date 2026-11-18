@@ -3991,6 +3991,13 @@ html[data-theme="dark"] {
   .passenger-chat-message.is-other { justify-self: end; background: rgba(232,0,61,.1); }
   .passenger-chat-message small { display: block; color: var(--muted); font-size: .72rem; }
   .passenger-chat-message p { margin: 4px 0 0; white-space: pre-wrap; }
+  html[data-theme="dark"] .passenger-chat-card { background: #11151c; border-color: #303846; }
+  html[data-theme="dark"] .passenger-chat-card > header { border-bottom-color: #303846; color: #f4f7fb; }
+  html[data-theme="dark"] .passenger-chat-card > header small,
+  html[data-theme="dark"] .passenger-chat-message small { color: #aab5c5; }
+  html[data-theme="dark"] .passenger-chat-message { background: #202733; color: #f4f7fb; }
+  html[data-theme="dark"] .passenger-chat-message.is-other { background: #3b1c2b; color: #fff3f6; }
+  html[data-theme="dark"] .passenger-chat-message p { color: inherit; }
 
 .base-handie-list { display: grid; gap: 12px; max-height: 42vh; overflow: auto; }
   .base-handie-actions { display: flex; gap: 8px; }
