@@ -271,6 +271,7 @@ body {
   color: var(--lime);
   box-shadow: inset 3px 0 var(--lime), 0 6px 18px rgba(232, 0, 61, .08);
 }
+.main-nav-item[data-view="handie"] { display: none !important; }
 
 #front-list {
   display: flex;
@@ -2663,7 +2664,8 @@ html[data-theme="dark"] body, html[data-theme="dark"] .main-content { background
   #main-header { min-height: 56px; padding: max(10px, env(safe-area-inset-top)) 12px 10px; }
   #hamburger { width: 42px; height: 42px; margin-right: 8px; }
   #neural-btn { min-height: 42px; padding: 8px 10px; font-size: .72rem; }
-  #active-front-name { max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9rem; }
+  #active-front-name { max-width: 42vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; }
+  #active-front-description { max-width: 30vw; overflow: hidden; text-overflow: ellipsis; }
   #content { padding: 14px 12px calc(22px + env(safe-area-inset-bottom)); }
   .panel-view { width: 100%; min-width: 0; }
   .panel-view > h2, .travel-page-heading h2 { font-size: 1.2rem; }
@@ -2697,6 +2699,7 @@ html[data-theme="dark"] body, html[data-theme="dark"] .main-content { background
 
 @media (max-width: 420px) {
   #main-header { padding-left: 8px; padding-right: 8px; }
+  #active-front-description { display: none; }
   #content { padding-left: 8px; padding-right: 8px; }
   #neural-btn { font-size: 0; width: 42px; padding: 0; }
   #neural-btn::first-letter { font-size: 1rem; }
@@ -2835,7 +2838,22 @@ button, input, select, textarea { font-family: inherit; }
   background: rgba(255,255,255,.84);
   backdrop-filter: blur(12px);
 }
-#active-front-name { font-weight: 600; letter-spacing: -.01em; }
+#active-front-name {
+  margin: 0 0 0 10px;
+  font-size: 1.15rem;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -.035em;
+  white-space: nowrap;
+}
+#active-front-description {
+  margin: 2px 0 0 8px;
+  color: var(--text-dim);
+  font-size: .78rem;
+  white-space: nowrap;
+}
+#active-front-name[hidden], #active-front-description[hidden] { display: none; }
+#passenger-chat-view > .crm-dashboard-header { display: none; }
 #message-list { padding: 28px clamp(20px, 5vw, 80px); gap: 10px; }
 .message-item {
   max-width: 840px;
