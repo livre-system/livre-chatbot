@@ -15,9 +15,21 @@
  * a la versión anterior, que era toda esquinas rectas de 3-4px.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Livre passenger visual suite: preserve dashboard behavior, unify the shell. */
+.app-header, header, .topbar {
+  box-shadow: 0 1px 0 rgba(255,255,255,.08), 0 8px 26px rgba(16,24,32,.18);
+}
+.panel, .crm-card, .map-view, .travel-map-panel { border-radius: 18px; }
+.operational-vehicle-marker { filter: drop-shadow(0 4px 8px rgba(16,24,32,.28)); }
+.operational-cluster-marker span { background: #087F83; border-color: #fff; }
 
 :root {
+  --livre-brand: #E8003D;
+  --livre-teal: #087F83;
+  --livre-ink: #101820;
+  --livre-radius: 18px;
   --font-size-base: 16px;
   --lime: #E8003D;
   --lime-dim: #b50030;
