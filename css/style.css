@@ -230,9 +230,10 @@ body {
 
 #app-logo {
   display: block;
-  height: 60px;
+  height: 42px;
   width: auto;
   object-fit: contain;
+  filter: drop-shadow(0 3px 12px rgba(232, 0, 61, .28));
 }
 
 #main-navigation {
@@ -254,7 +255,7 @@ body {
 .main-nav-item {
   width: 100%;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 14px;
   padding: 11px 12px;
   background: transparent;
   color: #111111;
@@ -266,8 +267,9 @@ body {
 
 .main-nav-item:hover,
 .main-nav-item--active {
-  background: #eeeeee;
+  background: rgba(232, 0, 61, .1);
   color: var(--lime);
+  box-shadow: inset 3px 0 var(--lime), 0 6px 18px rgba(232, 0, 61, .08);
 }
 
 #front-list {
@@ -2402,6 +2404,11 @@ body {
 .crm-dashboard-header { justify-content: space-between; margin-bottom: 24px; }
 .crm-dashboard-header h2 { margin: 0; color: var(--text); }
 .crm-dashboard-header p { margin: 4px 0 0; color: var(--text-dim); }
+.crm-dashboard-header h2 { font-size: clamp(1.4rem, 2.4vw, 2rem); letter-spacing: -.05em; font-weight: 800; }
+.crm-dashboard-header p { font-size: .86rem; line-height: 1.5; }
+.crm-cards { gap: 14px; }
+.crm-card, .operational-kpi { box-shadow: 0 8px 28px rgba(16,24,32,.08); }
+.vehicle-new-button, .travel-submit { border-radius: 14px; font-weight: 800; }
 #crm-refresh, #crm-back { border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
 .crm-cards { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
 #operational-view { display: grid; gap: 18px; }
