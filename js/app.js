@@ -1074,6 +1074,10 @@ function showTariff() {
   document.getElementById('composer').hidden = true;
   document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = false;
+  document.getElementById('active-front-name').textContent = 'Tarifa';
+  document.getElementById('active-front-description').textContent = 'Configuración administrable de Premium y Ahorro.';
+  document.getElementById('active-front-name').hidden = false;
+  document.getElementById('active-front-description').hidden = false;
   loadTariff();
 }
 
@@ -1139,6 +1143,10 @@ function showAgencyCommissions() {
   document.getElementById('composer').hidden = true;
   document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = false;
+  document.getElementById('active-front-name').textContent = 'Comisiones de agencia';
+  document.getElementById('active-front-description').textContent = 'Liquidaciones consultadas desde Livre Cloud.';
+  document.getElementById('active-front-name').hidden = false;
+  document.getElementById('active-front-description').hidden = false;
   const today = new Date().toISOString().slice(0, 10);
   const from = document.getElementById('agency-commissions-from');
   const to = document.getElementById('agency-commissions-to');
@@ -1165,6 +1173,10 @@ function showCrm(resource) {
   const title = crmMode === 'control' ? ['Operaciones', 'Resumen actualizado de la operación.'] : (titles[resource] || ['Gestión de datos', 'Datos registrados.']);
   document.getElementById('crm-title').textContent = title[0];
   document.getElementById('crm-subtitle').textContent = title[1];
+  document.getElementById('active-front-name').textContent = title[0];
+  document.getElementById('active-front-description').textContent = title[1];
+  document.getElementById('active-front-name').hidden = false;
+  document.getElementById('active-front-description').hidden = false;
   if (resource === 'travels') {
     resetTravelDateFilterToToday();
     travelStateFilter = TRAVEL_STATE_FILTERS[0];
