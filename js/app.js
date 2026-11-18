@@ -3251,8 +3251,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showCrm(view);
       } else if (view === 'agency-commissions') {
         showAgencyCommissions();
-      } else if (view === 'handie') {
-        showBaseHandie();
       } else if (view === 'passenger-chat') {
         showPassengerChat();
       } else if (view === 'tariff') {
@@ -3275,15 +3273,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('history-state').addEventListener('change', loadTravelHistory);
   document.getElementById('history-search').addEventListener('keydown', event => { if (event.key === 'Enter') loadTravelHistory(); });
 
-  document.getElementById('base-handie-refresh').addEventListener('click', loadBaseHandie);
+  document.getElementById('base-handie-refresh')?.addEventListener('click', loadBaseHandie);
   document.getElementById('passenger-chat-refresh').addEventListener('click', loadPassengerChat);
-  document.getElementById('base-handie-notifications').addEventListener('click', async event => {
+  document.getElementById('base-handie-notifications')?.addEventListener('click', async event => {
     if (!('Notification' in window)) { event.currentTarget.textContent = 'Avisos no disponibles'; return; }
     const permission = await Notification.requestPermission();
     if (permission === 'granted') { localStorage.setItem(HANDIE_SOUND_KEY, '1'); playHandieAlertSound(); }
     event.currentTarget.textContent = permission === 'granted' ? 'Avisos activos' : 'Avisos bloqueados';
   });
-  document.getElementById('base-handie-form').addEventListener('submit', async event => {
+  document.getElementById('base-handie-form')?.addEventListener('submit', async event => {
     event.preventDefault();
     const input = document.getElementById('base-handie-input');
     const sessionId = document.getElementById('base-handie-session').value;
@@ -3392,7 +3390,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bindCrmLifecycleRefresh();
   setInterval(() => {
     if (document.visibilityState === 'visible') void refreshVisibleCrm();
-    const handieVisible = !document.getElementById('base-handie-view')?.hidden;
+    const handieVisible = false;
     if (handieVisible && document.visibilityState === 'visible') loadBaseHandie();
   }, 5000);
 });

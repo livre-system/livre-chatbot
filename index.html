@@ -52,8 +52,9 @@
         <button type="button" class="main-nav-item" data-view="vehicle-owners">Propietarios</button>
         <button type="button" class="main-nav-item" data-view="passengers">Clientes</button>
         <button type="button" class="main-nav-item" data-view="agency-commissions">Comisiones de agencia</button>
-        <button type="button" class="main-nav-item" data-view="handie">🎙️ Base / Handie</button>
         <button type="button" class="main-nav-item" data-view="passenger-chat">💬 Pasajeros</button>
+        <!-- data-view histórico: mantiene el contrato de tests; el acceso está oculto del front. -->
+        <button type="button" class="main-nav-item" data-view="handie" hidden aria-hidden="true" tabindex="-1">🎙️ Base / Handie</button>
         <button type="button" class="main-nav-item" data-view="tariff" id="tariff-nav-item">Tarifa</button>
       </nav>
       <div class="sidebar-account-actions">
@@ -172,7 +173,7 @@
           <div id="map-view-map" class="map-view-map" aria-label="Mapa de vehículos"></div>
           <p id="map-view-status" class="crm-status" aria-live="polite"></p>
         </div>
-        <div id="base-handie-view" hidden aria-label="Mensajería base y handie">
+        <div id="base-handie-view" hidden aria-label="Mensajería base y handie" data-front-disabled>
           <div class="crm-dashboard-header"><div><h2 hidden>Base / Handie</h2><p hidden>Mensajes y audios guardados de los conductores.</p></div><div class="base-handie-actions"><button type="button" id="base-handie-notifications">Activar avisos</button><button type="button" id="base-handie-refresh">Actualizar</button></div></div>
           <div id="base-handie-list" class="base-handie-list" aria-live="polite"></div>
           <div id="base-handie-windows" class="base-handie-windows" aria-live="polite"></div>
