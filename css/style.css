@@ -353,6 +353,9 @@ body {
 #app > #main > #content > #crm-dashboard { display: block !important; width: 100% !important; max-width: none !important; margin: 0 !important; padding-left: 18px !important; padding-right: 18px !important; }
 #app > #main > #content > #chat-workspace { display: none !important; }
 body.chat-mode-active #app > #main > #content > #chat-workspace { display: flex !important; }
+body:not(.chat-mode-active) #message-list,
+body:not(.chat-mode-active) #composer,
+body:not(.chat-mode-active) #chat-history { display: none !important; }
 
 #chat-history { display: none; }
 #crm-dashboard[hidden] ~ #chat-workspace #chat-history { display: block; }
