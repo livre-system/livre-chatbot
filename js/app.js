@@ -1157,6 +1157,7 @@ function showAgencyCommissions() {
 function showCrm(resource) {
   hideTravelHistory();
   crmVisible = true;
+  document.body.classList.remove('chat-mode-active');
   setChatWorkspaceVisible(false);
   crmMode = resource === 'control' ? 'control' : 'resource';
   if (resource === 'control') resource = 'travels';
@@ -1204,6 +1205,7 @@ function showCrm(resource) {
   if (resource) document.getElementById('crm-resource').value = resource;
   document.getElementById('message-list').hidden = true;
   document.getElementById('composer').hidden = true;
+  document.getElementById('chat-workspace').hidden = true;
   document.getElementById('travel-form-view').hidden = true;
   document.getElementById('crm-dashboard').hidden = false;
   loadCrmData();
