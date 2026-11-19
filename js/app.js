@@ -1850,6 +1850,8 @@ async function loadFronts() {
   }
 
   renderFrontList();
+  // No cambiar la vista operativa ni mostrar el chat al cargar conversaciones.
+  if (!document.body.classList.contains('chat-mode-active')) return;
   renderHeader();
   if (activeChatId) await syncFront(activeChatId);
 }
@@ -2965,6 +2967,8 @@ async function bootApp() {
     console.error('Error en initApp:', err);
   }
   void loadFronts().catch(err => console.warn('Carga secundaria (chats) falló:', err));
+  // La carga de conversaciones nunca debe cambiar la vista inicial de Operaciones.
+
 }
 
 async function checkAuth() {
