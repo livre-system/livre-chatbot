@@ -350,7 +350,9 @@ body {
    segundo panel ocupando altura y provoca scroll/clipping en las vistas CRM. */
 #chat-workspace[hidden] { display: none !important; }
 body:not(.chat-mode-active) #chat-workspace { display: none !important; }
-body:not(.chat-mode-active) #main { width: 100%; }
+#main { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; }
+#content { width: 100% !important; max-width: none !important; min-width: 0 !important; }
+#crm-dashboard { width: 100% !important; max-width: none !important; box-sizing: border-box !important; }
 
 #chat-history { display: none; }
 #crm-dashboard[hidden] ~ #chat-workspace #chat-history { display: block; }
