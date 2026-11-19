@@ -4034,6 +4034,26 @@ html[data-theme="dark"] {
   html[data-theme="dark"] .passenger-chat-message.is-other { background: #3b1c2b; color: #fff3f6; }
   html[data-theme="dark"] .passenger-chat-message p { color: inherit; }
 
+/* Última capa móvil de LIVI: debe quedar después de las reglas desktop
+   heredadas para que el layout real del chat no vuelva a ensancharse. */
+@media (max-width: 720px) {
+  #chat-workspace { min-width: 0; width: 100%; }
+  #chat-history { width: 148px !important; flex: 0 0 148px !important; padding: 10px 6px !important; }
+  .chat-history-header { display: grid !important; gap: 8px; padding: 4px 3px 10px !important; }
+  .chat-history-header strong { font-size: .66rem; }
+  #chat-new-button { width: 100%; min-height: 38px; justify-content: center; }
+  .chat-list-row { min-height: 43px; }
+  .chat-list-select { padding: 9px 6px 9px 8px !important; font-size: .72rem !important; }
+  .chat-list-actions { display: none !important; }
+  #chat-panel { width: calc(100% - 148px); min-width: 0; }
+  #message-list { padding: 14px 10px !important; }
+  #composer { padding: 8px 8px calc(8px + env(safe-area-inset-bottom)) !important; }
+  #composer .input-wrapper { display: grid !important; grid-template-columns: minmax(0,1fr) 44px auto !important; gap: 5px; }
+  #message-input { min-width: 0; font-size: 16px !important; min-height: 44px; }
+  #voice-btn, #message-submit { min-width: 44px; min-height: 44px; padding: 8px 9px; }
+  #message-submit { font-size: .78rem; }
+}
+
 .base-handie-list { display: grid; gap: 12px; max-height: 42vh; overflow: auto; }
   .base-handie-actions { display: flex; gap: 8px; }
   .base-handie-actions button { padding: 8px 12px; border: 1px solid var(--border-soft); border-radius: 10px; background: var(--surface); color: inherit; cursor: pointer; }

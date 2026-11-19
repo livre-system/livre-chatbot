@@ -2,8 +2,8 @@ const CACHE_NAME = 'livre-shell-v7';
 const APP_SHELL = [
   './',
   './index.html',
-  './css/style.css?v=dashboard-cleanup-light-20261118-03',
-  './js/app.js?v=dashboard-cleanup-light-20261118-03',
+  './css/style.css?v=dashboard-cleanup-light-20261118-04',
+  './js/app.js?v=dashboard-cleanup-light-20261118-04',
   './images/favicon.png',
   './images/icon-192.png',
   './images/icon-512.png',
