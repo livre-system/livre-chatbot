@@ -349,6 +349,8 @@ body {
 /* El atributo hidden debe retirar el workspace del layout; si no, deja un
    segundo panel ocupando altura y provoca scroll/clipping en las vistas CRM. */
 #chat-workspace[hidden] { display: none !important; }
+body:not(.chat-mode-active) #chat-workspace { display: none !important; }
+body:not(.chat-mode-active) #main { width: 100%; }
 
 #chat-history { display: none; }
 #crm-dashboard[hidden] ~ #chat-workspace #chat-history { display: block; }

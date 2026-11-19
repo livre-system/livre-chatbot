@@ -477,11 +477,10 @@ async function loadMapViewer() {
 function setChatWorkspaceVisible(visible) {
   const workspace = document.getElementById('chat-workspace');
   if (workspace) workspace.hidden = !visible;
+  document.body.classList.toggle('chat-mode-active', visible);
 }
 
 async function refreshVisibleCrm() {
-  if (!crmVisible || document.visibilityState !== 'visible' || crmRefreshInFlight) return;
-  crmRefreshInFlight = true;
   try {
     if (crmMode === 'map') await loadMapViewer();
     else if (crmMode === 'tariff') {
