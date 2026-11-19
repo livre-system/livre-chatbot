@@ -3573,6 +3573,21 @@ html[data-theme="dark"] #livi-floating-form button {
   #chat-history { width: 190px; flex-basis: 190px; padding: 10px 6px; }
   .chat-history-header { padding-left: 4px; padding-right: 2px; }
   .chat-list-actions { opacity: 1; }
+  #chat-history { width: 148px; flex-basis: 148px; padding: 10px 6px; }
+  .chat-history-header { display: grid; gap: 8px; padding: 4px 3px 10px; }
+  .chat-history-header strong { font-size: .66rem; }
+  #chat-new-button { width: 100%; justify-content: center; min-height: 38px; }
+  .chat-list-row { min-height: 43px; }
+  .chat-list-select { padding: 9px 6px 9px 8px; font-size: .72rem; }
+  .chat-list-actions { display: none; }
+  #chat-panel { min-width: 0; }
+  #message-list { padding: 14px 10px; }
+  #composer { padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+  #composer .input-wrapper { display: grid; grid-template-columns: minmax(0,1fr) 44px auto; gap: 5px; }
+  #message-input { min-width: 0; font-size: 16px; min-height: 44px; }
+  #voice-btn, #message-submit { min-width: 44px; min-height: 44px; padding: 8px 9px; }
+  #voice-btn { font-size: 18px; }
+  #message-submit { font-size: .78rem; }
 }
 
 html[data-theme="dark"] #chat-history { background: #151619; }
