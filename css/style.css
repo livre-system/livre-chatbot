@@ -2470,8 +2470,8 @@ html[data-theme="dark"] body, html[data-theme="dark"] .main-content { background
 .history-toolbar button { min-height:38px; border:0; border-radius:10px; padding:8px 14px; background:var(--lime); color:#fff; font-weight:700; cursor:pointer; }
 #livi-floating-panel {
   position: fixed !important;
-  right: 24px !important;
-  bottom: 24px !important;
+  right: 30px !important;
+  bottom: 58px !important;
   width: 86px !important;
   height: auto !important;
   z-index: 3000 !important;
