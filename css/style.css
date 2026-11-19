@@ -348,11 +348,11 @@ body {
 
 /* El atributo hidden debe retirar el workspace del layout; si no, deja un
    segundo panel ocupando altura y provoca scroll/clipping en las vistas CRM. */
-#app > #main { flex: 1 1 auto !important; width: calc(100% - 164px) !important; max-width: none !important; min-width: 0 !important; }
-#app > #main > #content { width: 100% !important; max-width: none !important; min-width: 0 !important; }
-#app > #main > #content > #crm-dashboard { width: 100% !important; max-width: none !important; margin-left: 0 !important; }
-#app > #main > #content > #chat-workspace[hidden],
-#app > #main > #content > #chat-workspace:not(.chat-mode-active) { display: none !important; }
+#app > #main { flex: 1 1 auto !important; width: calc(100% - 164px) !important; max-width: none !important; min-width: 0 !important; overflow: hidden !important; }
+#app > #main > #content { display: block !important; width: 100% !important; max-width: none !important; min-width: 0 !important; padding-left: 0 !important; }
+#app > #main > #content > #crm-dashboard { display: block !important; width: 100% !important; max-width: none !important; margin: 0 !important; padding-left: 18px !important; padding-right: 18px !important; }
+#app > #main > #content > #chat-workspace { display: none !important; }
+body.chat-mode-active #app > #main > #content > #chat-workspace { display: flex !important; }
 
 #chat-history { display: none; }
 #crm-dashboard[hidden] ~ #chat-workspace #chat-history { display: block; }
