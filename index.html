@@ -63,7 +63,11 @@
       </div>
     </aside>
 
-    <main id="main">
+    <div id="livi-floating-panel" class="livi-floating-panel" aria-label="Livi IA">
+      <button id="livi-floating-button" type="button" aria-label="Hablar con Livi" title="Hablar con Livi"><img src="images/livi_reposo.svg" alt="Livi"></button>
+      <span id="livi-floating-state">Livi lista</span>
+    </div>
+
       <header id="main-header">
         <button type="button" id="hamburger" aria-label="Abrir menú">
           <span></span><span></span><span></span>
@@ -455,6 +459,11 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
+  </script>
+  <script>
+    document.getElementById('livi-floating-button')?.addEventListener('click', () => {
+      document.querySelector('[data-view="livi"]')?.click();
+    });
   </script>
 </body>
 </html>
