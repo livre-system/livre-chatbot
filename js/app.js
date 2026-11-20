@@ -3771,8 +3771,12 @@ document.addEventListener('DOMContentLoaded', () => {
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecording = false;
+const LIVI_SPEED_KEY = 'livre_dashboard_livi_speed';
+function currentLiviSpeed() { return localStorage.getItem(LIVI_SPEED_KEY) || '1'; }
 
 function initVoiceChat() {
+  const speed = document.getElementById('livi-voice-speed');
+  if (speed) { speed.value = currentLiviSpeed(); speed.addEventListener('change', () => localStorage.setItem(LIVI_SPEED_KEY, ['1','1.15','1.25','1.5'].includes(speed.value) ? speed.value : '1')); }
   const btn = document.getElementById('voice-btn');
   if (!btn) return;
   btn.addEventListener('click', () => {
