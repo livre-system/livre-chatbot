@@ -2532,7 +2532,27 @@ html[data-theme="dark"] body, html[data-theme="dark"] .main-content { background
 .crm-table-footer select, .crm-table-footer button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 14px; color: var(--text-dim); background: var(--black); font-size: .75rem; }
 .crm-table-footer button { cursor: pointer; }
 .crm-table-footer button:disabled { cursor: default; opacity: .45; }
-@media (max-width: 640px) { .crm-cards { grid-template-columns: repeat(2, 1fr); } #crm-btn { padding: 7px 9px; font-size: .75rem; } .crm-table-footer { justify-content: flex-start; } }
+@media (max-width: 640px) {
+  html, body, #app { width:100%; max-width:100%; min-width:0; overflow-x:hidden; }
+  #main, #content, #crm-dashboard { width:100%; min-width:0; max-width:100%; box-sizing:border-box; }
+  #crm-dashboard { padding:18px 12px 88px; overflow-x:hidden; }
+  .crm-dashboard-header { align-items:flex-start; margin-bottom:16px; }
+  .crm-dashboard-header h2 { font-size:1.35rem; }
+  .crm-dashboard-header p { font-size:.78rem; }
+  .crm-dashboard-header, .crm-toolbar { min-width:0; }
+  .crm-toolbar > * { min-width:0; max-width:100%; }
+  .crm-cards, .operational-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .operational-kpi { min-width:0; min-height:112px; padding:12px; overflow:hidden; }
+  .operational-kpi span { font-size:.8rem; line-height:1.2; }
+  .operational-kpi strong { font-size:1.8rem; }
+  .operational-section, .crm-card { min-width:0; }
+  .header-actions { max-width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:3px; }
+  .header-actions > * { flex:0 0 auto; }
+  #livi-floating-panel { right:14px !important; bottom:82px !important; width:78px !important; }
+  #livi-floating-button { width:64px !important; min-width:64px !important; height:64px !important; }
+  #livi-floating-state { max-width:78px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+}
+
 #lock-screen[hidden],
 #app[hidden],
 #travel-form-view[hidden] { display: none !important; }
