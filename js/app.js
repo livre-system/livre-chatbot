@@ -2653,8 +2653,15 @@ function showCryptoModal() {
 function initApp() {
   initMessageActions();
   initVoiceChat();
+  const liviFloatingButton = document.getElementById('livi-floating-button');
+  if (liviFloatingButton) liviFloatingButton.addEventListener('click', async () => {
+    setChatWorkspaceVisible(true);
+    const dashboard = document.getElementById('crm-dashboard');
+    if (dashboard) dashboard.hidden = true;
+    document.getElementById('livi-floating-state').textContent = 'Livi escuchando';
+    if (!isRecording) await startRecording();
+  });
 
-  // Selector de modo
   document.querySelectorAll('.mode-btn').forEach(btn => {
     if (btn.dataset.mode === activeMode) btn.classList.add('mode-btn--active');
     btn.addEventListener('click', () => {
@@ -3776,7 +3783,7 @@ function currentLiviSpeed() { return localStorage.getItem(LIVI_SPEED_KEY) || '1'
 
 function initVoiceChat() {
   const speed = document.getElementById('livi-voice-speed');
-  if (speed) { speed.value = currentLiviSpeed(); speed.addEventListener('change', () => localStorage.setItem(LIVI_SPEED_KEY, ['1','1.15','1.25','1.5'].includes(speed.value) ? speed.value : '1')); }
+  if (speed) { speed.value = currentLiviSpeed(); speed.addEventListener('change', () => localStorage.setItem(LIVI_SPEED_KEY, ['1','1.15','1.2'].includes(speed.value) ? speed.value : '1')); }
   const btn = document.getElementById('voice-btn');
   if (!btn) return;
   btn.addEventListener('click', () => {
