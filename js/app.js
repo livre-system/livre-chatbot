@@ -13,7 +13,14 @@ async function apiCrm(path, options = {}) {
     signal: options.signal,
     cache: 'no-store',
   });
-  if (!res.ok) throw new Error('Error ' + res.status);
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const body = await res.json();
+      detail = body.detail || body.message || body.error || '';
+    } catch { /* respuesta no JSON */ }
+    throw new Error(`CRM ${res.status}${detail ? `: ${detail}` : ''}`);
+  }
   return await res.json();
 }
 
