@@ -426,7 +426,9 @@ function isLiveMapLocation(item) {
   const latitude = Number(item?.lastPlace?.latitude);
   const longitude = Number(item?.lastPlace?.longitude);
   return Number.isFinite(latitude)
-    && Number.isFinite(longitude);
+    && Number.isFinite(longitude)
+    && latitude >= -90 && latitude <= 90
+    && longitude >= -180 && longitude <= 180;
 
 }
 

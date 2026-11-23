@@ -2916,6 +2916,9 @@ button, input, select, textarea { font-family: inherit; }
   backdrop-filter: blur(12px);
 }
 #main-header .header-actions { margin-left: auto; }
+#main-header .header-actions #travel-history-btn { order: 1; }
+#main-header .header-actions #theme-toggle { order: 2; }
+#main-header .header-actions #neural-btn { order: 3; }
 #settings-modal-box #livi-voice-speed { min-height: 38px; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; background: var(--graphite); color: var(--text); }
 #active-front-name {
   margin: 0 0 0 10px;
