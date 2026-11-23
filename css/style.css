@@ -3898,6 +3898,7 @@ html[data-theme="dark"] #composer .input-wrapper {
     z-index: 2000;
   }
   #sidebar.sidebar--open { transform: translate3d(0, 0, 0); }
+  #sidebar.sidebar--open { display: flex !important; visibility: visible !important; }
   #app-title { margin-bottom: 18px; padding: 0 10px; }
   #app-logo { height: 38px; }
   #main-navigation { gap: 3px; margin-bottom: 14px; }
