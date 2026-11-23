@@ -53,7 +53,11 @@ const server = http.createServer((req, res) => {
       'X-Frame-Options': 'DENY',
       'Referrer-Policy': 'no-referrer',
     };
-    if (ext === '.js') headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+  if (ext === '.js' || ext === '.css' || ext === '.html' || ext === '.webmanifest' || ext === '.json') {
+      headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+      headers['Pragma'] = 'no-cache';
+      headers['Expires'] = '0';
+    }
     res.writeHead(200, headers);
     if (req.method === 'HEAD') return res.end();
     fs.createReadStream(file).pipe(res);
