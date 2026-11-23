@@ -2663,7 +2663,7 @@ function initApp() {
   const liviFloatingButton = document.getElementById('livi-floating-button');
   function openLiviWorkspace() {
     const panel = document.getElementById('livi-floating-panel');
-    if (panel) panel.classList.add('is-open');
+    if (panel) panel.classList.remove('is-open');
     setChatWorkspaceVisible(true);
     const dashboard = document.getElementById('crm-dashboard');
     if (dashboard) dashboard.hidden = true;
