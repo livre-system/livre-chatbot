@@ -425,9 +425,9 @@ function passengerVehicleIcon(item = {}) {
 function isLiveMapLocation(item) {
   const latitude = Number(item?.lastPlace?.latitude);
   const longitude = Number(item?.lastPlace?.longitude);
-  return item?.sessionActive === true
-    && Number.isFinite(latitude)
+  return Number.isFinite(latitude)
     && Number.isFinite(longitude);
+
 }
 
 async function loadMapViewer() {
@@ -2661,10 +2661,16 @@ function initApp() {
   initMessageActions();
   initVoiceChat();
   const liviFloatingButton = document.getElementById('livi-floating-button');
-  if (liviFloatingButton) liviFloatingButton.addEventListener('click', async () => {
+  function openLiviWorkspace() {
+    const panel = document.getElementById('livi-floating-panel');
+    if (panel) panel.classList.add('is-open');
     setChatWorkspaceVisible(true);
     const dashboard = document.getElementById('crm-dashboard');
     if (dashboard) dashboard.hidden = true;
+  }
+
+  if (liviFloatingButton) liviFloatingButton.addEventListener('click', async () => {
+    openLiviWorkspace();
     document.getElementById('livi-floating-state').textContent = 'Livi escuchando';
     if (!isRecording) await startRecording();
   });
@@ -3278,6 +3284,10 @@ document.addEventListener('DOMContentLoaded', () => {
         showCrm('control');
       } else if (view === 'map-view') {
         showMapViewer();
+      } else if (view === 'livi') {
+        showChat();
+        document.getElementById('active-front-name').textContent = 'LIVI IA';
+        document.getElementById('active-front-description').textContent = 'Asistente inteligente del dashboard.';
       } else if (view === 'travels' || view === 'drivers' || view === 'vehicles' || view === 'passengers') {
         showCrm(view);
       } else if (view === 'agency-commissions') {
