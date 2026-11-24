@@ -358,6 +358,21 @@ body:not(.chat-mode-active) #message-list,
 body:not(.chat-mode-active) #composer,
 body:not(.chat-mode-active) #chat-history { display: none !important; }
 
+/* Escritorio: el documento completo debe desplazarse; no encerrar Operaciones
+   en un viewport interno que corta las secciones inferiores. */
+@media (min-width: 761px) {
+  html, body { min-height: 100%; height: auto; overflow-y: auto; }
+  #app { min-height: 100vh; height: auto; align-items: stretch; }
+  #app > #main { min-height: 100vh; height: auto; overflow: visible !important; }
+  #app > #main > #crm-dashboard,
+  #app > #main > #content > #crm-dashboard {
+    flex: none;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
 #chat-history { display: none; }
 #crm-dashboard[hidden] ~ #chat-workspace #chat-history { display: block; }
 #chat-history {
