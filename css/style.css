@@ -3913,6 +3913,15 @@ html[data-theme="dark"] #composer .input-wrapper {
     gap: 4px;
   }
   #active-front-name { flex: 1; min-width: 0; max-width: none; }
+  #crm-dashboard {
+    height: calc(100dvh - 64px);
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 150px !important;
+  }
+  .operational-kpis { padding-bottom: 12px; }
   .header-actions { gap: 5px; margin-left: auto; }
   .header-actions button { min-height: 42px; padding: 8px 9px; }
   #travel-history-btn { max-width: 42px; overflow: hidden; white-space: nowrap; font-size: 0; }
