@@ -404,7 +404,7 @@ function renderOperationalMap(items, targetId = 'operational-map') {
     requestAnimationFrame(() => requestAnimationFrame(() => operationalMap?.invalidateSize()));
   }
   operationalMarkerGroup.clearLayers();
-  const points = items.filter(isLiveMapLocation).map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+  const points = items.filter(item => item.locationEligible === true && isLiveMapLocation(item)).map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
   const uniquePoints = new Map();
   points.forEach(point => {
     const identity = String(point.item.driverId ?? point.item.driver_id ?? point.item.driver?.id ?? point.item.vehicleId ?? point.item.vehicle_id ?? point.item.vehicle?.id ?? `${point.lat.toFixed(6)}:${point.lng.toFixed(6)}`);
