@@ -337,6 +337,7 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
   background: var(--black);
 }
 
@@ -2430,7 +2431,7 @@ body:not(.chat-mode-active) #chat-history { display: none !important; }
 .map-view-map { width: 100%; min-height: 620px; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: #f4f5f5; }
 .map-view-map .leaflet-container { min-height: 620px; }
 @media (max-width: 640px) { .map-view-map, .map-view-map .leaflet-container { min-height: 440px; } }
-.operational-kpis { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px; }
+.operational-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .operational-kpi { min-height: 76px; padding: 13px 16px; border: 1px solid var(--border); border-radius: 3px; background: #fff; color: #56606b; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .operational-kpi span { font-size: .73rem; }
 .operational-kpi strong { color: #4b9f9b; font-size: 1.35rem; font-weight: 700; }
@@ -2909,6 +2910,7 @@ button, input, select, textarea { font-family: inherit; }
 /* Barra superior y área de conversación */
 #main { background: var(--black); }
 #main-header {
+  min-width: 0;
   min-height: 64px;
   padding: 12px 28px;
   border-bottom: 1px solid var(--border);
