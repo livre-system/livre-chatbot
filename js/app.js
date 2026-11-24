@@ -388,15 +388,11 @@ function renderOperationalMap(items, targetId = 'operational-map') {
     if (operationalMap) operationalMap.remove();
     operationalMap = L.map(node).setView([-38.7183, -62.2663], 12);
     operationalMapContainerId = targetId;
-    const base = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    const base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '© Esri, HERE, Garmin, © OpenStreetMap contributors',
+      attribution: '© OpenStreetMap contributors',
     }).addTo(operationalMap);
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      pane: 'overlayPane',
-    }).addTo(operationalMap);
-    base.on('tileerror', () => base.setUrl('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'));
+    base.on('tileerror', () => base.setUrl('https://tile.openstreetmap.de/{z}/{x}/{y}.png'));
     operationalMarkerGroup = typeof L.markerClusterGroup === 'function'
       ? L.markerClusterGroup({
         showCoverageOnHover: false,
@@ -409,6 +405,13 @@ function renderOperationalMap(items, targetId = 'operational-map') {
   }
   operationalMarkerGroup.clearLayers();
   const points = items.filter(isLiveMapLocation).map(item => ({ item, lat: Number(item.lastPlace?.latitude), lng: Number(item.lastPlace?.longitude) })).filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+  const uniquePoints = new Map();
+  points.forEach(point => {
+    const identity = String(point.item.driverId ?? point.item.driver_id ?? point.item.driver?.id ?? point.item.vehicleId ?? point.item.vehicle_id ?? point.item.vehicle?.id ?? `${point.lat.toFixed(6)}:${point.lng.toFixed(6)}`);
+    const previous = uniquePoints.get(identity);
+    if (!previous || new Date(point.item.lastSee || 0) > new Date(previous.item.lastSee || 0)) uniquePoints.set(identity, point);
+  });
+  const visiblePoints = [...uniquePoints.values()];
 function passengerVehicleIcon(item = {}) {
   const status = String(item.operationalStatus || '').toLowerCase();
   const color = status === 'out_of_service' ? '#e8003d' : status === 'unavailable' ? '#8f98a3' : '#087f83';
@@ -416,7 +419,7 @@ function passengerVehicleIcon(item = {}) {
   return L.divIcon({ className: 'operational-vehicle-marker', html: svg, iconSize: [44, 44], iconAnchor: [22, 22], popupAnchor: [0, -22] });
 }
 
-  points.forEach(({ item, lat, lng }) => {
+  visiblePoints.forEach(({ item, lat, lng }) => {
     const gpsLabel = item.sessionActive === true ? 'GPS activo' : 'Última ubicación conocida';
     L.marker([lat, lng], { icon: passengerVehicleIcon(item) }).bindPopup(`<strong>${crmEscape(item.driverName || [item.firstName, item.lastName].filter(Boolean).join(' ') || 'Conductor')}</strong><br>${crmEscape(item.vehicle?.plate || item.vehicle?.domain || 'Sin vehículo')}<br><strong>${crmEscape(operationalStateLabel(item))}</strong><br><strong>${gpsLabel}</strong><br><small>Último dato (Argentina): ${crmEscape(item.lastSee ? formatArgentinaDate(item.lastSee) : '—')}</small>`).addTo(operationalMarkerGroup);
   });
