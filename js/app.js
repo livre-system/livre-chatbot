@@ -388,11 +388,11 @@ function renderOperationalMap(items, targetId = 'operational-map') {
     if (operationalMap) operationalMap.remove();
     operationalMap = L.map(node).setView([-38.7183, -62.2663], 12);
     operationalMapContainerId = targetId;
-    const base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const base = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors',
     }).addTo(operationalMap);
-    base.on('tileerror', () => base.setUrl('https://tile.openstreetmap.de/{z}/{x}/{y}.png'));
+    base.on('tileerror', () => base.setUrl('https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png'));
     operationalMarkerGroup = typeof L.markerClusterGroup === 'function'
       ? L.markerClusterGroup({
         showCoverageOnHover: false,
