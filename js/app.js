@@ -2673,7 +2673,8 @@ function initApp() {
 
   if (liviFloatingButton) liviFloatingButton.addEventListener('click', async () => {
     openLiviWorkspace();
-    document.getElementById('livi-floating-state').textContent = 'Livi escuchando';
+    const state = document.getElementById('livi-floating-state');
+    if (state) state.textContent = 'Conectando…';
     if (!isRecording) await startRecording();
   });
 
@@ -3812,7 +3813,11 @@ function initVoiceChat() {
 }
 
 async function startRecording() {
+  const state = document.getElementById('livi-floating-state');
+  const setState = text => { if (state) state.textContent = text; };
   try {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('Este navegador no permite usar el micrófono.');
+    setState('Solicitando micrófono…');
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     audioChunks = [];
     mediaRecorder = new MediaRecorder(stream);
@@ -3820,11 +3825,13 @@ async function startRecording() {
     mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); sendVoiceMessage(); };
     mediaRecorder.start();
     isRecording = true;
+    setState('Livi escuchando');
     const btn = document.getElementById('voice-btn');
-    btn.textContent = '⏹';
-    btn.style.color = '#b4ff00';
-  } catch {
-    setSyncStatus('error', 'No se pudo acceder al micrófono.');
+    if (btn) { btn.textContent = '⏹'; btn.style.color = '#b4ff00'; }
+  } catch (error) {
+    setState('Micrófono bloqueado');
+    setSyncStatus('error', error?.message || 'No se pudo acceder al micrófono.');
+    console.error('Livi microphone start failed:', error);
   }
 }
 
