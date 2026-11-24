@@ -3886,7 +3886,9 @@ html[data-theme="dark"] #composer .input-wrapper {
 /* PWA móvil: navegación tipo drawer, vistas sin desborde y áreas seguras. */
 @media (max-width: 760px) {
   html, body { width: 100%; min-width: 0; min-height: 100%; overflow-x: hidden; }
-  body { overscroll-behavior-x: none; }
+  body {
+    touch-action: manipulation;
+  }
   #app { min-height: 100dvh; height: 100dvh; display: flex; overflow: hidden; }
   #sidebar {
     width: min(78vw, 300px) !important;
