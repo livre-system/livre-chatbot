@@ -3914,7 +3914,8 @@ html[data-theme="dark"] #composer .input-wrapper {
   }
   #active-front-name { flex: 1; min-width: 0; max-width: none; }
   #crm-dashboard {
-    height: calc(100dvh - 64px);
+    flex: 1 1 auto;
+    height: auto;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
