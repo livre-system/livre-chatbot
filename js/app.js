@@ -1599,6 +1599,17 @@ async function createTravelFromForm(event) {
         time,
       };
       travelLocations = data.locations || null;
+      travelRouteRequest += 1;
+      geocodeRequests.origin = (geocodeRequests.origin || 0) + 1;
+      geocodeRequests.destination = (geocodeRequests.destination || 0) + 1;
+      if (travelLocations?.origin && travelLocations?.destination) {
+        geocodeRequests.origin = (geocodeRequests.origin || 0) + 1;
+        geocodeRequests.destination = (geocodeRequests.destination || 0) + 1;
+        geocodePoints = {
+          origin: travelMapPoint(travelLocations.origin),
+          destination: travelMapPoint(travelLocations.destination),
+        };
+      }
       renderTravelQuotes(options);
       renderTravelMapFromQuote(travelQuoteOptions[0]);
       status.textContent = options.length ? 'Elegí Livre Premium o Livre Ahorro y confirmá el viaje.' : result;
