@@ -1496,8 +1496,8 @@ function renderTravelMapFromQuote(option) {
   travelRoute?.remove();
   if (points.length) travelRoute = L.polyline(points, { color: '#55b9a9', weight: 5, opacity: 0.9 }).addTo(travelMap);
   const bounds = points.slice();
-  const origin = travelMapPoint(option?.origin || route?.origin || travelLocations?.origin);
-  const destination = travelMapPoint(option?.destination || route?.destination || travelLocations?.destination);
+  const origin = travelMapPoint(travelLocations?.origin || option?.origin || route?.origin);
+  const destination = travelMapPoint(travelLocations?.destination || option?.destination || route?.destination);
   [[origin, 'Origen'], [destination, 'Destino']].forEach(([point, label]) => {
     if (!point) return;
     travelMapMarkers.push(L.marker(point).addTo(travelMap).bindPopup(label));
