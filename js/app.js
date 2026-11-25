@@ -1366,6 +1366,12 @@ async function geocodeTravelAddress(field, value) {
 }
 
 function refreshTravelMap() {
+  travelQuote = null;
+  travelQuoteOptions = [];
+  const quoteBox = document.getElementById("travel-quote");
+  if (quoteBox) { quoteBox.hidden = true; quoteBox.textContent = ""; }
+  const status = document.getElementById("travel-form-status");
+  if (status) status.textContent = "";
   initTravelMap();
   if (!travelMap) return;
   travelLocations = null;
