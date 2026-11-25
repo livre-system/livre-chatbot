@@ -1481,12 +1481,12 @@ function travelMapPoint(value) {
 
 function renderTravelMapFromQuote(option) {
   travelRouteRequest += 1;
-  let routeMap = option?.routeMap;
+  let routeMap = null;
   if (typeof routeMap === 'string') {
     try { routeMap = JSON.parse(routeMap); } catch (_) { routeMap = null; }
   }
-  const route = routeMap?.routes?.[0];
-  const encoded = route?.overviewPolyline?.encodedPath || route?.overviewPolyline?.points;
+  const route = null;
+  const encoded = null;
   if (!window.L) return false;
   const points = encoded ? decodeGooglePolyline(encoded) : [];
   initTravelMap();
