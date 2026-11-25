@@ -1556,6 +1556,10 @@ async function createTravelFromForm(event) {
   const payload = {
     origen: origin,
     destino: destination,
+    origin_latitude: geocodePoints.origin?.[0] ?? null,
+    origin_longitude: geocodePoints.origin?.[1] ?? null,
+    destination_latitude: geocodePoints.destination?.[0] ?? null,
+    destination_longitude: geocodePoints.destination?.[1] ?? null,
     whatsapp_user: PANEL_WHATSAPP_USER,
     date_programmed: programmed ? `${date}T${time}:00` : null,
     service_type_id: document.querySelector('input[name="travel-service"]:checked')?.value || null,
