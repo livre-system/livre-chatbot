@@ -1494,23 +1494,24 @@ function renderTravelMapFromQuote(option) {
   travelMapMarkers.forEach(marker => marker.remove());
   travelMapMarkers = [];
   travelRoute?.remove();
-  if (points.length) travelRoute = L.polyline(points, { color: '#55b9a9', weight: 5, opacity: 0.9 }).addTo(travelMap);
-  const bounds = points.slice();
   const origin = travelMapPoint(travelLocations?.origin || option?.origin || route?.origin);
   const destination = travelMapPoint(travelLocations?.destination || option?.destination || route?.destination);
+  const routePoints = origin && destination ? [] : points;
+  if (routePoints.length) travelRoute = L.polyline(routePoints, { color: '#55b9a9', weight: 5, opacity: 0.9 }).addTo(travelMap);
+  const bounds = routePoints.slice();
   [[origin, 'Origen'], [destination, 'Destino']].forEach(([point, label]) => {
     if (!point) return;
     travelMapMarkers.push(L.marker(point).addTo(travelMap).bindPopup(label));
     bounds.push(point);
   });
-  if (points.length) {
+  if (routePoints.length) {
     if (bounds.length) travelMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
   } else if (origin && destination) {
     renderTravelAddressPoints([origin, destination]);
   } else if (bounds.length) {
     travelMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
   }
-  return Boolean(points.length || bounds.length);
+  return Boolean(routePoints.length || bounds.length);
 }
 
 function renderTravelQuotes(options) {
