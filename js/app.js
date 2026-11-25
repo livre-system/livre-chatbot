@@ -1502,7 +1502,7 @@ function renderTravelMapFromQuote(option) {
   travelRoute?.remove();
   const origin = travelMapPoint(travelLocations?.origin);
   const destination = travelMapPoint(travelLocations?.destination);
-  const routePoints = origin && destination ? [] : points;
+  const routePoints = origin && destination ? [origin, destination] : points;
   if (routePoints.length) travelRoute = L.polyline(routePoints, { color: '#55b9a9', weight: 5, opacity: 0.9 }).addTo(travelMap);
   const bounds = routePoints.slice();
   [[origin, 'Origen'], [destination, 'Destino']].forEach(([point, label]) => {
