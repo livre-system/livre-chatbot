@@ -1507,7 +1507,7 @@ function renderTravelMapFromQuote(option) {
   if (routePoints.length) {
     if (bounds.length) travelMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
   } else if (origin && destination) {
-    renderTravelAddressPoints([origin, destination]);
+    travelMap.fitBounds([origin, destination], { padding: [24, 24], maxZoom: 16 });
   } else if (bounds.length) {
     travelMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 16 });
   }
