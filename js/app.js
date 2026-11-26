@@ -1359,6 +1359,11 @@ async function geocodeTravelAddress(field, value) {
     if (!response.ok) return null;
     const result = (await response.json())[0];
     if (requestId !== geocodeRequests[field] || !result) return null;
+    const requestedNumber = address.match(/\d+/)?.[0] || '';
+    const displayName = String(result.display_name || '');
+    const isRoadCentroid = ['highway', 'road'].includes(String(result.category || '').toLowerCase())
+      || ['highway', 'road'].includes(String(result.type || '').toLowerCase());
+    if (requestedNumber && (isRoadCentroid || !new RegExp(`\b${requestedNumber}\b`).test(displayName))) return null;
     return [Number(result.lat), Number(result.lon)];
   } catch (_) {
     return null;
@@ -1554,6 +1559,10 @@ async function createTravelFromForm(event) {
   const date = form.elements.date.value;
   const time = form.elements.time.value;
   if (!origin || !destination) return;
+  if (!geocodePoints.origin || !geocodePoints.destination) {
+    status.textContent = 'No se pudo validar una dirección exacta. Revisá el número de puerta.';
+    return;
+  }
   if (programmed && (!date || !time)) {
     status.textContent = 'Elegí fecha y hora para programar el viaje.';
     return;
