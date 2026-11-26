@@ -3400,6 +3400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const control = document.getElementById(id);
     if (control) control.addEventListener('input', () => { if (operationalSnapshot) renderOperationalDashboard(operationalSnapshot); });
   });
+  document.getElementById('dashboard-refresh-btn').addEventListener('click', () => window.location.reload());
   document.getElementById('sidebar-settings').addEventListener('click', () => document.getElementById('settings-modal').removeAttribute('hidden'));
   document.getElementById('sidebar-logout').addEventListener('click', logout);
   document.getElementById('travel-create-form').addEventListener('submit', createTravelFromForm);
