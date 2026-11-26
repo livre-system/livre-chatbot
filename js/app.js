@@ -1359,11 +1359,12 @@ async function geocodeTravelAddress(field, value) {
     if (!response.ok) return null;
     const result = (await response.json())[0];
     if (requestId !== geocodeRequests[field] || !result) return null;
-    const requestedNumber = address.match(/\d+/)?.[0] || '';
+    const requestedNumber = address.match(/[0-9]+/)?.[0] || '';
     const displayName = String(result.display_name || '');
     const isRoadCentroid = ['highway', 'road'].includes(String(result.category || '').toLowerCase())
       || ['highway', 'road'].includes(String(result.type || '').toLowerCase());
-    if (requestedNumber && (isRoadCentroid || !new RegExp(`\b${requestedNumber}\b`).test(displayName))) return null;
+    const displayNumbers = displayName.match(/[0-9]+/g) || [];
+    if (requestedNumber && (isRoadCentroid || !displayNumbers.includes(requestedNumber))) return null;
     return [Number(result.lat), Number(result.lon)];
   } catch (_) {
     return null;
