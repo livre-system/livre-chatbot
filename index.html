@@ -84,11 +84,11 @@
           <form id="travel-create-form" class="travel-form">
             <div class="travel-field">
               <label for="travel-origin">Origen <b>*</b></label>
-              <div class="travel-location-field"><i class="travel-marker travel-marker--origin"></i><input id="travel-origin" name="origin" type="text" required autocomplete="street-address" placeholder="Dirección de origen"></div>
+              <div class="travel-location-field"><i class="travel-marker travel-marker--origin"></i><input id="travel-origin" name="origin" list="travel-origin-suggestions" type="text" required autocomplete="street-address" placeholder="Dirección de origen"><datalist id="travel-origin-suggestions"></datalist></div>
             </div>
             <div class="travel-field">
               <label for="travel-destination">Destino <b>*</b></label>
-              <div class="travel-location-field"><i class="travel-marker travel-marker--destination"></i><input id="travel-destination" name="destination" type="text" required autocomplete="street-address" placeholder="Dirección de destino"></div>
+              <div class="travel-location-field"><i class="travel-marker travel-marker--destination"></i><input id="travel-destination" name="destination" list="travel-destination-suggestions" type="text" required autocomplete="street-address" placeholder="Dirección de destino"><datalist id="travel-destination-suggestions"></datalist></div>
             </div>
             <label class="travel-schedule-toggle"><input id="travel-programmed" name="programmed" type="checkbox"> Programar viaje</label>
             <div id="travel-schedule-fields" class="travel-schedule-fields" hidden>

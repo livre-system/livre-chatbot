@@ -1270,6 +1270,7 @@ let travelRoute = null;
 let geocodeTimers = {};
 let geocodeRequests = {};
 let geocodePoints = {};
+let travelSuggestions = {};
 let travelLocations = null;
 let travelMapResizeObserver = null;
 let travelTileLayer = null;
@@ -1352,23 +1353,51 @@ async function geocodeTravelAddress(field, value) {
   const requestId = (geocodeRequests[field] || 0) + 1;
   geocodeRequests[field] = requestId;
   try {
-    const response = await fetch('https://nominatim.openstreetmap.org/search?' + new URLSearchParams({
-      q: `${address}, Bahía Blanca, Buenos Aires, Argentina`,
-      format: 'jsonv2', limit: '1', countrycodes: 'ar',
-    }), { headers: { Accept: 'application/json' } });
+    const response = await fetch(HASH_CLOUD_URL + '/mobility/geocode?address=' + encodeURIComponent(address), {
+      headers: { Authorization: 'Bearer ' + getToken(), Accept: 'application/json' },
+      cache: 'no-store',
+    });
     if (!response.ok) return null;
-    const result = (await response.json())[0];
-    if (requestId !== geocodeRequests[field] || !result) return null;
-    const requestedNumber = address.match(/[0-9]+/)?.[0] || '';
-    const displayName = String(result.display_name || '');
-    const isRoadCentroid = ['highway', 'road'].includes(String(result.category || '').toLowerCase())
-      || ['highway', 'road'].includes(String(result.type || '').toLowerCase());
-    const displayNumbers = displayName.match(/[0-9]+/g) || [];
-    if (requestedNumber && (isRoadCentroid || !displayNumbers.includes(requestedNumber))) return null;
-    return [Number(result.lat), Number(result.lon)];
+    const result = await response.json();
+    if (requestId !== geocodeRequests[field] || !result?.latitude || !result?.longitude) return null;
+    return [Number(result.latitude), Number(result.longitude)];
   } catch (_) {
     return null;
   }
+}
+
+async function loadTravelSuggestions(field, value) {
+  const text = value.trim();
+  if (text.length < 3) return;
+  try {
+    const response = await fetch(HASH_CLOUD_URL + '/mobility/geocode/suggestions?address=' + encodeURIComponent(text), {
+      headers: { Authorization: 'Bearer ' + getToken(), Accept: 'application/json' },
+      cache: 'no-store',
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    const list = document.getElementById(`travel-${field}-suggestions`);
+    if (!list) return;
+    list.replaceChildren();
+    travelSuggestions[field] = data.suggestions || [];
+    travelSuggestions[field].forEach((item) => {
+      const option = document.createElement('option');
+      option.value = item.formatted_address;
+      option.dataset.latitude = item.latitude;
+      option.dataset.longitude = item.longitude;
+      list.appendChild(option);
+    });
+  } catch (_) {}
+}
+
+function applyTravelSuggestion(field) {
+  const input = document.getElementById(`travel-${field}`);
+  const list = document.getElementById(`travel-${field}-suggestions`);
+  const option = [...(list?.options || [])].find(item => item.value === input?.value);
+  if (!option) return false;
+  geocodePoints[field] = [Number(option.dataset.latitude), Number(option.dataset.longitude)];
+  renderTravelAddressPoints([geocodePoints.origin, geocodePoints.destination]);
+  return true;
 }
 
 function refreshTravelMap() {
@@ -1398,7 +1427,7 @@ function refreshTravelMap() {
     geocodeTimers[field] = setTimeout(async () => {
       const point = await geocodeTravelAddress(field, value);
       if (point) geocodePoints[field] = point;
-      else delete geocodePoints[field];
+      else if (!applyTravelSuggestion(field)) delete geocodePoints[field];
       renderTravelAddressPoints([geocodePoints.origin, geocodePoints.destination]);
     }, 450);
   });
@@ -3407,7 +3436,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('travel-cancel-button').addEventListener('click', cancelCreatedTravel);
   document.getElementById('travel-programmed').addEventListener('change', toggleTravelSchedule);
   document.getElementById('travel-origin').addEventListener('input', refreshTravelMap);
+  document.getElementById('travel-origin').addEventListener('input', event => loadTravelSuggestions('origin', event.target.value));
+  document.getElementById('travel-origin').addEventListener('change', () => applyTravelSuggestion('origin'));
   document.getElementById('travel-destination').addEventListener('input', refreshTravelMap);
+  document.getElementById('travel-destination').addEventListener('input', event => loadTravelSuggestions('destination', event.target.value));
+  document.getElementById('travel-destination').addEventListener('change', () => applyTravelSuggestion('destination'));
   document.getElementById('vehicle-photo-close').addEventListener('click', closeVehiclePhoto);
   document.getElementById('vehicle-photo-modal').addEventListener('click', event => {
     if (event.target.id === 'vehicle-photo-modal') closeVehiclePhoto();
