@@ -180,6 +180,7 @@ function crmColumns(resource, items) {
       ['lastName'],
       ['passengerUserEmail', 'email'],
       ['phoneNumber', 'phone', 'cellphone'],
+      ['whatsappUser', 'whatsapp_user'],
     ];
     const preferred = clientFields.map(keys => keys.find(key => available.has(key))).filter(Boolean);
     const hidden = CRM_HIDDEN_FIELDS.passengers || new Set();
